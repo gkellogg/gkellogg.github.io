@@ -21,7 +21,7 @@ The following are links to photo albums on my site:
   * [Nick&#8217;s Cove 2008](http://greggkellogg.net/galleries/Nick's%20Cove/index.html)
   * [Wakatobi 2008](http://greggkellogg.net/galleries/Wakatobi%202008/index.html),  [people](http://greggkellogg.net/galleries/Wakatobi%20People/index.html), and  [slide show](http://www.youtube.com/watch?v=hKPmnpv7tq0) 
   * [Monterey & Pt. Lobos](http://greggkellogg.net/galleries/Monterey%20January%202009/index.html) 
-  * [Socorro picks](http://greggkellogg.net/galleries/Socorro%20Picks/index.html), [slide show](http://greggkellogg.net/galleries/Socorro.mov), as well as [many others](http://greggkellogg.net/galleries/Socorro%202010-04/index.html)
+  * [Socorro picks](http://greggkellogg.net/galleries/Socorro%20Picks/index.html), as well as [many others](http://greggkellogg.net/galleries/Socorro%202010-04/index.html)
   * [Channel Islands July 2010](http://greggkellogg.net/galleries/Channel%20Islands%202010-07/index.html)
   * [Pictures](http://greggkellogg.net/galleries/Western%20Road%20Trip/index.html) from my drive out from Florida to California moving Brother-Inlaw Jeff Katz and Bear. 
   * [Point Lobos June 2011](http://greggkellogg.net/galleries/PtLobos2011-06/index.html). 

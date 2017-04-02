@@ -10,4 +10,4 @@ categories:
   - Diving
   - Photography
 ---
-Just got back from an _interesting_ trip to San Clemente island. Not too many [pictures](http://greggkellogg.net/galleries/Channel%20Islands%202008-07/index.html) this time, but some nice action shots of Sea Lions at Santa Barbara Island.
+Just got back from an _interesting_ trip to San Clemente island. Not too many [pictures](/galleries/Channel%20Islands%202008-07/index.html) this time, but some nice action shots of Sea Lions at Santa Barbara Island.

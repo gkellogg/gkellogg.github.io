@@ -10,4 +10,4 @@ categories:
   - Diving
   - Photography
 ---
-Here are some pictures from my recent trip to the [Channel Islands](http://greggkellogg.net/galleries/Channel%20Islands%202007-07/index.html) including San Clemente, Catalina and Santa Cruz Islands.
+Here are some pictures from my recent trip to the [Channel Islands](/galleries/Channel%20Islands%202007-07/index.html) including San Clemente, Catalina and Santa Cruz Islands.

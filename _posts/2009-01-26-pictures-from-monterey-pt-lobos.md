@@ -10,4 +10,4 @@ categories:
   - Diving
   - Photography
 ---
-Check out [pictures](http://greggkellogg.net/galleries/Monterey%20January%202009/index.html) from diving in Monterey and Pt. Lobos.
+Check out [pictures](/galleries/Monterey%20January%202009/index.html) from diving in Monterey and Pt. Lobos.

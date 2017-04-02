@@ -10,4 +10,4 @@ categories:
   - Diving
   - Photography
 ---
-Here are some pictures from my recent trip to the [Channel Islands, including two days at San Miguel Island](http://greggkellogg.net/galleries/Channel%20Islands%202007-05/index.html).
+Here are some pictures from my recent trip to the [Channel Islands, including two days at San Miguel Island](/galleries/Channel%20Islands%202007-05/index.html).

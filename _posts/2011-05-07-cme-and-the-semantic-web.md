@@ -34,7 +34,7 @@ The [Music Ontology](http://musicontology.com/) was introduced as a rich metadat
 
 For some time, package presentation was considered as a disaggregated release, including individual audio and video tracks combined with a _Manifest_ (specified in RDF/XML using the CME Ontology) to create different user interfaces depending on the capabilities of the particular target devices. With the rise of smart-phones and HTML browsers within other consumer electronics devices, this was eventually changed to an HTML5+RDFa manifest, which could service as both a release description and a presentation, when used in combination with [JavaScript](http://en.wikipedia.org/wiki/JavaScript) and [CSS3](http://www.w3.org/TR/css3-roadmap/).
 
-![CME Entity Relationship Diagram](http://greggkellogg.net/galleries/CME/ERD.png "CME Entity Relationship Diagram")
+![CME Entity Relationship Diagram](/galleries/CME/ERD.png "CME Entity Relationship Diagram")
 
 Throughout the course of development, CME members had difficulty in accepting the advantages semantic technologies being used, which led to low participation and lack of involvement in generating the specifications. Fundamentally, the difficulty of working with the technologies led the group to abandon a rich semantic representation of a release and settle on more established web technologies and proprietary metadata formats.
 

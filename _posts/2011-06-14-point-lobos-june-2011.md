@@ -10,4 +10,4 @@ categories:
   - Diving
   - Photography
 ---
-Two great dives at Point Lobos with the Pinnacles crew. First dives with my new Canon T2i/Aquatica set up. Pictures [here](http://greggkellogg.net/galleries/PtLobos2011-06/index.html).
+Two great dives at Point Lobos with the Pinnacles crew. First dives with my new Canon T2i/Aquatica set up. Pictures [here](/galleries/PtLobos2011-06/index.html).
