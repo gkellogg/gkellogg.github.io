@@ -1,0 +1,10 @@
+---
+layout: default
+---
+
+<div class="home">
+
+  <h1 class="page-heading">Home</h1>
+  
+  {{ content }}
+</div>
