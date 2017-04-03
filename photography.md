@@ -4,6 +4,7 @@ title: "Gregg's Photography"
 date: 2013-09-25T14:08:27+00:00
 author: gregg
 layout: page
+weight: 7
 ---
 The following are links to photo albums on my site:
 

@@ -4,6 +4,7 @@ title: Home
 date: 2013-09-25T13:52:42+00:00
 author: gregg
 layout: home
+weight: 0
 ---
 <div about='http://greggkellogg.net/foaf#me' typeof='foaf:Person'>
   <link href="http://greggkellogg.net/" rel="foaf:homepage" />
