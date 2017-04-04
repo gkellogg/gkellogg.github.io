@@ -4,7 +4,6 @@ title: Contact Information
 date: 2013-09-25T14:03:30+00:00
 author: gregg
 layout: page
-weight: 4
 ---
 Gregg Kellogg, Principal
   

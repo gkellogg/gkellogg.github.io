@@ -7,7 +7,7 @@ layout: post
 guid: http://wp.greggkellogg.railsplayground.net/wordpress/?p=170
 permalink: /2012/08/json-ld-and-mongodb/
 categories:
-  - JavavScript
+  - JavaScript
   - Ruby
   - Semantic Web
 ---

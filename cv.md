@@ -4,7 +4,6 @@ title: "Gregg's CV"
 date: 2013-09-25T14:09:09+00:00
 author: gregg
 layout: page
-weight: 5
 ---
 ## Profile
 

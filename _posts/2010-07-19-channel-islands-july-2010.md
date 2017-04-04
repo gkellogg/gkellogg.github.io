@@ -8,7 +8,7 @@ guid: http://wp.greggkellogg.railsplayground.net/wordpress/?p=104
 permalink: /2010/07/channel-islands-july-2010/
 categories:
   - Diving
-  - Photography
+  - Photos
 ---
 [New photos](/galleries/Channel%20Islands%202010-07/) from my recent dive trip to the Channel Islands.
 

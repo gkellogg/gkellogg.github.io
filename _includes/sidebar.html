@@ -1,0 +1,30 @@
+<!-- Feel free to remove this div. Uses purplecoat: http://ellekasai.github.io/purplecoat.js -->
+<div data-purplecoat="shiori" data-purplecoat-label="sidebar.html">
+  <h3 class="section-header">
+    Recent Posts
+  </h3>
+  <ul>
+  {% for post in site.posts offset: 0 limit: 5  %}
+    <li class="post-title-reference">
+      <a href="{{ post.url | prepend:site.baseurl}}" class="post-title-archive">{{ post.title }}</a>
+    </li>
+  {% endfor %}
+  </ul>
+</div>
+
+<div data-purplecoat="shiori" data-purplecoat-label="sidebar.html">
+  <h3 class="section-header">
+    Archives
+  </h3>
+  {% assign postsByYearMonth = site.posts | group_by_exp:"post", "post.date | date: '%B %Y'"  %}
+  <ul>
+  {% for yearMonth in postsByYearMonth %}
+    {% for post in yearMonth.items offset: 0 limit: 1 %}
+      {% capture year_month %}{{ post.date | date: "%Y" }}/{{ post.date | date: "%m" }}{% endcapture %}
+      <li class="post-title-reference">
+        <a href="/{{year_month | prepend:site.baseurl}}" class="post-title-archive">{{ yearMonth.name }}</a>
+      </li>
+    {% endfor %}
+  {% endfor %}
+  </ul>
+</div>

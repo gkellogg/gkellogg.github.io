@@ -7,7 +7,7 @@ layout: post
 guid: http://wp.greggkellogg.railsplayground.net/wordpress/?p=163
 permalink: /2012/03/the-use-of-json-ld-in-the-rdfa-test-harness/
 categories:
-  - JavavScript
+  - JavaScript
   - Ruby
   - Semantic Web
 ---

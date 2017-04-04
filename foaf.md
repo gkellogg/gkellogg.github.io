@@ -4,7 +4,6 @@ title: About
 date: 2013-09-25T14:00:49+00:00
 author: gregg
 layout: page
-weight: 3
 ---
 Gregg  consults on linked-data projects and volunteers as an Invited Expert for the World Wide Web Concortium (W3C).
 

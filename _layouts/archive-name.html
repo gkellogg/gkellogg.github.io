@@ -1,0 +1,10 @@
+---
+layout: archive
+---
+<h1>Posts archive: {/{{ page.title }}</h1><br>
+{% for post in page.posts %}
+  <div>
+    <h2 class="post-title-link"><a href="{{ post.url | prepend:site.baseurl }}">{{ post.title }}</a></h2>
+    {{ post.excerpt | markdownify }}
+  </div>
+{% endfor %}

@@ -4,7 +4,6 @@ title: Services
 date: 2013-09-25T14:07:31+00:00
 author: gregg
 layout: page
-weight: 6
 ---
 Kellogg Associates specializes in software systems architecture and design with experience in Java, Ruby on Rails, RDF, object oriented systems design, media system design and implementation.
 

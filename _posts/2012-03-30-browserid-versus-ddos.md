@@ -7,7 +7,7 @@ layout: post
 guid: http://wp.greggkellogg.railsplayground.net/wordpress/?p=165
 permalink: /2012/03/browserid-versus-ddos/
 categories:
-  - JavavScript
+  - JavaScript
   - Ruby
   - Semantic Web
 ---

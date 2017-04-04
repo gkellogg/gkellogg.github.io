@@ -20,13 +20,39 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: http://greggkellogg.net
 twitter_username: gkellogg
 github_username:  gkellogg
+permalink: :title
 
 # Build settings
 markdown: kramdown
 highlight: true
-theme: minima
 gems:
   - jekyll-feed
+  - jekyll-archives
 exclude:
+  - README.md
+  - CNAME
   - Gemfile
   - Gemfile.lock
+defaults:
+  -
+    scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+  -
+    scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+jekyll-archives:
+  enabled:
+    - month
+    - categories
+  layouts:
+    month: archive-time
+    category: archive-name
+  permalinks:
+    month: '/:year/:month/'
+    category: '/:name/archive/'

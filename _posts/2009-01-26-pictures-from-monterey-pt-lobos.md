@@ -8,6 +8,6 @@ guid: http://wp.greggkellogg.railsplayground.net/wordpress/?p=67
 permalink: /2009/01/pictures-from-monterey-pt-lobos/
 categories:
   - Diving
-  - Photography
+  - Photos
 ---
 Check out [pictures](/galleries/Monterey%20January%202009/index.html) from diving in Monterey and Pt. Lobos.

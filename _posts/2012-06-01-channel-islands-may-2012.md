@@ -8,7 +8,7 @@ guid: http://wp.greggkellogg.railsplayground.net/wordpress/?p=167
 permalink: /2012/06/channel-islands-may-2012/
 categories:
   - Diving
-  - Photography
+  - Photos
 ---
 Just back from a great trip to Santa Cruz Island over Memorial day. Did some teaching, and had just about two dives to do some Underwater Macro Photography. I recently purchased a Canon 100 mm USM, which I got to check out. Water was pretty murky, but being able to get just inches away from the subjects does wonders. While shooting one of the Nudi&#8217;s a Harbor Seal started tugging on my fins, and came right around in front; that&#8217;s when I wished I had had a wide angle lens too. Check out the [photo gallery](/galleries/Channel%20Islands%202012-05/).
 

@@ -7,7 +7,7 @@ layout: post
 guid: http://wp.greggkellogg.railsplayground.net/wordpress/?p=161
 permalink: /2012/03/a-new-rdfa-test-harness/
 categories:
-  - JavavScript
+  - JavaScript
   - Ruby
   - Semantic Web
 ---
