@@ -58,4 +58,4 @@ jekyll-archives:
     category: archive-name
   permalinks:
     month: '/:year/:month/'
-    category: '/:name/archive/'
+    category: '/categories/:name/'

@@ -1,5 +1,12 @@
 <!-- Feel free to remove this div. Uses purplecoat: http://ellekasai.github.io/purplecoat.js -->
 <div data-purplecoat="shiori" data-purplecoat-label="post-footer.html">
-<div id="disqus_thread"></div>
-<script id="dsq-count-scr" src="//greggkellogg-1.disqus.com/count.js" async></script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript></div>
+  <p>
+    Posted in
+    {% for category in page.categories %}
+      <a href="/categories/{{category | slugify}}">{{category}}</a>
+    {% endfor %}
+  </p>
+  <div id="disqus_thread"></div>
+  <script id="dsq-count-scr" src="//greggkellogg-1.disqus.com/count.js" async></script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>

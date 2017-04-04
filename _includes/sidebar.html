@@ -14,6 +14,20 @@
 
 <div data-purplecoat="shiori" data-purplecoat-label="sidebar.html">
   <h3 class="section-header">
+    Categories
+  </h3>
+  <ul>
+  {% for category in site.categories %}
+    {% assign cat = category | first %}
+    <li class="post-title-reference">
+      <a href="/categories/{{cat | slugify}}" class="post-title-archive">{{cat}}</a>
+    </li>
+  {% endfor %}
+  </ul>
+</div>
+
+<div data-purplecoat="shiori" data-purplecoat-label="sidebar.html">
+  <h3 class="section-header">
     Archives
   </h3>
   {% assign postsByYearMonth = site.posts | group_by_exp:"post", "post.date | date: '%B %Y'"  %}
