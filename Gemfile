@@ -12,4 +12,5 @@ group :jekyll_plugins do
   gem "github-pages"
   gem "jekyll-feed", "~> 0.9"
   gem "jekyll-archives", "~> 2.1"
+  gem "jekyll-paginate", "~> 1.1"
 end

@@ -208,6 +208,7 @@ DEPENDENCIES
   jekyll-archives (~> 2.1)
   jekyll-bootstrap-sass (~> 0.1)
   jekyll-feed (~> 0.9)
+  jekyll-paginate (~> 1.1)
 
 BUNDLED WITH
    1.14.6

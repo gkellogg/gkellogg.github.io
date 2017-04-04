@@ -21,6 +21,8 @@ url: http://greggkellogg.net
 twitter_username: gkellogg
 github_username:  gkellogg
 permalink: :title
+paginate: 5
+paginate_path: "/archive/page:num/"
 
 # Build settings
 markdown: kramdown
