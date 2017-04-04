@@ -8,6 +8,6 @@ guid: http://wp.greggkellogg.railsplayground.net/wordpress/?p=50
 permalink: /2007/06/channel-islands-may-2007/
 categories:
   - Diving
-  - Photos
+  - Photography
 ---
 Here are some pictures from my recent trip to the [Channel Islands, including two days at San Miguel Island](/galleries/Channel%20Islands%202007-05/index.html).

@@ -7,7 +7,7 @@ layout: post
 guid: http://wp.greggkellogg.railsplayground.net/wordpress/?p=56
 permalink: /2008/05/above-the-bay-area/
 categories:
-  - Photos
+  - Photography
 ---
 Recently, my good friend and local traffic reporting luminary, Stan Burford, got me up in the KGO Radio Traffic helicopter on a beautiful day where I could put my Nikon D200 through it&#8217;s paces. I think you&#8217;ll enjoy the results. We&#8217;re blessed here in the Bay Area with some of the most beautiful scenery in the country. Picture can be found through the [photography page](/photography) on my site, or directly [here](/galleries/Above%20the%20Bay%20Area/index.html).
 

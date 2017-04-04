@@ -9,7 +9,7 @@ permalink: /2010/04/socorro-pictures/
     
 categories:
   - Diving
-  - Photos
+  - Photography
 ---
 Just got back from [Socorro and associated islands.](http://www.divephotoguide.com/images/news/uploaded/article_4687/524005322.jpg) We dove off of the [Solmar V](http://www.solmarv.com/), a very nice dive boat operating out of Cabo San Lucas. I got some wonderful pictures of a friendly Giant Manta Rey who did several fly overs during the course of one dive off San Benedicto Island.
 

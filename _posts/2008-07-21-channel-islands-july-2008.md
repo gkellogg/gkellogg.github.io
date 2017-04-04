@@ -8,6 +8,6 @@ guid: http://wp.greggkellogg.railsplayground.net/wordpress/?p=58
 permalink: /2008/07/channel-islands-july-2008/
 categories:
   - Diving
-  - Photos
+  - Photography
 ---
 Just got back from an _interesting_ trip to San Clemente island. Not too many [pictures](/galleries/Channel%20Islands%202008-07/index.html) this time, but some nice action shots of Sea Lions at Santa Barbara Island.
