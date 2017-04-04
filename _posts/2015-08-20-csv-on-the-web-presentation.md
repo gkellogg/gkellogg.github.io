@@ -1,5 +1,6 @@
 ---
 id: 313
+comments: true
 title: CSV on the Web presentation
 date: 2015-08-20T17:10:48+00:00
 author: gregg
