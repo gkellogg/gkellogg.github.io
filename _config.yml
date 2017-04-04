@@ -25,6 +25,9 @@ permalink: :title
 # Build settings
 markdown: kramdown
 highlight: true
+# Include _MG* files in galleries
+include:
+  - _MG_
 gems:
   - jekyll-feed
   - jekyll-archives

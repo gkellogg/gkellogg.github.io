@@ -209,8 +209,5 @@ DEPENDENCIES
   jekyll-bootstrap-sass (~> 0.1)
   jekyll-feed (~> 0.9)
 
-RUBY VERSION
-   ruby 2.4.1p111
-
 BUNDLED WITH
    1.14.6
