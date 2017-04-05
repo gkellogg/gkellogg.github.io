@@ -1,7 +1,0 @@
-language: ruby
-script: true
-branches:
-  except:
-    - master
-dist: trusty
-sudo: false
