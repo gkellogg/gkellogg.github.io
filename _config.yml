@@ -38,6 +38,7 @@ exclude:
   - CNAME
   - Gemfile
   - Gemfile.lock
+  - vendor
 defaults:
   -
     scope:
