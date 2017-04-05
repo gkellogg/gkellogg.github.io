@@ -1,0 +1,1423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Gregg Kellogg</title>
+    <description>Gregg's Personal Blog</description>
+    <link>http://greggkellogg.net/</link>
+    <atom:link href="http://greggkellogg.net/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Wed, 05 Apr 2017 15:07:14 -0700</pubDate>
+    <lastBuildDate>Wed, 05 Apr 2017 15:07:14 -0700</lastBuildDate>
+    <generator>Jekyll v3.4.3</generator>
+    
+      <item>
+        <title>CSV on the Web presentation</title>
+        <description>&lt;p&gt;I presented &lt;a href=&quot;http://www.w3.org/2013/csvw/wiki/Main_Page&quot;&gt;CSV on the Web&lt;/a&gt; at the &lt;a href=&quot;http://smartdata2015.dataversity.net&quot;&gt;Smart Data Conference&lt;/a&gt; in San Jose. The slides are on &lt;a href=&quot;http://www.slideshare.net/gkellogg1/tabular-data-on-the-web&quot;&gt;SlideShare&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Thu, 20 Aug 2015 10:10:48 -0700</pubDate>
+        <link>http://greggkellogg.net/2015/08/csv-on-the-web-presentation/</link>
+        <guid isPermaLink="true">http://greggkellogg.net/2015/08/csv-on-the-web-presentation/</guid>
+        
+        
+        <category>Semantic Web</category>
+        
+      </item>
+    
+      <item>
+        <title>Implementing CSV on the Web</title>
+        <description>&lt;p&gt;As I blogged about &lt;a href=&quot;http://greggkellogg.net/%3Fp%3D293&quot;&gt;before&lt;/a&gt;, I’ve implemented the &lt;a href=&quot;http://www.w3.org/blog/data/2015/04/16/csv-on-the-web-seeking-comments-and-implementations/&quot;&gt;current drafts&lt;/a&gt; of &lt;a href=&quot;http://www.w3.org/2013/csvw/wiki/Main_Page&quot;&gt;CSV on the Web&lt;/a&gt; in the &lt;a href=&quot;http://rubygems.org/gems/rdf-tabular&quot;&gt;rdf-tabular gem&lt;/a&gt;. The gem is is available from &lt;a href=&quot;http://github.com/ruby-rdf/rdf-tabular&quot;&gt;rdf-tabular repo&lt;/a&gt; and is in the public domain (&lt;a href=&quot;http://unlicense.org&quot;&gt;Unlicense&lt;/a&gt;) and is freely usable by anyone wishing to get a start on their own implementation. For those wishing to take an incremental approach, this post describes the basic workings of the gem, highlights more advanced cases necessary to pass the &lt;a href=&quot;http://w3c.github.io/csvw/tests/&quot;&gt;Test Suite&lt;/a&gt; and attempts to provide some insight into the process of implementing the specifications.&lt;/p&gt;
+
+&lt;h2 id=&quot;csvw--in-a-nutshell&quot;&gt;CSVW – in a nutshell&lt;/h2&gt;
+
+&lt;p&gt;The basic purpose of the CSVW specifications is to do an informed process of CSVs into an &lt;em&gt;annotated data model&lt;/em&gt;, and use this model as the basis of creating RDF or JSON. At a minimum, this means assuming that the first row of a CSV is a &lt;em&gt;header row&lt;/em&gt; containing &lt;em&gt;titles&lt;/em&gt; for cells in that CSV, and that each row constitutes a record with properties based on the &lt;em&gt;column titles&lt;/em&gt; with values from each cell. We’ll use the canonical example of the &lt;a href=&quot;http://w3c.github.io/csvw/tests/tree-ops.csv&quot;&gt;tree-ops&lt;/a&gt; example from the &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/&quot; title=&quot;Model for Tabular Data and Metadata on the Web&quot;&gt;Model for Tabular Data&lt;/a&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;GID,On Street,Species,Trim Cycle,Inventory Date
+1,ADDISON AV,Celtis australis,Large Tree Routine Prune,10/18/2010
+2,EMERSON ST,Liquidambar styraciflua,Large Tree Routine Prune,6/2/2010
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This example has a header row and two data rows. The simple transformation of this to RDF without any external metadata would yield the following (in minimal mode):&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@base &amp;lt;http://w3c.github.io/csvw/tests/tree-ops.csv&amp;gt; .
+
+[
+  &amp;lt;#GID&amp;gt; &quot;2&quot;;
+  &amp;lt;#Inventory%20Date&amp;gt; &quot;6/2/2010&quot;;
+  &amp;lt;#On%20Street&amp;gt; &quot;EMERSON ST&quot;;
+  &amp;lt;#Species&amp;gt; &quot;Liquidambar styraciflua&quot;;
+  &amp;lt;#Trim%20Cycle&amp;gt; &quot;Large Tree Routine Prune&quot;
+] .
+
+[
+  &amp;lt;#GID&amp;gt; &quot;1&quot;;
+  &amp;lt;#Inventory%20Date&amp;gt; &quot;10/18/2010&quot;;
+  &amp;lt;#On%20Street&amp;gt; &quot;ADDISON AV&quot;;
+  &amp;lt;#Species&amp;gt; &quot;Celtis australis&quot;;
+  &amp;lt;#Trim%20Cycle&amp;gt; &quot;Large Tree Routine Prune&quot;
+] .
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This is minimally useful, but we can use this as a walk-through of how the &lt;a href=&quot;&quot;&gt;rdf-tabular gem&lt;/a&gt; creates this.&lt;/p&gt;
+
+&lt;p&gt;The first step is to retrieve the document from it’s URL: &lt;code class=&quot;highlighter-rouge&quot;&gt;http://w3c.github.io/csvw/tests/tree-ops.csv&lt;/code&gt;. We then can look for metadata associated with the file to inform the creation of the &lt;em&gt;annotated table&lt;/em&gt;; this information might come from by the user specifying to location of metadata separately, from an HTTP Link header, by looking at &lt;code class=&quot;highlighter-rouge&quot;&gt;http://w3c.github.io/csvw/tests/tree-ops.csv-metadata.json&lt;/code&gt; for file-specific metadata, or at &lt;code class=&quot;highlighter-rouge&quot;&gt;http://w3c.github.io/csvw/tests/metadata.json&lt;/code&gt; for directory-specific metadata. In this case, there is none, so we constructed &lt;em&gt;embedded metatata&lt;/em&gt; from just the &lt;em&gt;header row&lt;/em&gt;. The process for locating metadata is described in &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/#creating-annotated-tables&quot;&gt;Creating Annotated Tables&lt;/a&gt;, and creating embedded metadata is described in &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/#parsing&quot;&gt;Parsing Tabular Data&lt;/a&gt;. Basically, we’re looking to create a &lt;em&gt;table description&lt;/em&gt; with a &lt;em&gt;schema&lt;/em&gt; describing each &lt;em&gt;column&lt;/em&gt; resulting in the following:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@context&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://www.w3.org/ns/csvw&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://w3c.github.io/csvw/tests/tree-ops.csv&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;tableSchema&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;columns&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;GID&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;On Street&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Species&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Trim Cycle&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Inventory Date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;By following the rules in the &lt;a href=&quot;http://www.w3.org/TR/tabular-metadata/&quot; title=&quot;Metadata Vocabulary for Tabular Data&quot;&gt;Metadata Format&lt;/a&gt;, we then create annotations on an &lt;em&gt;annotated table&lt;/em&gt; (an abstract model, shown in arbitrary JSON):&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;AnnotatedTableGroup&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;tables&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;AnnotatedTable&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://w3c.github.io/csvw/tests/tree-ops.csv&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;columns&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://w3c.github.io/csvw/tests/tree-ops.csv#col=1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Column&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;number&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;sourceNumber&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;cells&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;GID&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;und&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;GID&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://w3c.github.io/csvw/tests/tree-ops.csv#col=2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Column&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;number&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;sourceNumber&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;cells&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;On%20Street&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;und&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;On Street&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://w3c.github.io/csvw/tests/tree-ops.csv#col=3&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Column&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;number&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;sourceNumber&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;cells&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Species&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;und&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Species&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://w3c.github.io/csvw/tests/tree-ops.csv#col=4&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Column&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;number&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;sourceNumber&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;cells&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Trim%20Cycle&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;und&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Trim Cycle&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://w3c.github.io/csvw/tests/tree-ops.csv#col=5&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Column&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;number&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;sourceNumber&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;cells&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Inventory%20Date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;und&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Inventory Date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;rows&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Here we gather some metadata based on the row and column numbers (logical and actual, which are the same here) and create a default for the &lt;em&gt;column name&lt;/em&gt; from &lt;em&gt;titles&lt;/em&gt;. Also, note that &lt;em&gt;titles&lt;/em&gt; is expanded to a &lt;a href=&quot;http://w3c.github.io/csvw/metadata/#dfn-natural-language-property&quot;&gt;natural language property&lt;/a&gt;, which is basically a &lt;a href=&quot;http://www.w3.org/TR/json-ld/#language-maps&quot;&gt;JSON-LD Language Map&lt;/a&gt; where &lt;code class=&quot;highlighter-rouge&quot;&gt;und&lt;/code&gt; is used when there is no language. The &lt;em&gt;column name&lt;/em&gt; is percent encoded so that it can be used in a &lt;a href=&quot;https://tools.ietf.org/html/rfc6570&quot;&gt;URI template&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;rows&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;cells&lt;/code&gt; values are empty, as we haven’t actually processed any rows from the input yet.&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&quot;http://rubygems.org/gems/rdf-tabular&quot;&gt;rdf-tabular gem&lt;/a&gt; implements the &lt;a href=&quot;http://www.rubydoc.info/github/ruby-rdf/rdf/RDF/Reader&quot;&gt;RDF::Reader&lt;/a&gt; pattern, which takes care of much of the process of opening the file and getting useful metadata. In the case of the &lt;a href=&quot;http://rubygems.org/gems/rdf-tabular&quot;&gt;rdf-tabular gem&lt;/a&gt;, this includes the steps described in &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/#creating-annotated-tables&quot;&gt;Creating Annotated Tables&lt;/a&gt; which involves recursive invocations of the reader, but nominally, it yields a &lt;em&gt;reader instance&lt;/em&gt; which implements the &lt;a href=&quot;http://www.rubydoc.info/github/ruby-rdf/rdf/RDF/Enumerable&quot;&gt;RDF::Enumerable&lt;/a&gt; pattern. In particular, the reader implements an &lt;code class=&quot;highlighter-rouge&quot;&gt;#each&lt;/code&gt; method to yield each RDF Statement (triple); this is where the work actually happens. A call looks like the following:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;RDF::Tabular::Reader.open(&quot;http://w3c.github.io/csvw/tests/tree-ops.csv&quot;) do |reader|
+  reader.each do |statement|
+    puts statement.inspect
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Basically, the job of the reader is to create the &lt;em&gt;abstract tabular data model&lt;/em&gt; and use it to read each row of the table(s) described in the model and use that to generate RDF triples (it can also be used to generate JSON output without going the RDF, but that’s another story).&lt;/p&gt;
+
+&lt;p&gt;The &lt;a href=&quot;http://rubygems.org/gems/rdf-tabular&quot;&gt;rdf-tabular gem&lt;/a&gt; implements &lt;code class=&quot;highlighter-rouge&quot;&gt;RDF::Tabular::Metadata&lt;/code&gt;, with subclasses for the different kinds of metadata we need. This provides the &lt;code class=&quot;highlighter-rouge&quot;&gt;#each_row&lt;/code&gt; method, which given an input file yields each row. For the Ruby implementation, we use the &lt;a href=&quot;http://docs.ruby-lang.org/en/2.1.0/CSV.html&quot;&gt;CSV library&lt;/a&gt; and use dialect information to set parsing defaults. The gist of the implementation looks like the following:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;def each_row(input)
+  csv = ::CSV.new(input, csv_options)
+  # Skip skipRows and headerRowCount
+  number, skipped = 0, (dialect.skipRows.to_i + dialect.headerRowCount)
+  (1..skipped).each {csv.shift}
+  csv.each do |data|
+    number += 1
+    yield(Row.new(data, self, number, number + skipped))
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;A &lt;code class=&quot;highlighter-rouge&quot;&gt;Row&lt;/code&gt; then abstracts information for each table row and provides the cells for that row:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# Wraps each resulting row
+class Row
+  attr_reader :values
+
+  # Class for returning values
+  Cell = Struct.new(:table, :column, :row, :stringValue, :value, :errors)
+
+  def initialize(row, metadata, number, source_number)
+    @values = []
+    skipColumns = metadata.dialect.skipColumns.to_i
+    columns = metadata.tableSchema.columns
+    row.each_with_index do |value, index|
+      next if index &amp;lt; skipColumns
+      column = columns[index - skipColumns]
+      @values &amp;lt;&amp;lt; cell = Cell.new(metadata, column, self, value)
+    end
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;There’s more to this in the actual implementation, of course, but this handles a simple value.&lt;/p&gt;
+
+&lt;p&gt;Now we can implement &lt;code class=&quot;highlighter-rouge&quot;&gt;RDF::Tabular::Reader#each_statement&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;def each_statement(&amp;amp;block)
+  metadata.each_row(input) do |row|
+    default_cell_subject = RDF::Node.new
+    row.values.each_with_index do |cell, index|
+      propertyUrl = RDF::URI(&quot;#{metadata.url}##{cell.column.name}&quot;)
+      yield RDF::Statement(default_cell_subject, propertyUrl, cell.value)
+    end
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;That’s pretty much the basis of a Ruby implementation. There’s more work to do in &lt;code class=&quot;highlighter-rouge&quot;&gt;#each_statement&lt;/code&gt;, as it’s initially invoked with a &lt;em&gt;TableGroup&lt;/em&gt;, which recursively invokes it again for each &lt;em&gt;Table&lt;/em&gt;, which then calls again for the actual CSV, but that’s all setup. There’s also work in &lt;code class=&quot;highlighter-rouge&quot;&gt;RDF::Tabular::Reader#initialize&lt;/code&gt; to find the metadata, ensure that it is compatible with the actual tables, and so forth.&lt;/p&gt;
+
+&lt;h2 id=&quot;fleshing-out-with-more-details&quot;&gt;Fleshing out with more details&lt;/h2&gt;
+
+&lt;p&gt;So, this implements a basic reader interface from a CSV using the &lt;em&gt;abstract tabular data model&lt;/em&gt;, but the output’s not too interesting. What if we want to make the data richer:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Give unique identifiers (&lt;em&gt;subjects&lt;/em&gt;) to the cells in a row&lt;/li&gt;
+  &lt;li&gt;Use &lt;em&gt;subjects&lt;/em&gt; for different cells&lt;/li&gt;
+  &lt;li&gt;Define &lt;em&gt;property URIs&lt;/em&gt; for each cell&lt;/li&gt;
+  &lt;li&gt;Assign and match cell &lt;em&gt;string values&lt;/em&gt; to datatypes&lt;/li&gt;
+  &lt;li&gt;Parse microformats within a given cell&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For that we need to define a Metadata file.&lt;/p&gt;
+
+&lt;h3 id=&quot;defining-metadata&quot;&gt;Defining Metadata&lt;/h3&gt;
+
+&lt;p&gt;A Metadata file is a &lt;a href=&quot;http://www.w3.org/TR/json-ld&quot; title=&quot;JSON-LD 1.0&quot;&gt;JSON-LD&lt;/a&gt; document (really, it has the structure of a JSON-LD document, it is parsed as JSON) which allows us to define &lt;em&gt;properties&lt;/em&gt; on metadata &lt;em&gt;declarations&lt;/em&gt; which directly relate to the &lt;em&gt;abstract tabular data model&lt;/em&gt;. For example, let’s look at the metadata description for the &lt;a href=&quot;http://w3c.github.io/csvw/tests/test011/tree-ops.csv&quot;&gt;tree-ops&lt;/a&gt; example: &lt;a href=&quot;http://w3c.github.io/csvw/tests/test011/tree-ops.csv-metadata.json&quot;&gt;tree-ops.csv-metadata.json&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@context&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://www.w3.org/ns/csvw&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@language&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;tree-ops.csv&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Tree Operations&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dcat:keyword&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;tree&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;street&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;maintenance&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:publisher&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;schema:name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Example Municipality&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;schema:url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://example.org&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:license&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://opendefinition.org/licenses/cc-by/&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:modified&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;2010-12-31&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;xsd:date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;tableSchema&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;columns&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;GID&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;GID&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Generic Identifier&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;An identifier for the operation on a tree.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;required&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;on_street&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;On Street&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;The street that the tree is on.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;species&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Species&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;The species of the tree.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;trim_cycle&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Trim Cycle&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;The operation performed on the tree.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;inventory_date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Inventory Date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;The date of the operation that was performed.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;base&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;format&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;M/d/yyyy&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;primaryKey&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;GID&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;aboutUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;#gid-{GID}&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Here we have a couple of different things going on. Note the following:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@context&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://www.w3.org/ns/csvw&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@language&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;tree-ops.csv&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Tree Operations&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dcat:keyword&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;tree&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;street&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;maintenance&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:publisher&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;schema:name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Example Municipality&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;schema:url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://example.org&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:license&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://opendefinition.org/licenses/cc-by/&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:modified&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;2010-12-31&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;xsd:date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;em&gt;prefixed name&lt;/em&gt; properties are &lt;em&gt;common properties&lt;/em&gt;, basically just JSON-LD that’s inserted into the model to define &lt;em&gt;annotations&lt;/em&gt; on the model. In this case, their defined on a &lt;em&gt;Table&lt;/em&gt;, so they annotate that model. As it is JSON-LD, the string values take the &lt;code class=&quot;highlighter-rouge&quot;&gt;@langauge&lt;/code&gt; defined in the context. CSVW uses a &lt;a href=&quot;http://www.w3.org/TR/tabular-metadata/#json-ld-dialect&quot;&gt;dialect of JSON-LD&lt;/a&gt; which places some restrictions on what can go here. Basically, nothing more can go into the &lt;code class=&quot;highlighter-rouge&quot;&gt;@context&lt;/code&gt; besides &lt;code class=&quot;highlighter-rouge&quot;&gt;@language&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;@base&lt;/code&gt;; it also must use &lt;code class=&quot;highlighter-rouge&quot;&gt;http://www.w3.org/ns/csvw&lt;/code&gt; and only the terms and prefixes defined within that context can be used along with absolute IRIs.&lt;/p&gt;
+
+&lt;pre&gt;{
+  &quot;@context&quot;: [&quot;http://www.w3.org/ns/csvw&quot;, {&quot;@language&quot;: &quot;en&quot;}],
+  &quot;url&quot;: &quot;tree-ops.csv&quot;,
+  ...
+  &quot;tableSchema&quot;: {
+    &quot;columns&quot;: [{
+      &quot;name&quot;: &quot;GID&quot;,
+      &quot;titles&quot;: [&quot;GID&quot;, &quot;Generic Identifier&quot;],
+      &quot;dc:description&quot;: &quot;An identifier for the operation on a tree.&quot;,
+      &quot;datatype&quot;: &quot;string&quot;,
+      &quot;required&quot;: true
+    }, {
+      &quot;name&quot;: &quot;on_street&quot;,
+      &quot;titles&quot;: &quot;On Street&quot;,
+      &quot;dc:description&quot;: &quot;The street that the tree is on.&quot;,
+      &quot;datatype&quot;: &quot;string&quot;
+    }, {
+      &quot;name&quot;: &quot;species&quot;,
+      &quot;titles&quot;: &quot;Species&quot;,
+      &quot;dc:description&quot;: &quot;The species of the tree.&quot;,
+      &quot;datatype&quot;: &quot;string&quot;
+    }, {
+      &quot;name&quot;: &quot;trim_cycle&quot;,
+      &quot;titles&quot;: &quot;Trim Cycle&quot;,
+      &quot;dc:description&quot;: &quot;The operation performed on the tree.&quot;,
+      &quot;datatype&quot;: &quot;string&quot;
+    }, {
+      &quot;name&quot;: &quot;inventory_date&quot;,
+      &quot;titles&quot;: &quot;Inventory Date&quot;,
+      &quot;dc:description&quot;: &quot;The date of the operation that was performed.&quot;,
+      &quot;datatype&quot;: {&quot;base&quot;: &quot;date&quot;, &quot;format&quot;: &quot;M/d/yyyy&quot;}
+    }],
+    &quot;primaryKey&quot;: &quot;GID&quot;,
+    &quot;aboutUrl&quot;: &quot;#gid-{GID}&quot;
+  }
+}
+&lt;/pre&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;tableSchema&lt;/code&gt; property tells us that this is a &lt;em&gt;Table description&lt;/em&gt;; we could also have added a &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;@type&quot;: &quot;Table&quot;&lt;/code&gt; property to make this explicit, but it’s not necessary. Metadata always starts with either a &lt;em&gt;Table description&lt;/em&gt; or a &lt;em&gt;TableGroup description&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;We define an explicit &lt;em&gt;name&lt;/em&gt; property for the first column. If we didn’t, it would take the first value from &lt;em&gt;titles&lt;/em&gt;. The &lt;em&gt;column&lt;/em&gt; has a &lt;em&gt;common property&lt;/em&gt;, which is presently not used in the transformation, but exists in the &lt;em&gt;annotated tabular data model&lt;/em&gt;. It also declares the data type to be &lt;code class=&quot;highlighter-rouge&quot;&gt;string&lt;/code&gt;, which is a synonym for &lt;code class=&quot;highlighter-rouge&quot;&gt;xsd:string&lt;/code&gt;, and a value is &lt;code class=&quot;highlighter-rouge&quot;&gt;required&lt;/code&gt;, meaning that it is considered an error if a cell value has an empty string (or one matching that defined using the &lt;code class=&quot;highlighter-rouge&quot;&gt;null&lt;/code&gt; annotation). Note that &lt;code class=&quot;highlighter-rouge&quot;&gt;datatype&lt;/code&gt; is an &lt;em&gt;inherited property&lt;/em&gt;, meaning that it could have been defined on the &lt;em&gt;Table&lt;/em&gt;, &lt;em&gt;Schema&lt;/em&gt; or &lt;em&gt;Column&lt;/em&gt; and would be in scope for all cells based on the inheritance model.&lt;/p&gt;
+
+&lt;p&gt;The last column uses a complex datatype: It is based on &lt;code class=&quot;highlighter-rouge&quot;&gt;xsd:date&lt;/code&gt; and uses a &lt;code class=&quot;highlighter-rouge&quot;&gt;format&lt;/code&gt; string to match string values and map them onto the datatype. This allows a date of the form 4/17/2015 to be interpreted as &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;2015-04-17&quot;^^xsd:date&lt;/code&gt; by using &lt;em&gt;date field symbols&lt;/em&gt; as defined in &lt;a href=&quot;http://www.unicode.org/reports/tr35/tr35-31/tr35.html&quot;&gt;UAX35&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;All of these map pretty much as you would expect onto the &lt;em&gt;annotated tabular data model&lt;/em&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;AnnotatedTableGroup&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;tables&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;AnnotatedTable&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://w3c.github.io/csvw/tests/test011/tree-ops.csv&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Tree Operations&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@language&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dcat:keyword&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;tree&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@language&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;street&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@language&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;maintenance&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@language&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:publisher&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;schema:name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Example Municipality&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@language&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;schema:url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://example.org&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:license&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://opendefinition.org/licenses/cc-by/&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:modified&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;2010-12-31&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;xsd:date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;columns&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Column&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;number&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;sourceNumber&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;cells&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;GID&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;GID&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Generic Identifier&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;An identifier for the operation on a tree.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@language&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;base&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;required&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Column&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;number&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;sourceNumber&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;cells&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;on_street&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;On Street&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;The street that the tree is on.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@language&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;base&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=3&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Column&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;number&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;sourceNumber&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;cells&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;species&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Species&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;The species of the tree.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@language&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;base&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=4&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Column&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;number&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;sourceNumber&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;cells&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;trim_cycle&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Trim Cycle&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;The operation performed on the tree.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@language&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;base&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=5&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Column&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;number&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;sourceNumber&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;cells&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;inventory_date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Inventory Date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;The date of the operation that was performed.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@language&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+          &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;base&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;format&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;M/d/yyyy&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;rows&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Note that the &lt;em&gt;common properties&lt;/em&gt; have been expanded and the &lt;code class=&quot;highlighter-rouge&quot;&gt;@context&lt;/code&gt; simplified to remove &lt;code class=&quot;highlighter-rouge&quot;&gt;@language&lt;/code&gt;. Also &lt;code class=&quot;highlighter-rouge&quot;&gt;datatype&lt;/code&gt; values have been normalized to the expanded form. This happens through the process of &lt;em&gt;Normalization&lt;/em&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;normalization&quot;&gt;Normalization&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.w3.org/TR/tabular-metadata/#normalization&quot;&gt;Normalization&lt;/a&gt; places metadata into a consistent format where compact values are expanded, values which may be an &lt;em&gt;Array&lt;/em&gt; are made into an &lt;em&gt;Array&lt;/em&gt;, &lt;em&gt;link properties&lt;/em&gt; have their URL expanded based on the base of the metadata and &lt;em&gt;object properties&lt;/em&gt; which are in the form of a URL string are opened and replaced with the content of the resource they reference.&lt;/p&gt;
+
+&lt;h3 id=&quot;ensuring-metadata-compatibility-was-merging-metadata&quot;&gt;Ensuring Metadata Compatibility (was Merging Metadata)&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/#locating-metadata&quot;&gt;Locating Metadata&lt;/a&gt; describes the various places metadata files may be found. &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/#creating-annotated-tables&quot;&gt;Creating Annotated Tables&lt;/a&gt; defines the process of creating the final metadata when starting with either a Metadata File or a CSV. This calls for ensuring &lt;a href=&quot;http://w3c.github.io/csvw/syntax/#metadata-compatibility&quot;&gt;Metadata Compatibility&lt;/a&gt;. Given metadata, this can be used to find one or more tabular data files. These files are considered &lt;em&gt;compatible&lt;/em&gt; with the metadata, if they are referenced from the metadata (i.e., there is a Table Description referencing that particular tabular data file), and the columns in the Table Description Schema, match the columns in the tabular data file by comparing titles or names from the column metadata with the title of the tabular data file column, if it has one. This is necessary to ensure that the CSV file matches the schema described in metadata.&lt;/p&gt;
+
+&lt;h3 id=&quot;uri-templates&quot;&gt;URI Templates&lt;/h3&gt;
+
+&lt;p&gt;In the &lt;a href=&quot;http://w3c.github.io/csvw/examples/tree-ops-virtual.json&quot;&gt;tree-ops-virtual.json&lt;/a&gt; example, &lt;em&gt;URI template properties&lt;/em&gt; were defined:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;tree-ops.csv&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@context&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://www.w3.org/ns/csvw&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@language&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;tableSchema&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;columns&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;GID&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;GID&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;propertyUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;schema:url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;valueUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;#gid-{GID}&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;on_street&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;On Street&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;aboutUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;#location-{GID}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;propertyUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;schema:streetAddress&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;species&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Species&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;propertyUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;schema:name&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;trim_cycle&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Trim Cycle&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;inventory_date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Inventory Date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;base&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;format&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;M/d/yyyy&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;aboutUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;#event-{inventory_date}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;propertyUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;schema:startDate&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;propertyUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;schema:event&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;valueUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;#event-{inventory_date}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;virtual&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;propertyUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;schema:location&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;valueUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;#location-{GID}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;virtual&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;aboutUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;#location-{GID}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;propertyUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rdf:type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;valueUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;schema:PostalAddress&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;virtual&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;aboutUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;#gid-{GID}&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This introduces several new concepts:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The &lt;em&gt;Schema&lt;/em&gt; has an &lt;code class=&quot;highlighter-rouge&quot;&gt;aboutUrl&lt;/code&gt; property: &lt;strong&gt;“#gid-{GID}”&lt;/strong&gt;. This is a &lt;a href=&quot;https://tools.ietf.org/html/rfc6570&quot;&gt;URI Template&lt;/a&gt;, where &lt;em&gt;GID&lt;/em&gt; acts as a variable, taking the &lt;em&gt;cell value&lt;/em&gt; of the cell in the &lt;em&gt;GID&lt;/em&gt; column to construct a URI. In this case it constructs values such as &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;http://w3c.github.io/csvw/examples/tree-ops.csv#gid-1&amp;gt;&lt;/code&gt;. This is because the &lt;em&gt;Table&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;url&lt;/code&gt; is &lt;code class=&quot;highlighter-rouge&quot;&gt;tree-ops.csv&lt;/code&gt;, which is a URL relative to the location of the metadata file. In the first row, the value of the &lt;code class=&quot;highlighter-rouge&quot;&gt;GID&lt;/code&gt; column is &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;, so that is substituted to create &lt;strong&gt;“#gid-1”&lt;/strong&gt;, then resolved against &lt;code class=&quot;highlighter-rouge&quot;&gt;url&lt;/code&gt;. This &lt;code class=&quot;highlighter-rouge&quot;&gt;aboutUrl&lt;/code&gt; then defines the default subject for all cells within that row.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The first column has &lt;strong&gt;“propertyUrl”: “schema:url”&lt;/strong&gt;, which turns into the absolute URL &lt;code class=&quot;highlighter-rouge&quot;&gt;http://schema.org/url&lt;/code&gt;, and is used as the &lt;em&gt;predicate&lt;/em&gt; for that cell. As the column as a &lt;code class=&quot;highlighter-rouge&quot;&gt;valueUrl&lt;/code&gt; (&lt;strong&gt;“valueUrl”: “#gid-{GID}”&lt;/strong&gt;), that is expanded and used as the object for that cell. Thus, the first cell of the first row would result in the following triple:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;#gid-1&amp;gt; schema:url &amp;lt;#gid-1&amp;gt; .
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;(relative to the URL file location).&lt;/p&gt;
+
+&lt;p&gt;The second column has it’s own &lt;code class=&quot;highlighter-rouge&quot;&gt;aboutUrl&lt;/code&gt; (&lt;strong&gt;“aboutUrl”: “#location-{GID}”&lt;/strong&gt;), meaning that the &lt;em&gt;subject&lt;/em&gt; for triples for this column are different than the &lt;em&gt;default subject&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;The last three columns are &lt;em&gt;virtual columns&lt;/em&gt;, as they don’t correspond to data actually in the CSV; these are used for injecting information into the row. When fully processed, the following RDF is created (again, in minimal mode):&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;@base &amp;lt;http://w3c.github.io/csvw/examples/tree-ops.csv&amp;gt; .
+@prefix rdf: &amp;lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&amp;gt; .
+@prefix schema: &amp;lt;http://schema.org/&amp;gt; .
+@prefix xsd: &amp;lt;http://www.w3.org/2001/XMLSchema#&amp;gt; .
+
+&amp;lt;#event-2010-06-02&amp;gt; schema:startDate &quot;2010-06-02&quot;^^xsd:date .
+
+&amp;lt;#event-2010-10-18&amp;gt; schema:startDate &quot;2010-10-18&quot;^^xsd:date .
+
+&amp;lt;#gid-1&amp;gt; schema:event &amp;lt;#event-2010-10-18&amp;gt;;
+   schema:location &amp;lt;#location-1&amp;gt;;
+   schema:name &quot;Celtis australis&quot;;
+   schema:url &amp;lt;#gid-1&amp;gt;;
+   &amp;lt;#trim_cycle&amp;gt; &quot;Large Tree Routine Prune&quot; .
+
+&amp;lt;#gid-2&amp;gt; schema:event &amp;lt;#event-2010-06-02&amp;gt;;
+   schema:location &amp;lt;#location-2&amp;gt;;
+   schema:name &quot;Liquidambar styraciflua&quot;;
+   schema:url &amp;lt;#gid-2&amp;gt;;
+   &amp;lt;#trim_cycle&amp;gt; &quot;Large Tree Routine Prune&quot; .
+
+&amp;lt;#location-1&amp;gt; a schema:PostalAddress;
+   schema:streetAddress &quot;ADDISON AV&quot; .
+
+&amp;lt;#location-2&amp;gt; a schema:PostalAddress;
+   schema:streetAddress &quot;EMERSON ST&quot; .
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Processing this requires some enhancement to &lt;code class=&quot;highlighter-rouge&quot;&gt;RDF::Tabular::Row#initialize&lt;/code&gt; method:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# Wraps each resulting row
+class Row
+  attr_reader :values
+
+  # Class for returning values
+  Cell = Struct.new(:table, :column, :row, :stringValue, :aboutUrl, :propertyUrl, :valueUrl, :value, :errors) do
+
+    def set_urls(mapped_values)
+      %w(aboutUrl propertyUrl valueUrl).each do |prop|
+        # If the cell value is nil, and it is not a virtual column
+        next if prop == &quot;valueUrl&quot; &amp;amp;&amp;amp; value.nil? &amp;amp;&amp;amp; !column.virtual
+        if v = column.send(prop.to_sym)
+          t = Addressable::Template.new(v)
+          mapped = t.expand(mapped_values).to_s
+          url = row.context.expand_iri(mapped, documentRelative: true)
+          self.send(&quot;#{prop}=&quot;.to_sym, url)
+        end
+      end
+    end
+
+  end
+
+  def initialize(row, metadata, number, source_number)
+    @values = []
+    skipColumns = metadata.dialect.skipColumns.to_i
+    columns = metadata.tableSchema.columns
+    row.each_with_index do |value, index|
+      next if index &amp;lt; skipColumns
+      column = columns[index - skipColumns]
+      @values &amp;lt;&amp;lt; cell = Cell.new(metadata, column, self, value)
+
+      datatype = column.datatype || Datatype.new(base: &quot;string&quot;, parent: column)
+      cell_value = value_matching_datatype(value.dup, datatype, expanded_dt, column.lang)
+      map_values[columns[index - skipColumns].name] =  cell_value.to_s
+
+    end
+
+    # Map URLs for row
+    ...
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This introduces datatype matching through &lt;code class=&quot;highlighter-rouge&quot;&gt;#value_matching_datatype&lt;/code&gt; (not detailed), creates a &lt;code class=&quot;highlighter-rouge&quot;&gt;map_values&lt;/code&gt; structure that can be used for &lt;a href=&quot;https://tools.ietf.org/html/rfc6570&quot;&gt;URI template&lt;/a&gt; processing, and then calls &lt;code class=&quot;highlighter-rouge&quot;&gt;Cell#set_urls&lt;/code&gt; to actually create &lt;code class=&quot;highlighter-rouge&quot;&gt;aboutUrl&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;propertyUrl&lt;/code&gt;, and &lt;code class=&quot;highlighter-rouge&quot;&gt;valueUrl&lt;/code&gt; annotations on the cell.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;#each_statement&lt;/code&gt; method is updated to take these into consideration:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;def each_statement(&amp;amp;block)
+  metadata.each_row(input) do |row|
+    default_cell_subject = RDF::Node.new
+    row.values.each_with_index do |cell, index|
+      cell_subject = cell.aboutUrl || default_cell_subject
+      propertyUrl = cell.propertyUrl || RDF::URI(&quot;#{metadata.url}##{cell.column.name}&quot;)
+        yield RDF::Statement(cell_subject, propertyUrl, cell.column.valueUrl || cell.value)
+    end
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Here the only difference is that we use &lt;code class=&quot;highlighter-rouge&quot;&gt;cell.aboutUrl&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;cell.propertyUrl&lt;/code&gt;, and &lt;code class=&quot;highlighter-rouge&quot;&gt;cell.valueUrl&lt;/code&gt; if they are defined, and the defaults otherwise.&lt;/p&gt;
+
+&lt;h3 id=&quot;multiple-values&quot;&gt;Multiple Values&lt;/h3&gt;
+
+&lt;p&gt;Microsyntaxes are common in CSVs, and there are many different kind. A microsyntax is some convention for formatting information within a cell. CSVW supports delimited values within a cell, so that a list of elements can be provided, allowing a single cell to contain multiple values.&lt;/p&gt;
+
+&lt;p&gt;For example the &lt;a href=&quot;http://w3c.github.io/csvw/examples/tree-ops-ext.csv&quot;&gt;tree-ops-ext.csv&lt;/a&gt; example allows for multiple comments on a record using “;” as a separator:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;GID,On Street,Species,Trim Cycle,Diameter at Breast Ht,Inventory Date,Comments,Protected,KML
+1,ADDISON AV,Celtis australis,Large Tree Routine Prune,11,10/18/2010,,,&quot;&amp;lt;Point&amp;gt;&amp;lt;coordinates&amp;gt;-122.156485,37.440963&amp;lt;/coordinates&amp;gt;&amp;lt;/Point&amp;gt;&quot;
+2,EMERSON ST,Liquidambar styraciflua,Large Tree Routine Prune,11,6/2/2010,,,&quot;&amp;lt;Point&amp;gt;&amp;lt;coordinates&amp;gt;-122.156749,37.440958&amp;lt;/coordinates&amp;gt;&amp;lt;/Point&amp;gt;&quot;
+6,ADDISON AV,Robinia pseudoacacia,Large Tree Routine Prune,29,6/1/2010,cavity or decay; trunk decay; codominant leaders; included bark; large leader or limb decay; previous failure root damage; root decay;  beware of BEES,YES,&quot;&amp;lt;Point&amp;gt;&amp;lt;coordinates&amp;gt;-122.156299,37.441151&amp;lt;/coordinates&amp;gt;&amp;lt;/Point&amp;gt;&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;a href=&quot;http://w3c.github.io/csvw/examples/tree-ops-ext.csv-metadata.json&quot;&gt;metadata file&lt;/a&gt; adds the &lt;code class=&quot;highlighter-rouge&quot;&gt;separator&lt;/code&gt; property to the &lt;em&gt;comments&lt;/em&gt; column:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;tableSchema&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;columns&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;comments&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;titles&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Comments&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dc:description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Supplementary comments relating to the operation or tree.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;datatype&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;separator&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;;&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The effect of &lt;code class=&quot;highlighter-rouge&quot;&gt;separator&lt;/code&gt; is to split the string value into multiple values and parse them using any &lt;code class=&quot;highlighter-rouge&quot;&gt;datatype&lt;/code&gt; description. This is shown using slight modifications to &lt;code class=&quot;highlighter-rouge&quot;&gt;RDF::Tabular::Row#initialize&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;RDF::Tabular::Reader#each_statement&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# Wraps each resulting row
+class Row
+  attr_reader :values
+  def initialize(row, metadata, number, source_number)
+    @values = []
+    skipColumns = metadata.dialect.skipColumns.to_i
+    columns = metadata.tableSchema.columns
+    row.each_with_index do |value, index|
+      next if index &amp;lt; skipColumns
+      column = columns[index - skipColumns]
+      @values &amp;lt;&amp;lt; cell = Cell.new(metadata, column, self, value)
+      datatype = column.datatype || Datatype.new(base: &quot;string&quot;, parent: column)
+
+
+      cell_values = column.separator ? value.split(column.separator) : [value]
+
+      cell_values = cell_values.map do |v|
+        value_matching_datatype(v.dup, datatype, expanded_dt, column.lang)
+      end
+
+      cell.value = (column.separator ? cell_values : cell_values.first)
+
+      map_values[columns[index - skipColumns].name] =  (column.separator ? cell_values.map(&amp;amp;:to_s) : cell_values.first.to_s)
+    end
+
+    # Map URLs for row
+    @values.each_with_index do |cell, index|
+      mapped_values = map_values.merge(
+        &quot;_name&quot; =&amp;gt; URI.decode(cell.column.name),
+        &quot;_column&quot; =&amp;gt; cell.column.number,
+        &quot;_sourceColumn&quot; =&amp;gt; cell.column.sourceNumber
+      )
+      cell.set_urls(mapped_values)
+    end
+
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The only change to &lt;code class=&quot;highlighter-rouge&quot;&gt;#each_statement&lt;/code&gt; is to consider multiple cell values:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;def each_statement(&amp;amp;block)
+  metadata.each_row(input) do |row|
+    default_cell_subject = RDF::Node.new
+    row.values.each_with_index do |cell, index|
+      cell_subject = cell.aboutUrl || default_cell_subject
+      propertyUrl = cell.propertyUrl || RDF::URI(&quot;#{metadata.url}##{cell.column.name}&quot;)
+
+      if cell.column.valueUrl
+        yield RDF::Statement(cell_subject, propertyUrl, cell.column.valueUrl)
+      else
+        Array(cell.value).each do |v|
+          yield RDF::Statement(cell_subject, propertyUrl, v)
+        end
+      end
+
+    end
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;common-properties-and-notes&quot;&gt;Common Properties and Notes&lt;/h3&gt;
+
+&lt;p&gt;Common Properties and Notes are simply embedded &lt;a href=&quot;http://www.w3.org/TR/json-ld&quot; title=&quot;JSON-LD 1.0&quot;&gt;JSON-LD&lt;/a&gt; within the metadata file (although limited) to a specific &lt;a href=&quot;http://www.w3.org/TR/tabular-metadata/#json-ld-dialect&quot;&gt;dialect&lt;/a&gt; to simplify implementations. In Ruby, of course, we have available a full &lt;a href=&quot;http://rubygems.org/gems/json-ld&quot;&gt;json-ld gem&lt;/a&gt;, so turning this into RDF shouldn’t present any problems.&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;This article has shown the basis for implementing the &lt;a href=&quot;http://www.w3.org/2013/csvw/wiki/Main_Page&quot;&gt;CSV on the Web&lt;/a&gt; specifications, and hopefully will aid in more implementations.&lt;/p&gt;
+
+&lt;h2 id=&quot;update-2014-05-14&quot;&gt;Update 2014-05-14&lt;/h2&gt;
+
+&lt;p&gt;This post has been updated to reflect the fact the metadata merging has been removed from CSVW, simplifying an implementation even further.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 18 Apr 2015 13:14:54 -0700</pubDate>
+        <link>http://greggkellogg.net/2015/04/implementing-csv-on-the-web/</link>
+        <guid isPermaLink="true">http://greggkellogg.net/2015/04/implementing-csv-on-the-web/</guid>
+        
+        
+        <category>Ruby</category>
+        
+        <category>Semantic Web</category>
+        
+      </item>
+    
+      <item>
+        <title>CSV on the Web</title>
+        <description>&lt;p&gt;As many who follow me know, I’ve long been involved in the Linked Data and Semantic Web movements. It’s been my privilege to work on several successful projects, notably &lt;a href=&quot;http://www.w3.org/TR/rdfa-core&quot; title=&quot;HTML+RDFa 1.1&quot;&gt;RDFa&lt;/a&gt;, &lt;a href=&quot;http://www.w3.org/TR/microdata-rdf&quot; title=&quot;Microdata to RDF&quot;&gt;Microdata RDF&lt;/a&gt;, and &lt;a href=&quot;http://www.w3.org/TR/json-ld&quot; title=&quot;JSON-LD 1.0&quot;&gt;JSON-LD&lt;/a&gt;. For the past several months I’ve actively been working with the W3C &lt;a href=&quot;http://www.w3.org/2013/csvw/wiki/Main_Page&quot;&gt;CSV on the Web&lt;/a&gt; Working Group to help define a mechanism for transforming tabular data into RDF and JSON.&lt;/p&gt;
+
+&lt;p&gt;Much of the data published on the Web is not HTML, or even some other structured content. In fact, a substantial amount of information is published as tabular data (comma-separated-values or tab-separated-values, commonly &lt;em&gt;CSVs&lt;/em&gt;). This includes a vast amount of open government publications, such as records, weather and climate information, infrastructure assets, and so forth (see &lt;a href=&quot;http://www.w3.org/TR/csvw-ucr/&quot;&gt;Use Cases&lt;/a&gt; for more detail). The charter of the &lt;a href=&quot;http://www.w3.org/2013/csvw/wiki/Main_Page&quot;&gt;CSV on the Web&lt;/a&gt; Working Group is to provide technologies to promote greater interoperability of these datasets.&lt;/p&gt;
+
+&lt;p&gt;Real data is often messy, and information contained in relational databases and large spreadsheets is often lost when it’s published as &lt;em&gt;CSVs&lt;/em&gt;:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Foreign Key relationships between tables&lt;/li&gt;
+  &lt;li&gt;Primary Keys of tables (including composite primary keys)&lt;/li&gt;
+  &lt;li&gt;Well Known Identifiers of entities used in tables&lt;/li&gt;
+  &lt;li&gt;Datatypes of column data, such as date/time or numeric values&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The aim of the working group is to create a common &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/&quot; title=&quot;Model for Tabular Data and Metadata on the Web&quot;&gt;Model for Tabular Data&lt;/a&gt;, and &lt;a href=&quot;http://www.w3.org/TR/tabular-metadata/&quot; title=&quot;Metadata Vocabulary for Tabular Data&quot;&gt;Metadata Format&lt;/a&gt; for describing tabular data. Given this, validators, converters and viewers are enabled to work with datasets by using a common data model.&lt;/p&gt;
+
+&lt;h2 id=&quot;csv-ld&quot;&gt;CSV-LD&lt;/h2&gt;
+
+&lt;p&gt;My work started about a year ago when the Working Group was being established. The group was considering using &lt;a href=&quot;http://www.w3.org/TR/json-ld&quot; title=&quot;JSON-LD 1.0&quot;&gt;JSON-LD&lt;/a&gt; as a way of describing metadata about tables, and the work we had done on &lt;a href=&quot;http://json-ld.org/spec/latest/json-ld-framing/&quot;&gt;JSON-LD Framing&lt;/a&gt; seemed like a good fit for both a metadata and transformation specification. My thoughts are expressed in a wiki page on &lt;a href=&quot;https://www.w3.org/2013/csvw/wiki/CSV-LD&quot;&gt;CSV-LD&lt;/a&gt;; the idea was that each row of a table could map to values within a JSON-LD template which could then be turned into a JSON-LD document made from each row from the spreadsheet&lt;/p&gt;
+
+&lt;p&gt;Looking back there are a number of over-simiplifications on this spec, but the use of JSON-LD to describe information about tabular data remains.&lt;/p&gt;
+
+&lt;h2 id=&quot;csv-data-model&quot;&gt;CSV Data Model&lt;/h2&gt;
+
+&lt;p&gt;The &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/&quot; title=&quot;Model for Tabular Data and Metadata on the Web&quot;&gt;Model for Tabular Data&lt;/a&gt; describes an abstract data model for &lt;em&gt;groups of tables&lt;/em&gt;, &lt;em&gt;tables&lt;/em&gt;, &lt;em&gt;columns&lt;/em&gt;, &lt;em&gt;rows&lt;/em&gt; and individual &lt;em&gt;cells&lt;/em&gt;. As such, it becomes a useful mechanism to refer to information when performing validation or conversion of &lt;em&gt;CSVs&lt;/em&gt;. In practice, a complete in-memory data model doesn’t typically need to be created, but it serves a useful purpose: Each entity in this model describes its relationship with other entities using &lt;em&gt;core annotations&lt;/em&gt;; for example, the set of &lt;em&gt;tables&lt;/em&gt; in a &lt;em&gt;group of tables&lt;/em&gt;, the &lt;em&gt;rows&lt;/em&gt; and &lt;em&gt;columns&lt;/em&gt; in a &lt;em&gt;table&lt;/em&gt;, and the &lt;em&gt;cells&lt;/em&gt; within both &lt;em&gt;rows&lt;/em&gt; and &lt;em&gt;columns&lt;/em&gt;. The model also describes other useful information, such as the &lt;em&gt;datatypes&lt;/em&gt; of a &lt;em&gt;cell value&lt;/em&gt;, and if the &lt;em&gt;cell&lt;/em&gt; contains multiple values (using an internal &lt;em&gt;separator&lt;/em&gt;).&lt;/p&gt;
+
+&lt;p&gt;A &lt;em&gt;converter&lt;/em&gt;, such as a &lt;a href=&quot;http://w3c.github.io/csvw/csv2rdf/&quot; title=&quot;Generating RDF from Tabular Data on the Web&quot;&gt;CSV2RDF&lt;/a&gt; or &lt;a href=&quot;http://w3c.github.io/csvw/csv2json/&quot; title=&quot;Generating JSON from Tabular Data on the Web&quot;&gt;CSV2JSON&lt;/a&gt; converter, can then logically iterate over these entities to generate the resulting information. A &lt;em&gt;validator&lt;/em&gt; can use information about datatypes to validate cell values and foreign key relationships to verify the integrity of published information. A &lt;em&gt;viewer&lt;/em&gt; can use information about character sets, table direction and text direction to properly present information originally published as &lt;em&gt;CSVs&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Creating a data model from &lt;em&gt;CSVs&lt;/em&gt; is the process of either starting with metadata describing those &lt;em&gt;CSVs&lt;/em&gt;, or locating metadata given a &lt;em&gt;CSV&lt;/em&gt;. The &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/&quot; title=&quot;Model for Tabular Data and Metadata on the Web&quot;&gt;Model for Tabular Data&lt;/a&gt; describes the process of locating such metadata and reconciling multiple metadata files that may be encountered. The &lt;a href=&quot;http://www.w3.org/TR/tabular-metadata/&quot; title=&quot;Metadata Vocabulary for Tabular Data&quot;&gt;Metadata Format&lt;/a&gt; then describes the structure of this data (syntactically, as a &lt;a href=&quot;http://www.w3.org/TR/json-ld&quot; title=&quot;JSON-LD 1.0&quot;&gt;JSON-LD&lt;/a&gt; formatted document) and working with it to create the basis of the &lt;em&gt;core annotations&lt;/em&gt; of the &lt;em&gt;annotated data model&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;As an example, I recently worked with others to release the &lt;a href=&quot;http://rubygems.org/gems/rdf-vocab&quot;&gt;rdf-vocab&lt;/a&gt; Ruby gem, which includes a Ruby version of different RDF Ontologies/Vocabularies used for reasoning on things such as the &lt;a href=&quot;http://linter.structured-data.org/&quot;&gt;Structured Data Linter&lt;/a&gt;. One vocabulary we very much wanted to include as the &lt;a href=&quot;http://www.iana.org/assignments/link-relations/link-relations.xhtml&quot;&gt;IANA Link Relations&lt;/a&gt;. This is not published as any kind of RDF dataset, much less as an RDFS or OWL vocabulary definition. In fact, this has prevented it from being used in different standards work, as the link relation for &lt;code class=&quot;highlighter-rouge&quot;&gt;describes&lt;/code&gt; cannot easily be dereferenced to find it’s definition. Formally, the &lt;code class=&quot;highlighter-rouge&quot;&gt;describes&lt;/code&gt; link relation maps to the &lt;code class=&quot;highlighter-rouge&quot;&gt;http://www.iana.org/assignments/link-relations/describes&lt;/code&gt; URI, but dereferencing this results in an HTTP 404 status. However, this doesn’t need to get in the way of defining an RDFS vocabulary based on this dataset. Thankfully, the link relations are published in other formats, including &lt;a href=&quot;http://www.iana.org/assignments/link-relations/link-relations-1.csv&quot;&gt;csv&lt;/a&gt;. This allows us to construct a &lt;a href=&quot;https://github.com/ruby-rdf/rdf-vocab/blob/develop/etc/iana-metadata.json&quot;&gt;metadata description&lt;/a&gt; of this dataset:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;@context&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://www.w3.org/ns/csvw&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;http://www.iana.org/assignments/link-relations/link-relations-1.csv&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;tableSchema&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;aboutUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;{name}&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;lang&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;columns&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Relation Name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;propertyUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rdfs:label&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;comment&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;propertyUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rdfs:comment&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Reference&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;propertyUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rdf:type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;valueUrl&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;rdf:Property&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+      &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Notes&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;suppressOutput&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This says that there is a table located at &lt;code class=&quot;highlighter-rouge&quot;&gt;http://www.iana.org/assignments/link-relations/link-relations-1.csv&lt;/code&gt; with a &lt;em&gt;schema&lt;/em&gt;. Each row identifies a different &lt;em&gt;subject&lt;/em&gt; using the &lt;code class=&quot;highlighter-rouge&quot;&gt;aboutUrl&lt;/code&gt; property. The &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;{name}&quot;&lt;/code&gt; value is a &lt;a href=&quot;https://tools.ietf.org/html/rfc6570&quot;&gt;URI template&lt;/a&gt; that creates a URI from the &lt;code class=&quot;highlighter-rouge&quot;&gt;name&lt;/code&gt; variable relative to the location of the &lt;em&gt;CSV&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Each column is given a &lt;code class=&quot;highlighter-rouge&quot;&gt;name&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;title&lt;/code&gt;, along with a &lt;code class=&quot;highlighter-rouge&quot;&gt;propertyUrl&lt;/code&gt; which is used to relate the &lt;em&gt;subject&lt;/em&gt; with the value of a given cell. The first two columns are textual, and result in an &lt;code class=&quot;highlighter-rouge&quot;&gt;RDF Literal&lt;/code&gt; when mapped to RDF. The &lt;code class=&quot;highlighter-rouge&quot;&gt;lang&lt;/code&gt; property defines the overall language to apply to plain literals in this dataset. The third column is turned into a URI using the &lt;code class=&quot;highlighter-rouge&quot;&gt;valueUrl&lt;/code&gt; property and the fourth column is simply ignored; note that the cell contents of the third column aren’t actually used to create the value, and the value is hard-coded as &lt;code class=&quot;highlighter-rouge&quot;&gt;rdf:Property&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Mapping this on the CSV, for example, turns the first row into the following RDF:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;http://www.iana.org/assignments/link-relations/about&amp;gt; rdfs:label &quot;about@en&quot;;
+  rdfs:comment &quot;Refers to a resource that is the subject of the link's context.&quot;@en;
+  rdf:type rdf:Property .
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Within the &lt;a href=&quot;http://rdf.rubyforge.org/&quot;&gt;RDF.rb&lt;/a&gt; tool chain, this allows the use of &lt;code class=&quot;highlighter-rouge&quot;&gt;RDF::Vocab::IANA.about&lt;/code&gt; to refer to this property definition. The reasoner knows it’s a property, because it’s type if &lt;code class=&quot;highlighter-rouge&quot;&gt;rdf:Property&lt;/code&gt;. The completely transformed CSV can be found &lt;a href=&quot;https://raw.githubusercontent.com/ruby-rdf/rdf-vocab/develop/etc/iana.ttl&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The group has just released new working drafts for &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/&quot; title=&quot;Model for Tabular Data and Metadata on the Web&quot;&gt;Model for Tabular Data&lt;/a&gt; and the &lt;a href=&quot;http://www.w3.org/TR/tabular-metadata/&quot; title=&quot;Metadata Vocabulary for Tabular Data&quot;&gt;Metadata Format&lt;/a&gt;, along with &lt;a href=&quot;http://w3c.github.io/csvw/csv2rdf/&quot; title=&quot;Generating RDF from Tabular Data on the Web&quot;&gt;CSV2RDF&lt;/a&gt; and &lt;a href=&quot;http://w3c.github.io/csvw/csv2json/&quot; title=&quot;Generating JSON from Tabular Data on the Web&quot;&gt;CSV2JSON&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;an-implementation-in-ruby&quot;&gt;An implementation in Ruby&lt;/h2&gt;
+
+&lt;p&gt;My method for working on specifications is to develop code implementing these specifications as they are being developed. This, of necessity, means that there is a lot of work (and re-work) as the details are being worked out, but I view it as a necessary part of spec development to ensure that the result can be implemented. In this case, this is embodied in the &lt;a href=&quot;http://rubygems.org/gems/rdf-tabular&quot;&gt;rdf-tabular&lt;/a&gt; gem, which implements the &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/&quot; title=&quot;Model for Tabular Data and Metadata on the Web&quot;&gt;Model for Tabular Data&lt;/a&gt; and &lt;a href=&quot;http://www.w3.org/TR/tabular-metadata/&quot; title=&quot;Metadata Vocabulary for Tabular Data&quot;&gt;Metadata Format&lt;/a&gt; as well as both &lt;a href=&quot;http://w3c.github.io/csvw/csv2rdf/&quot; title=&quot;Generating RDF from Tabular Data on the Web&quot;&gt;CSV2RDF&lt;/a&gt; and &lt;a href=&quot;http://w3c.github.io/csvw/csv2json/&quot; title=&quot;Generating JSON from Tabular Data on the Web&quot;&gt;CSV2JSON&lt;/a&gt; and much of the validation required for these to work. As is true for all &lt;a href=&quot;http://rdf.rubyforge.org/&quot;&gt;RDF.rb&lt;/a&gt; gems, this is available in the public domain (&lt;a href=&quot;http://unlicense.org&quot;&gt;Unlicense&lt;/a&gt;) and is freely usable by anyone wishing to get a start on their own implementation.&lt;/p&gt;
+
+&lt;p&gt;You can try this out on my &lt;a href=&quot;http://rdf.greggkellogg.net/distiller&quot;&gt;RDF Distiller&lt;/a&gt;, or using the &lt;a href=&quot;http://linter.structured-data.org/&quot;&gt;Structured Data Linter&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;test-suite&quot;&gt;Test Suite&lt;/h2&gt;
+
+&lt;p&gt;With updated working drafts, the next phase of the CSVW Working Group will be to develop more tests. There is already a fair &lt;a href=&quot;http://w3c.github.io/csvw/tests/&quot;&gt;Test Suite&lt;/a&gt; available which probes various corner-cases of validating and converting tabular data. There are already over 80 tests defined, and more will be forthcoming in the coming weeks and months. (Disclaimer, these tests have yet to be accepted by the WG).&lt;/p&gt;
+
+&lt;p&gt;A forthcoming blog entry will delve into the basis of a simple implementation, and what it takes to completely conform to the specification.&lt;/p&gt;
+</description>
+        <pubDate>Wed, 15 Apr 2015 17:00:22 -0700</pubDate>
+        <link>http://greggkellogg.net/%3Fp%3D293</link>
+        <guid isPermaLink="true">http://greggkellogg.net/%3Fp%3D293</guid>
+        
+        <category>CSV</category>
+        
+        <category>RDF</category>
+        
+        <category>Ruby</category>
+        
+        <category>Tabular Data</category>
+        
+        <category>W3C</category>
+        
+        
+        <category>Ruby</category>
+        
+        <category>Semantic Web</category>
+        
+      </item>
+    
+      <item>
+        <title>Release 1.1.0 of Ruby RDF libraries</title>
+        <description>&lt;p&gt;I’m happy to announce release 1.1.0 of the Ruby RDF suite, this includes support for RDF 1.1 Concepts and syntaxes, including RDF Literal changes, N-Triples, N-Quads, TriG and JSON-LD. Additionally, the SPARQL gem has been updated to support RDF 1.1 differences (mainly differences in plain literals vs those with xsd:string datatypes and the fact that language-tagged literals now have the rdf:langString datatype).&lt;/p&gt;
+
+&lt;p&gt;There are some incompatibilities with previous releases described below:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Support for Ruby 1.8.* has been eliminated from all gems, however the latest versions of JRuby and Rubninus are supported.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;RDF.rb: &lt;a href=&quot;https://github.com/ruby-rdf/rdf&quot;&gt;https://github.com/ruby-rdf/rdf&lt;/a&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Works on versions of Ruby &amp;gt;= 1.9.2 (1.8.* support now dropped), this includes JRuby and Rubinius 2.1+ (true for all gems)&lt;/li&gt;
+      &lt;li&gt;Support for all RDF 1.1 concepts (other than skolumization, if anyone’s really interested in this, we could add support in a future release),&lt;/li&gt;
+      &lt;li&gt;Native implementation of RDF::URI (aka RDF::IRI) without using Addressable::URI; this is actually a big performance win, as URI’s typically don’t need to be parsed now,&lt;/li&gt;
+      &lt;li&gt;RDF::Graph cannot take a context (name) unless it is a projection of a named graph from an RDF:: Repository (aka RDF::Dataset),&lt;/li&gt;
+      &lt;li&gt;Support for 1.1 versions of N-Triples and N-Quads&lt;/li&gt;
+      &lt;li&gt;Support for changes to Literal semantics, meaning that all literals have a datatype. #plain? and #simple? accessors still exist, which have expected results.&lt;/li&gt;
+      &lt;li&gt;RDF::Query#execute now accepts a block and returns RDF::Query::Solutions. This allows enumerable.query(query) to be have like query.execute(enumerable) and either return an enumerable of yield each solution.&lt;/li&gt;
+      &lt;li&gt;RDF::Queryable#query returns a concrete Enumerator extending RDF::Queryable and RDF::Enumerable or RD::Query::Solutions; this improves performance when accessing enumerator methods as they’re not extended dynamically (see issue #123: “Performance and Kernel#extend”)&lt;/li&gt;
+      &lt;li&gt;RDF::Util::File.open_file (used for Mutable.load, among others) no honors 303 and Location: headers to maintain the source identifier and try to manage all input data as UTF.&lt;/li&gt;
+      &lt;li&gt;RDF::StrictVocabulary is now added as a sub-class of RDF::Vocabulary; most built-in vocabularies are now strict, meaning that an attempt to access a term not defined in the vocabulary will raise an error. Many more vocabuarlies added including iCal, Media Annotations, Facebook OpenGraph, PROV, SKOS-XL, Data Vocabulary, VCard, VOID, Power-S, XHV and schema.org.&lt;/li&gt;
+      &lt;li&gt;New vocabulary definitions have been added for ICal, Media Annotations (MA), Facebook OpenGraph (OG), PROV, SKOS-XL (SKOSXL), Data Vocabulary (V), VCard, VOID, Powder-S (WDRS), and XHV.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;RDF::N3: &lt;a href=&quot;https://github.com/ruby-rdf/rdf-n3&quot;&gt;https://github.com/ruby-rdf/rdf-n3&lt;/a&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;No longer detects formats when a specific content type is not known; this prevents problems interpreting Turtle as N3.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;RDF::RDFXML: &lt;a href=&quot;https://github.com/ruby-rdf/rdf-rdfxml&quot;&gt;https://github.com/ruby-rdf/rdf-rdfxml&lt;/a&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Now fully supports JRuby; previously, the writer only worked on MRI and Rubinius. Writer now uses Haml templates, and extends the RDFa writer.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;RDF::Turtle: &lt;a href=&quot;https://github.com/ruby-rdf/rdf-turtle&quot;&gt;https://github.com/ruby-rdf/rdf-turtle&lt;/a&gt;, RDF::TriG: &lt;a href=&quot;https://github.com/ruby-rdf/rdf-trig&quot;&gt;https://github.com/ruby-rdf/rdf-trig&lt;/a&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;Full support for RDF 1.1 specifications&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;SPARQL: &lt;a href=&quot;https://github.com/ruby-rdf/sparql&quot;&gt;https://github.com/ruby-rdf/sparql&lt;/a&gt;&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;All query operators now accept a block for returning solutions in addition to returning the RDF::Query::Solutions.&lt;/li&gt;
+      &lt;li&gt;Specific Queryable implementations can now optimize any part of the SPARQL Algebra execution chain by implementing the appropriate operator as all calls go through the RDF::Queryable object. This can be used by specific storage adaptors to implement part or all of the query chain using implementation-specific optimizations.&lt;/li&gt;
+      &lt;li&gt;Minor test harness changes to tollerate RDF 1.1 changes.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Rack::LinkedData, Sinatra::LinkedData, Rack::SPARQL, Rack::Sinatra&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;All updated for latest versions of Rack and Sinatra. Note that Sinatra does not support returning the enumerable without a content type for content-negotiated serialization of the results, as Sinatra defaults results to text/html. Use linkeddata_options (or sparql_options) to set desired content type or format of result. Prioritized ACCEPT types provided through environment.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;All gems now support only Ruby &amp;gt;= 1.9.2, JRuby and Rubinius.&lt;/p&gt;
+
+&lt;p&gt;This includes the following individual gems:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Core RDF and repositories:&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;rdf&lt;/li&gt;
+      &lt;li&gt;rdf-aggregate-repo&lt;/li&gt;
+      &lt;li&gt;rdf-do&lt;/li&gt;
+      &lt;li&gt;rdf-isomorphic&lt;/li&gt;
+      &lt;li&gt;rdf-mongo&lt;/li&gt;
+      &lt;li&gt;rdf-spec&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;RDF Serialization formats&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;json-ld&lt;/li&gt;
+      &lt;li&gt;rdf-json&lt;/li&gt;
+      &lt;li&gt;rdf-microdata&lt;/li&gt;
+      &lt;li&gt;rdf-n3&lt;/li&gt;
+      &lt;li&gt;rdf-raptor&lt;/li&gt;
+      &lt;li&gt;rdf-rdfa&lt;/li&gt;
+      &lt;li&gt;rdf-rdfxml&lt;/li&gt;
+      &lt;li&gt;rdf-trig&lt;/li&gt;
+      &lt;li&gt;rdf-trix&lt;/li&gt;
+      &lt;li&gt;rdf-turtle&lt;/li&gt;
+      &lt;li&gt;rdf-xsd&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Querying&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;sparql&lt;/li&gt;
+      &lt;li&gt;sparql-client&lt;/li&gt;
+      &lt;li&gt;spira&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Rollup releases, including most of the above gems&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;linkeddata&lt;/li&gt;
+      &lt;li&gt;rack-linkeddata&lt;/li&gt;
+      &lt;li&gt;sinatra-linkeddata&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;All versions of this are running on my distiller: &lt;a href=&quot;http://rdf.greggkellogg.net/&quot;&gt;http://rdf.greggkellogg.net/&lt;/a&gt;. Any comments or issues found prior to release are appreciated.&lt;/p&gt;
+
+&lt;p&gt;I’d like to thank David Butler, Judson Lester, Justin Coyne, Slava Kravchenko, and Aymeric Brisse in particular for their active support in maintaining the Ruby RDF eco-system.&lt;/p&gt;
+</description>
+        <pubDate>Fri, 06 Dec 2013 12:59:03 -0800</pubDate>
+        <link>http://greggkellogg.net/2013/12/release-1-1-0-of-ruby-rdf-libraries/</link>
+        <guid isPermaLink="true">http://greggkellogg.net/2013/12/release-1-1-0-of-ruby-rdf-libraries/</guid>
+        
+        
+        <category>Ruby</category>
+        
+        <category>Semantic Web</category>
+        
+      </item>
+    
+      <item>
+        <title>Philippines September 2013</title>
+        <description>&lt;p&gt;I had a great dive in the Philippines diving at &lt;a href=&quot;http://atmosphereresorts.com&quot;&gt;Atmosphere Resort&lt;/a&gt; in Negros Oriental and &lt;a href=&quot;http://amunini.com&quot;&gt;Amun Ini&lt;/a&gt; in Bohol. This was really a great opportunity for some warm-water macro-photography, and as I had not even brought a wide-angle lens, this is where I &lt;em&gt;focused&lt;/em&gt;. Enjoy the &lt;a href=&quot;/galleries/Philippines-2013-09/index.html&quot;&gt;photo gallery&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/galleries/Philippines-2013-09/index.html&quot; jscontroller=&quot;false&quot; rel=&quot;qtposter&quot;&gt;&lt;img alt=&quot;Philippines Photo Gallery&quot; src=&quot;/galleries/Philippines-2013-09/content/images/large/_MG_8582.jpg&quot; style=&quot;width: 535px; height: 311px;&quot; /&gt; &lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Fri, 27 Sep 2013 09:37:13 -0700</pubDate>
+        <link>http://greggkellogg.net/2013/09/philippines-september-2013/</link>
+        <guid isPermaLink="true">http://greggkellogg.net/2013/09/philippines-september-2013/</guid>
+        
+        
+        <category>Diving</category>
+        
+        <category>Photography</category>
+        
+      </item>
+    
+      <item>
+        <title>RDF.rb and SPARQL gem updates</title>
+        <description>&lt;p&gt;&lt;span itemprop=&quot;name&quot; style=&quot;display:none&quot;&gt;RDF.rb and SPARQL updates&lt;/span&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;span itemprop=&quot;description&quot;&gt;Version 1.0.6 of RDF.rb and 1.0.7 of SPARQL gems released.&lt;/span&gt;&lt;/p&gt;
+
+&lt;p&gt;I recently pushed updates to &lt;a href=&quot;http://rubygems.org/gems/rdf&quot;&gt;RDF.rb&lt;/a&gt; and &lt;a href=&quot;http://rubygems.org/gems/sparql&quot;&gt;SPARQL&lt;/a&gt; gems. These updates contain some useful new features:&lt;/p&gt;
+
+&lt;h2 id=&quot;rdfrb&quot;&gt;RDF.rb&lt;/h2&gt;
+
+&lt;p&gt;The main RDF gem has many updates to bring it closer to the coming update to the RDF 1.1 specifications (&lt;a href=&quot;http://www.w3.org/TR/rdf11-concepts/&quot;&gt;RDF Concepts&lt;/a&gt;, &lt;a href=&quot;http://www.w3.org/TR/rdf11-mt/&quot;&gt;RDF Semantics&lt;/a&gt;, &lt;a href=&quot;http://www.w3.org/TR/turtle/&quot;&gt;Turtle&lt;/a&gt;, &lt;a href=&quot;http://www.w3.org/TR/trig/&quot;&gt;TriG&lt;/a&gt; &lt;a href=&quot;http://www.w3.org/TR/n-triples/&quot;&gt;N-Triples&lt;/a&gt;, &lt;a href=&quot;http://www.w3.org/TR/n-quads/&quot;&gt;N-Quads&lt;/a&gt;, and &lt;a href=&quot;http://json-ld.org/spec/latest/&quot;&gt;JSON-LD&lt;/a&gt;). Notable changes since the 1.0 release are:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Make distinction between Plain and Simple literals; Simple literals have no language, plain literals may also have a language. And, in preparation for RDF 1.1, literals having a datatype of xsd:string are considered Simple literals. Language-tagged literals may have a datatype of rdf:langString.&lt;/li&gt;
+  &lt;li&gt;Improved support for queries using hash patterns (thanks to @markborkum).&lt;/li&gt;
+  &lt;li&gt;Update &lt;a href=&quot;http://www.w3.org/TR/n-triples/&quot;&gt;N-Triples&lt;/a&gt; (and &lt;a href=&quot;http://www.w3.org/TR/n-quads/&quot;&gt;N-Quads&lt;/a&gt;) readers and writers to support the RDF 1.1 version, including new escape sequences and support for UTF-8, in addition to ASCII. When writing characters are escaped depending on the specified encoding or that inferred from the output file.&lt;/li&gt;
+  &lt;li&gt;Term and Statement comparison is dramatically improved improving statement insertion and query performance.&lt;/li&gt;
+  &lt;li&gt;Other literal changes required to support SPARQL 1.1&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;On the 1.1 branch:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;RDF::URI re-written to not require Addressable. This improves general performance of using URIs by about 50% (depends on 1.9+ features, so not included in the 1.0 branch).&lt;/li&gt;
+  &lt;li&gt;Support for Ruby versions less than 1.9.2 is dropped.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;sparql&quot;&gt;SPARQL&lt;/h2&gt;
+
+&lt;p&gt;The &lt;a href=&quot;http://rubygems.org/gems/sparql&quot;&gt;SPARQL&lt;/a&gt; gem is not based on the SPARQL 1.1 grammar, and now includes some features from SPARQL 1.1, including all functions and builtins and variable bindings. Look for new features to be added incrementally; once a critical mass is reached, I’ll update the gem version to 1.1 to reflect that this is essentially a 1.1 compatible version of SPARQL. Eventually this will include SPARQL Update and Federated Queries as well.&lt;/p&gt;
+
+&lt;h2 id=&quot;other-gems&quot;&gt;Other gems&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://rubygems.org/gems/json-ld&quot;&gt;JSON::LD&lt;/a&gt; is released as version 1.0.0 and is full compatible with the last-call version of the &lt;a href=&quot;http://json-ld.org/spec/latest/&quot;&gt;JSON-LD&lt;/a&gt; specifications, including support for framing.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://rubygems.org/gems/rdf-turtle&quot;&gt;RDF::Turtle&lt;/a&gt; is fully compatible with the RDF 1.1 version.
+    &lt;ul&gt;
+      &lt;li&gt;Also includes a &lt;a href=&quot;https://developers.google.com/freebase/data&quot;&gt;Freebase&lt;/a&gt;-specific reader for fastest performance reading Freebase dumps.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://rubygems.org/gems/rdf-rdfa&quot;&gt;RDF::RDFa&lt;/a&gt; is compatible with &lt;a href=&quot;http://www.w3.org/TR/rdfa-core/&quot;&gt;RDFa Core 1.1&lt;/a&gt; and &lt;a href=&quot;http://www.w3.org/TR/rdfa-in-html/&quot;&gt;HTML+RDFa 1.1&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://rubygems.org/gems/rdf-trig&quot;&gt;RDF::TriG&lt;/a&gt; is released as a 1.0.0 version, based on the RDF 1.1 note&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://rubygems.org/gems/rdf-raptor&quot;&gt;RDF::Raptor&lt;/a&gt; now uses Raptor 2.0, and is fully compatible with the latest version of &lt;a href=&quot;http://librdf.org/raptor/&quot;&gt;Redland/Raptor&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Sat, 11 May 2013 16:12:21 -0700</pubDate>
+        <link>http://greggkellogg.net/2013/05/rdf-rb-and-sparql-gem-updates/</link>
+        <guid isPermaLink="true">http://greggkellogg.net/2013/05/rdf-rb-and-sparql-gem-updates/</guid>
+        
+        
+        <category>Ruby</category>
+        
+        <category>Semantic Web</category>
+        
+      </item>
+    
+      <item>
+        <title>RDF.rb 1.0 Release</title>
+        <description>&lt;p&gt;I’m happy to announce the 1.0 release of &lt;a href=&quot;http://ruby-rdf.github.com/rdf&quot;&gt;RDF.rb&lt;/a&gt; and related Ruby gems. This release has been a long time coming, and the library has actually been quite stable for some time.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://ruby-rdf.github.com/rdf&quot;&gt;RDF.rb&lt;/a&gt; is a &lt;a href=&quot;http://rubygems.org/&quot;&gt;Ruby Gem&lt;/a&gt; implementing core [RDF][] concepts, such as &lt;a href=&quot;http://rubydoc.info/github/ruby-rdf/rdf/RDF/Graph&quot;&gt;Graph&lt;/a&gt;, &lt;a href=&quot;http://rubydoc.info/github/ruby-rdf/rdf/RDF/Repository&quot;&gt;Repository&lt;/a&gt;, &lt;a href=&quot;http://rubydoc.info/github/ruby-rdf/rdf/RDF/Statement&quot;&gt;Statement&lt;/a&gt;, and &lt;a href=&quot;http://rubydoc.info/github/ruby-rdf/rdf/RDF/Query&quot;&gt;Query&lt;/a&gt;. It also supports core &lt;a href=&quot;http://rubydoc.info/github/ruby-rdf/rdf/RDF/Reader&quot;&gt;readers&lt;/a&gt; and &lt;a href=&quot;http://rubydoc.info/github/ruby-rdf/rdf/RDF/Writer&quot;&gt;writers&lt;/a&gt; (parsers and serializers) for &lt;a href=&quot;http://en.wikipedia.org/wiki/N-Triples&quot;&gt;N-Triples&lt;/a&gt; and &lt;a href=&quot;http://sw.deri.org/2008/07/n-quads/&quot;&gt;N-Quads&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Through other gems, more readers and writers are implemented, including:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://json-ld.org/&quot;&gt;JSON-LD&lt;/a&gt; using the &lt;a href=&quot;http://gkellogg.github.com/json-ld&quot;&gt;JSON::LD&lt;/a&gt; gem.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/Microdata_(HTML)&quot;&gt;Microdata&lt;/a&gt; using the &lt;a href=&quot;http://ruby-rdf.github.com/rdf-microdata&quot;&gt;RDF::Microdata&lt;/a&gt; gem.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/Notation3&quot;&gt;Notation3&lt;/a&gt; using the &lt;a href=&quot;http://ruby-rdf.github.com/rdf-n3&quot;&gt;RDF::N3&lt;/a&gt; gem.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://n2.talis.com/wiki/RDF_JSON_Specification&quot;&gt;RDF/JSON&lt;/a&gt; using the &lt;a href=&quot;http://ruby-rdf.github.com/rdf-json&quot;&gt;RDF::JSON&lt;/a&gt; gem.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/RDF/XML&quot;&gt;RDF/XML&lt;/a&gt; using the &lt;a href=&quot;http://ruby-rdf.github.com/rdf-rdfxml&quot;&gt;RDF::RDFXML&lt;/a&gt; gem.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; using the &lt;a href=&quot;http://ruby-rdf.github.com/rdf-rdfa&quot;&gt;RDF::RDFa&lt;/a&gt; gem.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://wifo5-03.informatik.uni-mannheim.de/bizer/trig/&quot;&gt;TriG&lt;/a&gt; using the &lt;a href=&quot;http://ruby-rdf.github.com/rdf-trig&quot;&gt;RDF::TriG&lt;/a&gt; gem.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/TriX_(syntax)&quot;&gt;TriX&lt;/a&gt; using the &lt;a href=&quot;http://ruby-rdf.github.com/rdf-trix&quot;&gt;RDF::TriX&lt;/a&gt; gem.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.w3.org/TR/turtle/&quot;&gt;Turtle&lt;/a&gt; using the &lt;a href=&quot;http://ruby-rdf.github.com/rdf-turtle&quot;&gt;RDF::Turtle&lt;/a&gt; gem.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Additional readers and writers are available through &lt;a href=&quot;http://librdf.org&quot;&gt;Redland&lt;/a&gt; &lt;a href=&quot;http://librdf.org/raptor/&quot;&gt;Raptor&lt;/a&gt; bindings using the &lt;a href=&quot;http://ruby-rdf.github.com/rdf-raptor&quot;&gt;RDF::Raptor&lt;/a&gt; gem.&lt;/p&gt;
+
+&lt;p&gt;In addition to native support for BGP-based queries, there is a full-conferment &lt;a href=&quot;http://en.wikipedia.org/wiki/Sparql&quot;&gt;SPARQL&lt;/a&gt; 1.0 gem (&lt;a href=&quot;http://ruby-rdf.github.com/sparql&quot;&gt;SPARQL gem&lt;/a&gt;), and SPARQL 1.1 client gem (&lt;a href=&quot;http://ruby-rdf.github.com/sparql-client&quot;&gt;SPARQL::Client&lt;/a&gt;).&lt;/p&gt;
+
+&lt;p&gt;All of these gems can be packaged together using the &lt;a href=&quot;http://ruby-rdf.github.com/linkeddata&quot;&gt;Linkeddata&lt;/a&gt;, &lt;a href=&quot;http://ruby-rdf.github.com/rack-linkeddata&quot;&gt;Rack::LinkedData&lt;/a&gt;, and &lt;a href=&quot;http://ruby-rdf.github.com/sinatra-linkeddata&quot;&gt;Sinatra::LinkedData&lt;/a&gt; gems.&lt;/p&gt;
+
+&lt;p&gt;There are also a number of storage adaptors for popular backends, including the following:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.mongodb.org&quot;&gt;MongoDB&lt;/a&gt; using the &lt;a href=&quot;https://github.com/ruby-rdf/rdf-mongo&quot;&gt;RDF::Mongo&lt;/a&gt; gem.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.openrdf.org&quot;&gt;Sesame&lt;/a&gt; using the &lt;a href=&quot;https://github.com/ruby-rdf/rdf-sesame&quot;&gt;RDF::Sesame&lt;/a&gt; gem.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://virtuoso.openlinksw.com/dataspace/dav/wiki/Main/VOSRDF&quot;&gt;Virtuoso&lt;/a&gt; using the &lt;a href=&quot;https://github.com/digibib/rdf-virtuoso&quot;&gt;RDF::Virtuoso&lt;/a&gt; gem.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.franz.com/agraph/allegrograph/&quot;&gt;AllegroGraph&lt;/a&gt; using the &lt;a href=&quot;https://github.com/ruby-rdf/rdf-agraph&quot;&gt;RDF::AllegroGraph&lt;/a&gt; gem.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;background&quot;&gt;Background&lt;/h2&gt;
+
+&lt;p&gt;I first became involved with RDF when working on the &lt;a href=&quot;http://connectedmediaexperience.org&quot;&gt;Connected Media Experience&lt;/a&gt; (CME) design (see &lt;a href=&quot;http://greggkellogg.net/2011/05/07/cme-and-the-semantic-web&quot;&gt;blog entry&lt;/a&gt;). Having designed a proprietary metadata standard for &lt;a href=&quot;http://www.gracenote.com&quot;&gt;Gracenote&lt;/a&gt; and &lt;a href=&quot;http://www.wmg.com&quot;&gt;Warner Music Group&lt;/a&gt; (later for CME), through review with &lt;a href=&quot;http://gonze.com/blog/&quot;&gt;Lucas Gonze&lt;/a&gt;, I was introduced to the &lt;a href=&quot;http://musicontology.com&quot;&gt;Music Ontology&lt;/a&gt;, which had done an extremely thorough modeling of the music domain. This caused significant debate in the CME community, which lead to an updated design based on RDF, and many of the ideas from the &lt;a href=&quot;http://musicontology.com&quot;&gt;Music Ontology&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;During the same review, I was also introduced to &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; as a mechanism of embedding music metadata within a web page. Since CME is endeavoring to create a standard for enhanced digital media packages, &lt;a href=&quot;http://www.w3.org/TR/html5/&quot;&gt;HTML5&lt;/a&gt; and &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; are natural technologies to utilize.&lt;/p&gt;
+
+&lt;p&gt;My methodology for approaching architectures and specifications is based on parallel prototyping, to validate the details of a design, and sometimes serve as the bases for an implementation. For several years (starting in 2007) I had been using &lt;a href=&quot;http://rubyonrails.org&quot;&gt;Ruby on Rails&lt;/a&gt; and was quite invested in the &lt;a href=&quot;http://www.ruby-lang.org/en/&quot;&gt;Ruby&lt;/a&gt;. My first attempts to integrate &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; into the implementation made use of the &lt;a href=&quot;http://librdf.org/raptor/&quot;&gt;Raptor&lt;/a&gt; parser, which unfortunately was not up-to-date with respect to the &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; 1.0 specification current at the time. Additionally, I found that the Ruby Bindings suffered from memory leaks, and went to look for a native Ruby implementation. This lead to &lt;a href=&quot;http://tommorris.org/&quot;&gt;Tom Morris&lt;/a&gt;‘ &lt;a href=&quot;https://github.com/tommorris/reddy&quot;&gt;Reddy&lt;/a&gt; gem. This was a port of the Python &lt;a href=&quot;http://code.google.com/p/rdflib/&quot;&gt;rdflib&lt;/a&gt; package to Ruby, which was going in the right direction, but had fallen into disuse. I created my own fork, and later released as &lt;a href=&quot;https://github.com/gkellogg/rdf_context&quot;&gt;RdfContext&lt;/a&gt; which had complete implementations for &lt;a href=&quot;http://en.wikipedia.org/wiki/RDF/XML&quot;&gt;RDF/XML&lt;/a&gt;, &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; 1.0, and &lt;a href=&quot;http://en.wikipedia.org/wiki/Notation3&quot;&gt;Notation3&lt;/a&gt; (N3-rdf level).&lt;/p&gt;
+
+&lt;p&gt;In the mean time, &lt;a href=&quot;http://ar.to&quot;&gt;Arto Bendiken&lt;/a&gt; and &lt;a href=&quot;http://bhuga.net&quot;&gt;Ben Lavender&lt;/a&gt; had been working on &lt;a href=&quot;http://ruby-rdf.github.com/rdf&quot;&gt;RDF.rb&lt;/a&gt;, taking a different approach closer to &lt;a href=&quot;http://www.openrdf.org&quot;&gt;Sesame&lt;/a&gt;. The design of &lt;a href=&quot;http://ruby-rdf.github.com/rdf&quot;&gt;RDF.rb&lt;/a&gt; is quite elegant, making effective use of natural Ruby idioms, and taking an approach based heavily on using Ruby module extensions. After a prod by &lt;a href=&quot;http://www.aelius.com/njh/&quot;&gt;Nick Humfrey&lt;/a&gt; who had started a port of my &lt;a href=&quot;http://en.wikipedia.org/wiki/RDF/XML&quot;&gt;RDF/XML&lt;/a&gt; parser, I jumped in and ported the bulk of my RDF parsers and serializers, eventually adding several more, to make the &lt;a href=&quot;http://ruby-rdf.github.com/rdf&quot;&gt;RDF.rb&lt;/a&gt; platform one of the most complete in terms of standards support across all major (and minor) serialization formats. In 2010, I was asked to join the &lt;a href=&quot;http://ruby-rdf.github.com/rdf&quot;&gt;RDF.rb&lt;/a&gt; core development team, and soon became the primary maintainer after Arto and Ben became fully committed with &lt;a href=&quot;http://dydra.com/&quot;&gt;Dydra&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Arto and I finally got together recently to move all of the gems primary repositories to the &lt;a href=&quot;http://ruby-rdf.github.com&quot;&gt;Ruby RDF&lt;/a&gt; organization on GitHub, and release them as 1.0. The next significant release should be 1.1, to coincide with the release of the &lt;a href=&quot;http://www.w3.org/TR/rdf11-concepts/&quot;&gt;RDF 1.1&lt;/a&gt; specs from the W3C.&lt;/p&gt;
+</description>
+        <pubDate>Fri, 25 Jan 2013 12:40:22 -0800</pubDate>
+        <link>http://greggkellogg.net/2013/01/rdf-rb-1-0-release/</link>
+        <guid isPermaLink="true">http://greggkellogg.net/2013/01/rdf-rb-1-0-release/</guid>
+        
+        
+        <category>Ruby</category>
+        
+        <category>Semantic Web</category>
+        
+      </item>
+    
+      <item>
+        <title>JSON-LD and MongoDB</title>
+        <description>&lt;p&gt;For the last several months, I’ve been engaged in an interesting project with &lt;a href=&quot;http://wikia.com&quot;&gt;Wikia&lt;/a&gt;. Wikia hosts hundreds of thousands of special-interest wikis for things as varied as &lt;a href=&quot;http://pikamon.wikia.com/wiki/Pokemon_Wiki&quot;&gt;pokemon&lt;/a&gt;, &lt;a href=&quot;http://prepaidwithdata.wikia.com/wiki/Prepaid_SIM_with_data&quot;&gt;best cellphone rate comparisons&lt;/a&gt;, &lt;a href=&quot;http://lost.wikia.com/wiki/Main_Page&quot;&gt;TV shows&lt;/a&gt; and &lt;a href=&quot;http://callofduty.wikia.com/wiki/Main_Page&quot;&gt;Video Games&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;For those of you not aware of Wikia, it is an outgrowth of the &lt;a href=&quot;http://www.mediawiki.org&quot;&gt;MediaWiki&lt;/a&gt; and was founded by &lt;a href=&quot;http://en.wikipedia.org/wiki/Jimmy_Wales&quot;&gt;Jimmy Wales&lt;/a&gt; as a for-profit means of using the MediaWiki platform for exactly such interests.&lt;/p&gt;
+
+&lt;p&gt;Recently &lt;a href=&quot;http://www.wikimedia.de/wiki/Hauptseite&quot;&gt;MediaWiki Deutschland&lt;/a&gt; started work on &lt;a href=&quot;http://meta.wikimedia.org/wiki/Wikidata&quot;&gt;WikiData&lt;/a&gt;, an effort to use Semantic Web principles to create a factual knowledge base that can be used within Wikis (typically to replace Infobox information, which can vary between different language versions). This is a somewhat different direction than &lt;a href=&quot;http://semantic-mediawiki.org&quot;&gt;Semantic Media Wiki&lt;/a&gt;, which is more about using Wiki markup to express semantic relationships within a Wiki. As it happens &lt;a href=&quot;http://json-ld.org/&quot;&gt;JSON-LD&lt;/a&gt; is being considered as the data representation model for &lt;a href=&quot;&quot;&gt;WikiData&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;linked-data-at-wikia&quot;&gt;Linked Data at Wikia&lt;/h3&gt;
+
+&lt;p&gt;As it turns out, Wikia has been quite interested in leveraging these tools. I did mention that Wikia is a for-profit company; one way they do this is through in-page advertising, but the amount of knowledge curated by the hundreds of thousands of communities is staggering. Unfortunately, native Wiki markup just isn’t that semantic. However, much of the information represented is factual (at least within the world-view of the wiki community).&lt;/p&gt;
+
+&lt;p&gt;To that end, I’ve been working on an experiment using &lt;a href=&quot;&quot;&gt;JSON-LD&lt;/a&gt; and &lt;a href=&quot;http://www.mongodb.org&quot;&gt;MongoDB&lt;/a&gt; to power a parallel structured data representation of much of the information contained in a wiki. The idea is to add a minimal amount of markup (hopefully) to the Wiki text and templates so that information can be represented in the generated HTML using &lt;a href=&quot;http://w3.org/TR/rdfa-core/&quot;&gt;RDFa&lt;/a&gt;. This allows the content of the Wiki to be mirrored in a &lt;a href=&quot;&quot;&gt;MongoDB&lt;/a&gt;-based service using &lt;a href=&quot;&quot;&gt;JSON-LD&lt;/a&gt;. Once the data has been freed from the context of the limited Wiki markup, it can now be re-purposed outside of the Wiki itself.&lt;/p&gt;
+
+&lt;h3 id=&quot;knowledge-modeling-and-data-representation&quot;&gt;Knowledge modeling and data representation&lt;/h3&gt;
+
+&lt;p&gt;Why use &lt;a href=&quot;&quot;&gt;RDFa&lt;/a&gt; and not &lt;a href=&quot;http://www.w3.org/TR/microdata/&quot;&gt;Microdata&lt;/a&gt;? The primary driver is the need to use multiple vocabularies to represent information. In my opinion, any new vocabulary needs to take into consideration &lt;a href=&quot;http://schema.org/&quot;&gt;schema.org&lt;/a&gt;; &lt;a href=&quot;http://www.w3.org/TR/microdata/&quot;&gt;microdata&lt;/a&gt; works great with &lt;a href=&quot;&quot;&gt;schema.org&lt;/a&gt;, and can generate &lt;a href=&quot;&quot;&gt;RDF&lt;/a&gt; (see &lt;a href=&quot;http://www.w3.org/TR/microdata-rdf/&quot;&gt;Microdata to RDF&lt;/a&gt;) as long as you’re constrained to a single vocabulary, don’t need to keep typed data, and don’t need to capture actual HTML markup. Unfortunately, any serious application beyond simple Search Engine Optimization (SEO) &lt;em&gt;does&lt;/em&gt; need to use these features. In our case, much of the interesting data to capture are fragments of the Wiki pages themselves. Moreover, the content of any Wiki, much less one that has as much special meaning as, say, a Video Game, needs to describe relationships that are not natively part of the &lt;a href=&quot;&quot;&gt;schema.org&lt;/a&gt; vocabulary. Schema does provide an &lt;a href=&quot;http://schema.org/docs/extension.html&quot;&gt;extension mechanism&lt;/a&gt; partly for this purpose, and recently the ability to tag subjects with an &lt;a href=&quot;http://semanticweb.com/schema-org-adds-additional-type-property_b30861&quot;&gt;additional type&lt;/a&gt;, not part of the primary vocabulary (presumably &lt;a href=&quot;&quot;&gt;schema.org&lt;/a&gt;) was introduced. But, once the decision is made to use multiple vocabularies, RDFa has better mechanisms in place anyway.&lt;/p&gt;
+
+&lt;p&gt;At Wikia, we define a vocabulary as an extension to &lt;a href=&quot;&quot;&gt;schema.org&lt;/a&gt;, that is, the classes defined within that vocabulary are sub-classes of &lt;a href=&quot;&quot;&gt;schema.org&lt;/a&gt; classes, although typically the properties are &lt;em&gt;not&lt;/em&gt; sub-properties of &lt;a href=&quot;&quot;&gt;schema.org&lt;/a&gt; properties (we may revisit this). For example, a &lt;code class=&quot;highlighter-rouge&quot;&gt;wikia:VideoGame&lt;/code&gt; is a sub-class of &lt;code class=&quot;highlighter-rouge&quot;&gt;schema:CreativeWork&lt;/code&gt;, and a &lt;code class=&quot;highlighter-rouge&quot;&gt;wikia:WikiText&lt;/code&gt; is a sub-class of &lt;code class=&quot;highlighter-rouge&quot;&gt;schema:WebPageElement&lt;/code&gt;. There are additional class and property definitions to describe the structural detail common to Video Games in describing characters, levels, weapons, and so forth. An &lt;a href=&quot;&quot;&gt;RDFa&lt;/a&gt; description will assert both the native class (e.g., &lt;code class=&quot;highlighter-rouge&quot;&gt;wikia:VideoGame&lt;/code&gt;) and the &lt;a href=&quot;&quot;&gt;schema.org&lt;/a&gt; extension class (e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;schema:CreativeWork/VideoGame&lt;/code&gt;). This allows search engines to make sense of the structured data, without the need to understand an externally defined vocabulary.&lt;/p&gt;
+
+&lt;p&gt;However, for Wikia’s purposes, and that of people wanting to work with in the Wikia structured-data echo-system, having a vocabulary that models the information contained within Wikia Wikis can be of great benefit. Key to this is knowning how much to model with classes and properties, and how much to leave to things such as naming conventions and keywords. In fact, there are likely cases where more per-wiki modeling is required, and we are continuing to explore ways in which we can further extend the vocabularies, without imposing a large burden on ontology development, and to keep the data reasonably generically useful.&lt;/p&gt;
+
+&lt;h3 id=&quot;linked-data-api&quot;&gt;Linked Data API&lt;/h3&gt;
+
+&lt;p&gt;Although RDFa structured in HTML can be quite useful as an API itself, modern Single Page Applications are better served through RESTful interfaces with a JSON representation. &lt;a href=&quot;&quot;&gt;JSON-LD&lt;/a&gt; was developed as a means of expressing Linked Data in JSON. It is fully compatible with &lt;a href=&quot;&quot;&gt;RDF&lt;/a&gt;. Indeed, many of the concepts used in &lt;a href=&quot;&quot;&gt;RDFa&lt;/a&gt; can be seen in &lt;a href=&quot;&quot;&gt;JSON-LD&lt;/a&gt; – Compact IRIs, language- and datatyped-values, globally identified properties, and the basic graph data model of &lt;a href=&quot;&quot;&gt;RDF&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Furthermore, a &lt;a href=&quot;&quot;&gt;JSON-LD&lt;/a&gt;-based service allows resource descriptions, that may be spread across multiple HTML pages, to be consolidated into individual &lt;em&gt;subject definitions&lt;/em&gt;. By storing these &lt;em&gt;subject definitions&lt;/em&gt; in a JSON-friendly datastore such as &lt;a href=&quot;&quot;&gt;MongoDB&lt;/a&gt;, the full power of a scaleable document store becomes available to the data otherwise spread out across numerous Wiki pages. But, the fact that the &lt;a href=&quot;&quot;&gt;JSON-LD&lt;/a&gt; can be fully generated from the &lt;a href=&quot;&quot;&gt;RDFa&lt;/a&gt; contained in the generated Wiki pages, ensures that the data will remain synchronized.&lt;/p&gt;
+
+&lt;p&gt;In the future, with the growth and adoption of systems such as &lt;a href=&quot;&quot;&gt;WikiData&lt;/a&gt;, we can expect to see much of the factual information currently expressed as Wiki markup moved to outside services. The needs of the Wiki communities remain paramount, as they are at the heart of the data explosion we’ve seen in the hundreds of thousands of Wikis hosted at Wikia and elsewhere, not to mention WikiPedia and related MediaWiki projects.&lt;/p&gt;
+
+&lt;p&gt;As the communities become more comfortable with using knowledge stores, such as &lt;a href=&quot;&quot;&gt;WikiData&lt;/a&gt; and Wikia’s linked data platform, we should see a further explosion in the amount of structured information available on the web in general. The real future, then, relies not only in the efforts of communities to curate their information, but in the ability to use the principles of the Semantic Web and Linked Data to infer connections based on distributed information.&lt;/p&gt;
+
+&lt;p&gt;I’ll be speaking more about &lt;a href=&quot;&quot;&gt;JSON-LD&lt;/a&gt; and &lt;a href=&quot;&quot;&gt;MongoDB&lt;/a&gt; at &lt;a href=&quot;http://nosql2012.dataversity.net&quot;&gt;NoSQL Now!&lt;/a&gt; later this week in San Jose. Slides for my talk are available on &lt;a href=&quot;http://www.slideshare.net/gkellogg1/jsonld-and-mongodb&quot;&gt;slideshare&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 21 Aug 2012 06:50:56 -0700</pubDate>
+        <link>http://greggkellogg.net/2012/08/json-ld-and-mongodb/</link>
+        <guid isPermaLink="true">http://greggkellogg.net/2012/08/json-ld-and-mongodb/</guid>
+        
+        
+        <category>JavaScript</category>
+        
+        <category>Ruby</category>
+        
+        <category>Semantic Web</category>
+        
+      </item>
+    
+      <item>
+        <title>Channel Islands May 2012</title>
+        <description>&lt;p&gt;Just back from a great trip to Santa Cruz Island over Memorial day. Did some teaching, and had just about two dives to do some Underwater Macro Photography. I recently purchased a Canon 100 mm USM, which I got to check out. Water was pretty murky, but being able to get just inches away from the subjects does wonders. While shooting one of the Nudi’s a Harbor Seal started tugging on my fins, and came right around in front; that’s when I wished I had had a wide angle lens too. Check out the &lt;a href=&quot;/galleries/Channel%20Islands%202012-05/&quot;&gt;photo gallery&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/galleries/Channel%20Islands%202012-05/&quot;&gt; &lt;img alt=&quot;Hermissenda crassicornis&quot; src=&quot;/galleries/Channel%20Islands%202012-05/content/images/large/Channel_Islands-20120528-85.jpg&quot; style=&quot;width: 530px; height: 309px;&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Thu, 31 May 2012 18:35:20 -0700</pubDate>
+        <link>http://greggkellogg.net/2012/06/channel-islands-may-2012/</link>
+        <guid isPermaLink="true">http://greggkellogg.net/2012/06/channel-islands-may-2012/</guid>
+        
+        
+        <category>Diving</category>
+        
+        <category>Photography</category>
+        
+      </item>
+    
+      <item>
+        <title>BrowserID versus DDOS</title>
+        <description>&lt;p&gt;&lt;span itemprop=&quot;name&quot; style=&quot;display:none&quot;&gt;&lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; vs DDOS&lt;/span&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;span itemprop=&quot;description&quot; style=&quot;display:none&quot;&gt;How &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; saved the &lt;a href=&quot;http://rdfa.info/test-suite/&quot;&gt;RDFa Test Suite&lt;/a&gt; from a DDOS (Distributed Denial of Service Attack).&lt;/span&gt;&lt;/p&gt;
+
+&lt;p&gt;This article is the third in a three-part series on implementing the [RDFa&lt;/p&gt;
+
+&lt;p&gt;Test Suite](http://rdfa.info/test-suite/). The [first&lt;/p&gt;
+
+&lt;p&gt;article](http://greggkellogg.net/2012/03/18/a-new-rdfa-test-harness)&lt;/p&gt;
+
+&lt;p&gt;discussed the use of &lt;a href=&quot;http://www.sinatrarb.com/&quot;&gt;Sinatra&lt;/a&gt;, &lt;a href=&quot;http://backbonejs.org/&quot;&gt;Backbone.js&lt;/a&gt; and &lt;a href=&quot;http://twitter.github.com/bootstrap/index.html&quot;&gt;Bootstrap.js&lt;/a&gt; in&lt;/p&gt;
+
+&lt;p&gt;creating the test harness. The [second&lt;/p&gt;
+
+&lt;p&gt;article](http://greggkellogg.net/2012/03/20/the-use-of-json-ld-in-the-rdfa-test-harness)&lt;/p&gt;
+
+&lt;p&gt;discussed the use of JSON-LD. In this article, we focus on our use of&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; in responding to a Distributed Denial of Service Attack&lt;/p&gt;
+
+&lt;p&gt;(DDOS).&lt;/p&gt;
+
+&lt;h3 id=&quot;rdfa-test-suite&quot;&gt;RDFa Test Suite&lt;/h3&gt;
+
+&lt;p&gt;Working on the updated &lt;a href=&quot;http://rdfa.info/test-suite/&quot;&gt;RDFa Test Suite&lt;/a&gt; has really been a lot of fun.&lt;/p&gt;
+
+&lt;p&gt;It was a great opportunity to explore new Web application technologies,&lt;/p&gt;
+
+&lt;p&gt;such as &lt;a href=&quot;http://twitter.github.com/bootstrap/index.html&quot;&gt;Bootstrap.js&lt;/a&gt; and &lt;a href=&quot;http://backbonejs.org/&quot;&gt;Backbone.js&lt;/a&gt;. The test suite is a&lt;/p&gt;
+
+&lt;p&gt;single-page web application which uses a &lt;a href=&quot;http://www.sinatrarb.com/&quot;&gt;Sinatra&lt;/a&gt; based service to run&lt;/p&gt;
+
+&lt;p&gt;individual test cases.&lt;/p&gt;
+
+&lt;p&gt;The site was becoming stable, and we were starting to flesh out more test&lt;/p&gt;
+
+&lt;p&gt;cases for odd corner cases, when the site started to not respond. [Manu&lt;/p&gt;
+
+&lt;p&gt;Sporny](http://manu.sporny.org/), who’s company [Digital&lt;/p&gt;
+
+&lt;p&gt;Bazaar](http://digitalbazaar.com/) is kindly donating hosting for the web&lt;/p&gt;
+
+&lt;p&gt;site, noticed that there were a number of Ruby processes that were&lt;/p&gt;
+
+&lt;p&gt;consuming available Ruby workers, and causing new requests to&lt;/p&gt;
+
+&lt;p&gt;block. The service &lt;em&gt;is&lt;/em&gt; fairly resource intensive, as it must invoke an&lt;/p&gt;
+
+&lt;p&gt;external processor and run a &lt;a href=&quot;http://www.w3.org/TR/rdf-sparql-query/&quot;&gt;SPARQL&lt;/a&gt; query over the results for each&lt;/p&gt;
+
+&lt;p&gt;test. It seemed as if the site was being hammered by a large number of&lt;/p&gt;
+
+&lt;p&gt;overzealous search crawlers! Naturally, we put a robots.txt in place,&lt;/p&gt;
+
+&lt;p&gt;expecting that conforming search engines would detect the site’s crawl&lt;/p&gt;
+
+&lt;p&gt;preferences and back off, but that didn’t happen. Upon further examination&lt;/p&gt;
+
+&lt;p&gt;of the server logs, we noted requests were streaming in from all over the&lt;/p&gt;
+
+&lt;p&gt;world! Clearly, we were under attack. (Who might wish ill of the RDFa&lt;/p&gt;
+
+&lt;p&gt;development effort? Who knows, but most likely this was just an anonymous,&lt;/p&gt;
+
+&lt;p&gt;and not specifically malicious attack).&lt;/p&gt;
+
+&lt;p&gt;My first thought was to make use a secret &lt;em&gt;api token&lt;/em&gt;, configured into the&lt;/p&gt;
+
+&lt;p&gt;server and the web app, but that didn’t really do the trick either; it&lt;/p&gt;
+
+&lt;p&gt;seemed that modern day malware actually just executes the JavaScript, so&lt;/p&gt;
+
+&lt;p&gt;it picks up the API key naturally!&lt;/p&gt;
+
+&lt;h3 id=&quot;browserid-to-the-rescue&quot;&gt;BrowserID to the Rescue!&lt;/h3&gt;
+
+&lt;p&gt;Okay, how about authentication? It’s typically a pain, and we were&lt;/p&gt;
+
+&lt;p&gt;reluctant to put up barriers in front of people who might want to test&lt;/p&gt;
+
+&lt;p&gt;their own processors or see how listed processors perform. The two current&lt;/p&gt;
+
+&lt;p&gt;contenders are &lt;a href=&quot;http://www.w3.org/2005/Incubator/webid/wiki/Main_Page&quot;&gt;WebID&lt;/a&gt; and &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.w3.org/2005/Incubator/webid/wiki/Main_Page&quot;&gt;WebID&lt;/a&gt; has the laudable goal of combining personally maintained profile&lt;/p&gt;
+
+&lt;p&gt;information with SSL certificates (it was previously known as FOAF+SSL).&lt;/p&gt;
+
+&lt;p&gt;Basically, it’s a mechanism to allow users to use a &lt;em&gt;profile page&lt;/em&gt; as&lt;/p&gt;
+
+&lt;p&gt;their identity. This could come off of their blog, Facebook, Twitter or&lt;/p&gt;
+
+&lt;p&gt;other social networking site. By configuring an SSL certificate into the&lt;/p&gt;
+
+&lt;p&gt;browser and pointing to their profile page, a service can determine that&lt;/p&gt;
+
+&lt;p&gt;the profile page actually belongs to the user. (There’s much more to it,&lt;/p&gt;
+
+&lt;p&gt;you can read more in the [WebID&lt;/p&gt;
+
+&lt;p&gt;Spec](http://www.w3.org/2005/Incubator/webid/spec/)). A key advantage here&lt;/p&gt;
+
+&lt;p&gt;is that the service now has access to all of the self-asserted information&lt;/p&gt;
+
+&lt;p&gt;the user want’s to provide about themselves as defined in their profile&lt;/p&gt;
+
+&lt;p&gt;page, such as &lt;code class=&quot;highlighter-rouge&quot;&gt;foaf:name&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;foaf:knows&lt;/code&gt;, and so forth. The chief downside&lt;/p&gt;
+
+&lt;p&gt;is that the common source of existing user identities in the world haven’t&lt;/p&gt;
+
+&lt;p&gt;bought into this, and there’s a competing solution that offers similar&lt;/p&gt;
+
+&lt;p&gt;benefits.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; is a Mozilla initiative to enable people with e-mail&lt;/p&gt;
+
+&lt;p&gt;addresses to use those e-mails to login to websites, kind of like&lt;/p&gt;
+
+&lt;p&gt;[OpenID][] – only more secure. Basically, as I understand it, a service&lt;/p&gt;
+
+&lt;p&gt;wanting to support this would include the &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; JavaScript client&lt;/p&gt;
+
+&lt;p&gt;code in their application and use a simple &lt;em&gt;Sign In&lt;/em&gt; button that invokes&lt;/p&gt;
+
+&lt;p&gt;this code. That sends a request off the the identity provider (IDP) to&lt;/p&gt;
+
+&lt;p&gt;authenticate the user, which has probably already happened in the past and&lt;/p&gt;
+
+&lt;p&gt;maintained in a cookie. The IDP then sends a response which invokes a&lt;/p&gt;
+
+&lt;p&gt;callback. The client then does a call back to the service to complete the&lt;/p&gt;
+
+&lt;p&gt;login passing the assertion.&lt;/p&gt;
+
+&lt;p&gt;The beauty is, using a tool such as the &lt;a href=&quot;http://rubygems.org/gems/sinatra-browserid&quot;&gt;sinatra-browserid&lt;/a&gt; Ruby gem,&lt;/p&gt;
+
+&lt;p&gt;this becomes dirt simple! Basically, on the API side, put in a call to&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;authorized?&lt;/code&gt; to determine if the user is authorized. If not, either&lt;/p&gt;
+
+&lt;p&gt;direct them to a login screen, or in the case of the &lt;a href=&quot;http://rdfa.info/test-suite/&quot;&gt;RDFa Test Suite&lt;/a&gt;,&lt;/p&gt;
+
+&lt;p&gt;place an informational message telling them why we need them to login, and&lt;/p&gt;
+
+&lt;p&gt;identify the &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; button at the top of the page.&lt;/p&gt;
+
+&lt;p&gt;In the principle entry-point to the test suite on the service side is&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;/test-suite/check-test/:version/:suite/:num&lt;/code&gt;. The only real change to&lt;/p&gt;
+
+&lt;p&gt;this method was to check for authorization before performing the test.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# Run a test
+get '/test-suite/check-test/:version/:suite/:num' do
+  return [403, &quot;Unauthorized access is not allowed&quot;] unless authorized?
+
+  # Get the SPARQL query
+  source = File.open(File.expand_path(&quot;../tests/#{num}.sparql&quot;))
+
+  # Do host-language specific modifications of the SPARQL query.
+  query = SPARQL.parse(source)
+
+  # Invoke the processor and retrieve results, parsed into an RDF graph
+  graph = RDF::Graph.load(params['rdfa-extractor'] + test_path(version, suite, num, format))
+
+  # Run the query
+  result = query.execute(graph)
+
+  # Return results as JSON
+  {:status =&amp;gt; result}.to_json
+end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;In the banner, we add a little bit of Haml:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;...
+%div.navbar-text.pull-right
+  - if email
+    %p.email
+      Logged in as
+      %span.email
+        = email
+      %a{:href =&amp;gt; '/test-suite/logout'}
+        (logout)
+  - else
+    = render_login_button
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;When the page is returned, the &lt;code class=&quot;highlighter-rouge&quot;&gt;email&lt;/code&gt; variable is set if the user is&lt;/p&gt;
+
+&lt;p&gt;authorized, so they’ll see the email address if they’ve authenticated, and&lt;/p&gt;
+
+&lt;p&gt;a login button otherwise. The &lt;code class=&quot;highlighter-rouge&quot;&gt;render_login_button&lt;/code&gt; has handled entirely&lt;/p&gt;
+
+&lt;p&gt;by &lt;a href=&quot;http://rubygems.org/gems/sinatra-browserid&quot;&gt;sinatra-browserid&lt;/a&gt;; no muss, no fuss!&lt;/p&gt;
+
+&lt;p&gt;The only other thing to do is to not show the test cases in the test&lt;/p&gt;
+
+&lt;p&gt;suite, unless the user has authenticated, which we can tell because&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;$(&quot;span.email&quot;)&lt;/code&gt; won’t be empty. In our application.js, we use this to&lt;/p&gt;
+
+&lt;p&gt;either show the tests, or an explanation:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// If logged in, create primary test collection and view
+if ($(&quot;span.email&quot;).length &amp;gt; 0) {
+  this.testList = new TestCollection([], {version: this.version});
+  this.testList.fetch();
+  this.testListView = new TestListView({model: this.testList});
+} else {
+  this.unauthorizedView = new UnauthorizedView();
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;That’s pretty much all there is too it. The only complication I faced is&lt;/p&gt;
+
+&lt;p&gt;that, when developing with &lt;em&gt;shotgun&lt;/em&gt;, the session ID is changed with each&lt;/p&gt;
+
+&lt;p&gt;invocation, so it wasn’t remembering the login. By fixing the session&lt;/p&gt;
+
+&lt;p&gt;secret this problem went away. Total time from discovery of the problem to&lt;/p&gt;
+
+&lt;p&gt;deployed solution: about 1 hour. Not too bad.&lt;/p&gt;
+
+&lt;p&gt;It’s important to note that the &lt;a href=&quot;http://rdfa.info/test-suite/&quot;&gt;RDFa Test Suite&lt;/a&gt; is stateless, and we&lt;/p&gt;
+
+&lt;p&gt;don’t really need any personal information; we don’t collect information&lt;/p&gt;
+
+&lt;p&gt;anywhere, even in our logs. &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; basically becomes a gate keeper&lt;/p&gt;
+
+&lt;p&gt;to help ward off abuse. It imposes a very low barrier of entry, so it&lt;/p&gt;
+
+&lt;p&gt;doesn’t interfere with people using the site anyway they choose.&lt;/p&gt;
+
+&lt;p&gt;I do miss other user asserted information, such as the user’s name and&lt;/p&gt;
+
+&lt;p&gt;so-forth. &lt;a href=&quot;http://openid.net/&quot;&gt;OpenID&lt;/a&gt;, another single-signon initiative&lt;/p&gt;
+
+&lt;p&gt;that has lost momentum lately, provides a [Simple Registration&lt;/p&gt;
+
+&lt;p&gt;Extension](http://openid.net/specs/openid-simple-registration-extension-1_0.html)&lt;/p&gt;
+
+&lt;p&gt;add-on that allows users to assert simple information such as &lt;code class=&quot;highlighter-rouge&quot;&gt;nickname&lt;/code&gt;,&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;mail&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;fullname&lt;/code&gt; and so forth. IMO, the right way to do this is with&lt;/p&gt;
+
+&lt;p&gt;something like &lt;a href=&quot;http://xmlns.com/foaf/spec/&quot;&gt;FOAF&lt;/a&gt; or the &lt;a href=&quot;http://schema.org/Person&quot;&gt;schema.org&lt;/a&gt; Person class. Perhaps&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; will provide something like this in the future.&lt;/p&gt;
+</description>
+        <pubDate>Fri, 30 Mar 2012 08:58:46 -0700</pubDate>
+        <link>http://greggkellogg.net/2012/03/browserid-versus-ddos/</link>
+        <guid isPermaLink="true">http://greggkellogg.net/2012/03/browserid-versus-ddos/</guid>
+        
+        
+        <category>JavaScript</category>
+        
+        <category>Ruby</category>
+        
+        <category>Semantic Web</category>
+        
+      </item>
+    
+  </channel>
+</rss>
