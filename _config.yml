@@ -23,6 +23,7 @@ github_username:  gkellogg
 permalink: :title
 paginate: 5
 paginate_path: "/archive/page:num/"
+repository: gkellogg/gkellogg.github.io
 
 # Build settings
 markdown: kramdown
