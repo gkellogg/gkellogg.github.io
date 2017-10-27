@@ -31,7 +31,7 @@ highlight: true
 # Include _MG* files in galleries
 include:
   - _MG_
-gems:
+plugins:
   - jekyll-feed
   - jekyll-archives
 exclude:
