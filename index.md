@@ -55,4 +55,10 @@ layout: page
       <a href="http://rubygems.org/gems/ebnf" title="RubyGems">EBNF Parser and Parser Generator Gem</a> <a href="http://github.com/gkellogg/ebnf" title="GitHub">(GitHub)</a>
     </li>
   </ul>
-  </div>
+
+  Presentations:
+
+  <ul>
+    <li><a href="presentations/JSON-LD-Update-DC-2017/index.html">JSON-LD Update</a> DC 2017, October 2017, Washington DC.</li>
+  </ul>
+</div>
