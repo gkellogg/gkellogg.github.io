@@ -88,26 +88,24 @@
 <div class="post-content">
   <p>Caching actions without layout can be complicated when multiple request formats are used. In particular, an HTML response may use a dynamic layout, in which case you want to use the <code class="highlighter-rouge">:layout =&gt; false</code> option. However, other formats (such as XML) don’t use a layout, but the <code class="highlighter-rouge">:layout =&gt; false</code> option to _caches_action_ does not properly cache the body in this case. To solve the problem, create two caches action statements:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>caches_action :show,
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>caches_action :show,
               :if =&gt; lambda { |c| c.request.format == :html },
               :cache_path =&gt; lambda { |c| c.cache_key },
               :layout =&gt; false   caches_action :show,
               :unless =&gt; lambda{ |c| c.request.format == :html },
               :cache_path =&gt; lambda { |c| c.cache_key },
               :layout =&gt; true
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Also, relying on the accept header may not cause the action caching module to detect the appropriate format. Try this in your <code class="highlighter-rouge">application_controller</code>:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>before_filter :set_explicit_request_format
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>before_filter :set_explicit_request_format
 def set_explicit_request_format
   # Set format explicitly from accept header, unless it&amp;#39;s already set
   request.format = :html if request.format == :any
   params[:format] ||= request.format.to_sym.to_s
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 </div>
 <div class="post-footer">
@@ -296,7 +294,7 @@ end
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

@@ -92,115 +92,111 @@
 
 <p>The basic purpose of the CSVW specifications is to do an informed process of CSVs into an <em>annotated data model</em>, and use this model as the basis of creating RDF or JSON. At a minimum, this means assuming that the first row of a CSV is a <em>header row</em> containing <em>titles</em> for cells in that CSV, and that each row constitutes a record with properties based on the <em>column titles</em> with values from each cell. We’ll use the canonical example of the <a href="http://w3c.github.io/csvw/tests/tree-ops.csv">tree-ops</a> example from the <a href="http://www.w3.org/TR/tabular-data-model/" title="Model for Tabular Data and Metadata on the Web">Model for Tabular Data</a></p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>GID,On Street,Species,Trim Cycle,Inventory Date
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GID,On Street,Species,Trim Cycle,Inventory Date
 1,ADDISON AV,Celtis australis,Large Tree Routine Prune,10/18/2010
 2,EMERSON ST,Liquidambar styraciflua,Large Tree Routine Prune,6/2/2010
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This example has a header row and two data rows. The simple transformation of this to RDF without any external metadata would yield the following (in minimal mode):</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>@base &lt;http://w3c.github.io/csvw/tests/tree-ops.csv&gt; .
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">@base</span><span class="w"> </span><span class="nl">&lt;http://w3c.github.io/csvw/tests/tree-ops.csv&gt;</span><span class="w"> </span><span class="p">.</span><span class="w">
 
-[
-  &lt;#GID&gt; "2";
-  &lt;#Inventory%20Date&gt; "6/2/2010";
-  &lt;#On%20Street&gt; "EMERSON ST";
-  &lt;#Species&gt; "Liquidambar styraciflua";
-  &lt;#Trim%20Cycle&gt; "Large Tree Routine Prune"
-] .
+</span><span class="p">[</span><span class="w">
+  </span><span class="nl">&lt;#GID&gt;</span><span class="w"> </span><span class="s">"2"</span><span class="p">;</span><span class="w">
+  </span><span class="nl">&lt;#Inventory%20Date&gt;</span><span class="w"> </span><span class="s">"6/2/2010"</span><span class="p">;</span><span class="w">
+  </span><span class="nl">&lt;#On%20Street&gt;</span><span class="w"> </span><span class="s">"EMERSON ST"</span><span class="p">;</span><span class="w">
+  </span><span class="nl">&lt;#Species&gt;</span><span class="w"> </span><span class="s">"Liquidambar styraciflua"</span><span class="p">;</span><span class="w">
+  </span><span class="nl">&lt;#Trim%20Cycle&gt;</span><span class="w"> </span><span class="s">"Large Tree Routine Prune"</span><span class="w">
+</span><span class="p">]</span><span class="w"> </span><span class="p">.</span><span class="w">
 
-[
-  &lt;#GID&gt; "1";
-  &lt;#Inventory%20Date&gt; "10/18/2010";
-  &lt;#On%20Street&gt; "ADDISON AV";
-  &lt;#Species&gt; "Celtis australis";
-  &lt;#Trim%20Cycle&gt; "Large Tree Routine Prune"
-] .
-</code></pre>
-</div>
+</span><span class="p">[</span><span class="w">
+  </span><span class="nl">&lt;#GID&gt;</span><span class="w"> </span><span class="s">"1"</span><span class="p">;</span><span class="w">
+  </span><span class="nl">&lt;#Inventory%20Date&gt;</span><span class="w"> </span><span class="s">"10/18/2010"</span><span class="p">;</span><span class="w">
+  </span><span class="nl">&lt;#On%20Street&gt;</span><span class="w"> </span><span class="s">"ADDISON AV"</span><span class="p">;</span><span class="w">
+  </span><span class="nl">&lt;#Species&gt;</span><span class="w"> </span><span class="s">"Celtis australis"</span><span class="p">;</span><span class="w">
+  </span><span class="nl">&lt;#Trim%20Cycle&gt;</span><span class="w"> </span><span class="s">"Large Tree Routine Prune"</span><span class="w">
+</span><span class="p">]</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span></code></pre></div></div>
 
 <p>This is minimally useful, but we can use this as a walk-through of how the <a href="">rdf-tabular gem</a> creates this.</p>
 
 <p>The first step is to retrieve the document from it’s URL: <code class="highlighter-rouge">http://w3c.github.io/csvw/tests/tree-ops.csv</code>. We then can look for metadata associated with the file to inform the creation of the <em>annotated table</em>; this information might come from by the user specifying to location of metadata separately, from an HTTP Link header, by looking at <code class="highlighter-rouge">http://w3c.github.io/csvw/tests/tree-ops.csv-metadata.json</code> for file-specific metadata, or at <code class="highlighter-rouge">http://w3c.github.io/csvw/tests/metadata.json</code> for directory-specific metadata. In this case, there is none, so we constructed <em>embedded metatata</em> from just the <em>header row</em>. The process for locating metadata is described in <a href="http://www.w3.org/TR/tabular-data-model/#creating-annotated-tables">Creating Annotated Tables</a>, and creating embedded metadata is described in <a href="http://www.w3.org/TR/tabular-data-model/#parsing">Parsing Tabular Data</a>. Basically, we’re looking to create a <em>table description</em> with a <em>schema</em> describing each <em>column</em> resulting in the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"@context"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.w3.org/ns/csvw"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://w3c.github.io/csvw/tests/tree-ops.csv"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"tableSchema"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"columns"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-      </span><span class="p">{</span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GID"</span><span class="p">},</span><span class="w">
-      </span><span class="p">{</span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"On Street"</span><span class="p">},</span><span class="w">
-      </span><span class="p">{</span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Species"</span><span class="p">},</span><span class="w">
-      </span><span class="p">{</span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Trim Cycle"</span><span class="p">},</span><span class="w">
-      </span><span class="p">{</span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Inventory Date"</span><span class="p">}</span><span class="w">
-    </span><span class="p">]</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@context": "http://www.w3.org/ns/csvw",
+  "url": "http://w3c.github.io/csvw/tests/tree-ops.csv",
+  "tableSchema": {
+    "columns": [
+      {"titles": "GID"},
+      {"titles": "On Street"},
+      {"titles": "Species"},
+      {"titles": "Trim Cycle"},
+      {"titles": "Inventory Date"}
+    ]
+  }
+}
+</code></pre></div></div>
 
 <p>By following the rules in the <a href="http://www.w3.org/TR/tabular-metadata/" title="Metadata Vocabulary for Tabular Data">Metadata Format</a>, we then create annotations on an <em>annotated table</em> (an abstract model, shown in arbitrary JSON):</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AnnotatedTableGroup"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"tables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AnnotatedTable"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://w3c.github.io/csvw/tests/tree-ops.csv"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"columns"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://w3c.github.io/csvw/tests/tree-ops.csv#col=1"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"sourceNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"cells"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GID"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"und"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"GID"</span><span class="p">]}</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://w3c.github.io/csvw/tests/tree-ops.csv#col=2"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"sourceNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"cells"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"On%20Street"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"und"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"On Street"</span><span class="p">]}</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://w3c.github.io/csvw/tests/tree-ops.csv#col=3"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"sourceNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"cells"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Species"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"und"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Species"</span><span class="p">]}</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://w3c.github.io/csvw/tests/tree-ops.csv#col=4"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"sourceNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"cells"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Trim%20Cycle"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"und"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Trim Cycle"</span><span class="p">]}</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://w3c.github.io/csvw/tests/tree-ops.csv#col=5"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"sourceNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"cells"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Inventory%20Date"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"und"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Inventory Date"</span><span class="p">]}</span><span class="w">
-        </span><span class="p">}</span><span class="w">
-      </span><span class="p">],</span><span class="w">
-      </span><span class="nt">"rows"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-  </span><span class="p">]</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@type": "AnnotatedTableGroup",
+  "tables": [
+    {
+      "@type": "AnnotatedTable",
+      "url": "http://w3c.github.io/csvw/tests/tree-ops.csv",
+      "columns": [
+        {
+          "@id": "http://w3c.github.io/csvw/tests/tree-ops.csv#col=1",
+          "@type": "Column",
+          "number": 1,
+          "sourceNumber": 1,
+          "cells": [],
+          "name": "GID",
+          "titles": {"und": ["GID"]}
+        },
+        {
+          "@id": "http://w3c.github.io/csvw/tests/tree-ops.csv#col=2",
+          "@type": "Column",
+          "number": 2,
+          "sourceNumber": 2,
+          "cells": [],
+          "name": "On%20Street",
+          "titles": {"und": ["On Street"]}
+        },
+        {
+          "@id": "http://w3c.github.io/csvw/tests/tree-ops.csv#col=3",
+          "@type": "Column",
+          "number": 3,
+          "sourceNumber": 3,
+          "cells": [],
+          "name": "Species",
+          "titles": {"und": ["Species"]}
+        },
+        {
+          "@id": "http://w3c.github.io/csvw/tests/tree-ops.csv#col=4",
+          "@type": "Column",
+          "number": 4,
+          "sourceNumber": 4,
+          "cells": [],
+          "name": "Trim%20Cycle",
+          "titles": {"und": ["Trim Cycle"]}
+        },
+        {
+          "@id": "http://w3c.github.io/csvw/tests/tree-ops.csv#col=5",
+          "@type": "Column",
+          "number": 5,
+          "sourceNumber": 5,
+          "cells": [],
+          "name": "Inventory%20Date",
+          "titles": {"und": ["Inventory Date"]}
+        }
+      ],
+      "rows": []
+    }
+  ]
+}
+</code></pre></div></div>
 
 <p>Here we gather some metadata based on the row and column numbers (logical and actual, which are the same here) and create a default for the <em>column name</em> from <em>titles</em>. Also, note that <em>titles</em> is expanded to a <a href="http://w3c.github.io/csvw/metadata/#dfn-natural-language-property">natural language property</a>, which is basically a <a href="http://www.w3.org/TR/json-ld/#language-maps">JSON-LD Language Map</a> where <code class="highlighter-rouge">und</code> is used when there is no language. The <em>column name</em> is percent encoded so that it can be used in a <a href="https://tools.ietf.org/html/rfc6570">URI template</a>.</p>
 
@@ -208,19 +204,18 @@
 
 <p>The <a href="http://rubygems.org/gems/rdf-tabular">rdf-tabular gem</a> implements the <a href="http://www.rubydoc.info/github/ruby-rdf/rdf/RDF/Reader">RDF::Reader</a> pattern, which takes care of much of the process of opening the file and getting useful metadata. In the case of the <a href="http://rubygems.org/gems/rdf-tabular">rdf-tabular gem</a>, this includes the steps described in <a href="http://www.w3.org/TR/tabular-data-model/#creating-annotated-tables">Creating Annotated Tables</a> which involves recursive invocations of the reader, but nominally, it yields a <em>reader instance</em> which implements the <a href="http://www.rubydoc.info/github/ruby-rdf/rdf/RDF/Enumerable">RDF::Enumerable</a> pattern. In particular, the reader implements an <code class="highlighter-rouge">#each</code> method to yield each RDF Statement (triple); this is where the work actually happens. A call looks like the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>RDF::Tabular::Reader.open("http://w3c.github.io/csvw/tests/tree-ops.csv") do |reader|
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>RDF::Tabular::Reader.open("http://w3c.github.io/csvw/tests/tree-ops.csv") do |reader|
   reader.each do |statement|
     puts statement.inspect
   end
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Basically, the job of the reader is to create the <em>abstract tabular data model</em> and use it to read each row of the table(s) described in the model and use that to generate RDF triples (it can also be used to generate JSON output without going the RDF, but that’s another story).</p>
 
 <p>The <a href="http://rubygems.org/gems/rdf-tabular">rdf-tabular gem</a> implements <code class="highlighter-rouge">RDF::Tabular::Metadata</code>, with subclasses for the different kinds of metadata we need. This provides the <code class="highlighter-rouge">#each_row</code> method, which given an input file yields each row. For the Ruby implementation, we use the <a href="http://docs.ruby-lang.org/en/2.1.0/CSV.html">CSV library</a> and use dialect information to set parsing defaults. The gist of the implementation looks like the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>def each_row(input)
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def each_row(input)
   csv = ::CSV.new(input, csv_options)
   # Skip skipRows and headerRowCount
   number, skipped = 0, (dialect.skipRows.to_i + dialect.headerRowCount)
@@ -230,12 +225,11 @@ end
     yield(Row.new(data, self, number, number + skipped))
   end
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>A <code class="highlighter-rouge">Row</code> then abstracts information for each table row and provides the cells for that row:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code># Wraps each resulting row
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Wraps each resulting row
 class Row
   attr_reader :values
 
@@ -253,14 +247,13 @@ class Row
     end
   end
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>There’s more to this in the actual implementation, of course, but this handles a simple value.</p>
 
 <p>Now we can implement <code class="highlighter-rouge">RDF::Tabular::Reader#each_statement</code>:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>def each_statement(&amp;block)
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def each_statement(&amp;block)
   metadata.each_row(input) do |row|
     default_cell_subject = RDF::Node.new
     row.values.each_with_index do |cell, index|
@@ -269,8 +262,7 @@ end
     end
   end
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>That’s pretty much the basis of a Ruby implementation. There’s more work to do in <code class="highlighter-rouge">#each_statement</code>, as it’s initially invoked with a <em>TableGroup</em>, which recursively invokes it again for each <em>Table</em>, which then calls again for the actual CSV, but that’s all setup. There’s also work in <code class="highlighter-rouge">RDF::Tabular::Reader#initialize</code> to find the metadata, ensure that it is compatible with the actual tables, and so forth.</p>
 
@@ -292,71 +284,69 @@ end
 
 <p>A Metadata file is a <a href="http://www.w3.org/TR/json-ld" title="JSON-LD 1.0">JSON-LD</a> document (really, it has the structure of a JSON-LD document, it is parsed as JSON) which allows us to define <em>properties</em> on metadata <em>declarations</em> which directly relate to the <em>abstract tabular data model</em>. For example, let’s look at the metadata description for the <a href="http://w3c.github.io/csvw/tests/test011/tree-ops.csv">tree-ops</a> example: <a href="http://w3c.github.io/csvw/tests/test011/tree-ops.csv-metadata.json">tree-ops.csv-metadata.json</a>:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"@context"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"http://www.w3.org/ns/csvw"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">"@language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">}],</span><span class="w">
-  </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tree-ops.csv"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"dc:title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tree Operations"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"dcat:keyword"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"tree"</span><span class="p">,</span><span class="w"> </span><span class="s2">"street"</span><span class="p">,</span><span class="w"> </span><span class="s2">"maintenance"</span><span class="p">],</span><span class="w">
-  </span><span class="nt">"dc:publisher"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"schema:name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Example Municipality"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"schema:url"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://example.org"</span><span class="p">}</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nt">"dc:license"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://opendefinition.org/licenses/cc-by/"</span><span class="p">},</span><span class="w">
-  </span><span class="nt">"dc:modified"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2010-12-31"</span><span class="p">,</span><span class="w"> </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xsd:date"</span><span class="p">},</span><span class="w">
-  </span><span class="nt">"tableSchema"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"columns"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GID"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"GID"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Generic Identifier"</span><span class="p">],</span><span class="w">
-      </span><span class="nt">"dc:description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"An identifier for the operation on a tree."</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"on_street"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"On Street"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"dc:description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The street that the tree is on."</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
-    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"species"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Species"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"dc:description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The species of the tree."</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
-    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"trim_cycle"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Trim Cycle"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"dc:description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The operation performed on the tree."</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
-    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"inventory_date"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Inventory Date"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"dc:description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The date of the operation that was performed."</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"base"</span><span class="p">:</span><span class="w"> </span><span class="s2">"date"</span><span class="p">,</span><span class="w"> </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"M/d/yyyy"</span><span class="p">}</span><span class="w">
-    </span><span class="p">}],</span><span class="w">
-    </span><span class="nt">"primaryKey"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GID"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"aboutUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#gid-{GID}"</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@context": ["http://www.w3.org/ns/csvw", {"@language": "en"}],
+  "url": "tree-ops.csv",
+  "dc:title": "Tree Operations",
+  "dcat:keyword": ["tree", "street", "maintenance"],
+  "dc:publisher": {
+    "schema:name": "Example Municipality",
+    "schema:url": {"@id": "http://example.org"}
+  },
+  "dc:license": {"@id": "http://opendefinition.org/licenses/cc-by/"},
+  "dc:modified": {"@value": "2010-12-31", "@type": "xsd:date"},
+  "tableSchema": {
+    "columns": [{
+      "name": "GID",
+      "titles": ["GID", "Generic Identifier"],
+      "dc:description": "An identifier for the operation on a tree.",
+      "datatype": "string",
+      "required": true
+    }, {
+      "name": "on_street",
+      "titles": "On Street",
+      "dc:description": "The street that the tree is on.",
+      "datatype": "string"
+    }, {
+      "name": "species",
+      "titles": "Species",
+      "dc:description": "The species of the tree.",
+      "datatype": "string"
+    }, {
+      "name": "trim_cycle",
+      "titles": "Trim Cycle",
+      "dc:description": "The operation performed on the tree.",
+      "datatype": "string"
+    }, {
+      "name": "inventory_date",
+      "titles": "Inventory Date",
+      "dc:description": "The date of the operation that was performed.",
+      "datatype": {"base": "date", "format": "M/d/yyyy"}
+    }],
+    "primaryKey": "GID",
+    "aboutUrl": "#gid-{GID}"
+  }
+}
+</code></pre></div></div>
 
 <p>Here we have a couple of different things going on. Note the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"@context"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"http://www.w3.org/ns/csvw"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">"@language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">}],</span><span class="w">
-  </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tree-ops.csv"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"dc:title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tree Operations"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"dcat:keyword"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"tree"</span><span class="p">,</span><span class="w"> </span><span class="s2">"street"</span><span class="p">,</span><span class="w"> </span><span class="s2">"maintenance"</span><span class="p">],</span><span class="w">
-  </span><span class="nt">"dc:publisher"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"schema:name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Example Municipality"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"schema:url"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://example.org"</span><span class="p">}</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nt">"dc:license"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://opendefinition.org/licenses/cc-by/"</span><span class="p">},</span><span class="w">
-  </span><span class="nt">"dc:modified"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2010-12-31"</span><span class="p">,</span><span class="w"> </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xsd:date"</span><span class="p">},</span><span class="w">
-  </span><span class="err">...</span><span class="w">
-</span><span class="err">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@context": ["http://www.w3.org/ns/csvw", {"@language": "en"}],
+  "url": "tree-ops.csv",
+  "dc:title": "Tree Operations",
+  "dcat:keyword": ["tree", "street", "maintenance"],
+  "dc:publisher": {
+    "schema:name": "Example Municipality",
+    "schema:url": {"@id": "http://example.org"}
+  },
+  "dc:license": {"@id": "http://opendefinition.org/licenses/cc-by/"},
+  "dc:modified": {"@value": "2010-12-31", "@type": "xsd:date"},
+  ...
+}
+</code></pre></div></div>
 
-<p>The <em>prefixed name</em> properties are <em>common properties</em>, basically just JSON-LD that’s inserted into the model to define <em>annotations</em> on the model. In this case, their defined on a <em>Table</em>, so they annotate that model. As it is JSON-LD, the string values take the <code class="highlighter-rouge">@langauge</code> defined in the context. CSVW uses a <a href="http://www.w3.org/TR/tabular-metadata/#json-ld-dialect">dialect of JSON-LD</a> which places some restrictions on what can go here. Basically, nothing more can go into the <code class="highlighter-rouge">@context</code> besides <code class="highlighter-rouge">@language</code> and <code class="highlighter-rouge">@base</code>; it also must use <code class="highlighter-rouge">http://www.w3.org/ns/csvw</code> and only the terms and prefixes defined within that context can be used along with absolute IRIs.</p>
+<p>The <em>prefixed name</em> properties are <em>common properties</em>, basically just JSON-LD that’s inserted into the model to define <em>annotations</em> on the model. In this case, their defined on a <em>Table</em>, so they annotate that model. As it is JSON-LD, the string values take the <code class="highlighter-rouge">@langauge</code> defined in the context. CSVW uses a <a href="http://www.w3.org/TR/tabular-metadata/#json-ld-dialect">dialect of JSON-LD</a> which places some restrictions on what can go here. Basically, nothing more can go into the <code class="highlighter-rouge">@context</code> besides <code class="highlighter-rouge">@language</code> and <code class="highlighter-rouge"><span class="kd">@base</span></code>; it also must use <code class="highlighter-rouge">http://www.w3.org/ns/csvw</code> and only the terms and prefixes defined within that context can be used along with absolute IRIs.</p>
 
 <pre>{
   "@context": ["http://www.w3.org/ns/csvw", {"@language": "en"}],
@@ -404,88 +394,87 @@ end
 
 <p>All of these map pretty much as you would expect onto the <em>annotated tabular data model</em>:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AnnotatedTableGroup"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"tables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AnnotatedTable"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://w3c.github.io/csvw/tests/test011/tree-ops.csv"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"dc:title"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tree Operations"</span><span class="p">,</span><span class="nt">"@language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">},</span><span class="w">
-      </span><span class="nt">"dcat:keyword"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-        </span><span class="p">{</span><span class="nt">"@value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tree"</span><span class="p">,</span><span class="nt">"@language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">},</span><span class="w">
-        </span><span class="p">{</span><span class="nt">"@value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"street"</span><span class="p">,</span><span class="nt">"@language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">},</span><span class="w">
-        </span><span class="p">{</span><span class="nt">"@value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"maintenance"</span><span class="p">,</span><span class="nt">"@language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">}</span><span class="w">
-      </span><span class="p">],</span><span class="w">
-      </span><span class="nt">"dc:publisher"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"schema:name"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Example Municipality"</span><span class="p">,</span><span class="nt">"@language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">},</span><span class="w">
-        </span><span class="nt">"schema:url"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://example.org"</span><span class="p">}</span><span class="w">
-      </span><span class="p">},</span><span class="w">
-      </span><span class="nt">"dc:license"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://opendefinition.org/licenses/cc-by/"</span><span class="p">},</span><span class="w">
-      </span><span class="nt">"dc:modified"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2010-12-31"</span><span class="p">,</span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xsd:date"</span><span class="p">},</span><span class="w">
-      </span><span class="nt">"columns"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=1"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"sourceNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"cells"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GID"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"en"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"GID"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Generic Identifier"</span><span class="p">]},</span><span class="w">
-          </span><span class="nt">"dc:description"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"An identifier for the operation on a tree."</span><span class="p">,</span><span class="w"> </span><span class="nt">"@language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">},</span><span class="w">
-          </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"base"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">},</span><span class="w">
-          </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=2"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"sourceNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"cells"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"on_street"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"en"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"On Street"</span><span class="p">]},</span><span class="w">
-          </span><span class="nt">"dc:description"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The street that the tree is on."</span><span class="p">,</span><span class="nt">"@language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">},</span><span class="w">
-          </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"base"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">}</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=3"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"sourceNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"cells"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"species"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"en"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Species"</span><span class="p">]},</span><span class="w">
-          </span><span class="nt">"dc:description"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The species of the tree."</span><span class="p">,</span><span class="nt">"@language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">},</span><span class="w">
-          </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"base"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">}</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=4"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"sourceNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"cells"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"trim_cycle"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"en"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Trim Cycle"</span><span class="p">]},</span><span class="w">
-          </span><span class="nt">"dc:description"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The operation performed on the tree."</span><span class="p">,</span><span class="nt">"@language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">},</span><span class="w">
-          </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"base"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">}</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=5"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Column"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"sourceNumber"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"cells"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"inventory_date"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"en"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Inventory Date"</span><span class="p">]},</span><span class="w">
-          </span><span class="nt">"dc:description"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The date of the operation that was performed."</span><span class="p">,</span><span class="nt">"@language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">},</span><span class="w">
-          </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"base"</span><span class="p">:</span><span class="w"> </span><span class="s2">"date"</span><span class="p">,</span><span class="w"> </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"M/d/yyyy"</span><span class="p">}</span><span class="w">
-        </span><span class="p">}</span><span class="w">
-      </span><span class="p">],</span><span class="w">
-      </span><span class="nt">"rows"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-  </span><span class="p">]</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@type": "AnnotatedTableGroup",
+  "tables": [
+    {
+      "@type": "AnnotatedTable",
+      "url": "http://w3c.github.io/csvw/tests/test011/tree-ops.csv",
+      "dc:title": {"@value": "Tree Operations","@language": "en"},
+      "dcat:keyword": [
+        {"@value": "tree","@language": "en"},
+        {"@value": "street","@language": "en"},
+        {"@value": "maintenance","@language": "en"}
+      ],
+      "dc:publisher": {
+        "schema:name": {"@value": "Example Municipality","@language": "en"},
+        "schema:url": {"@id": "http://example.org"}
+      },
+      "dc:license": {"@id": "http://opendefinition.org/licenses/cc-by/"},
+      "dc:modified": {"@value": "2010-12-31","@type": "xsd:date"},
+      "columns": [
+        {
+          "@id": "http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=1",
+          "@type": "Column",
+          "number": 1,
+          "sourceNumber": 1,
+          "cells": [],
+          "name": "GID",
+          "titles": {"en": ["GID", "Generic Identifier"]},
+          "dc:description": {"@value": "An identifier for the operation on a tree.", "@language": "en"},
+          "datatype": {"base": "string"},
+          "required": true
+        },
+        {
+          "@id": "http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=2",
+          "@type": "Column",
+          "number": 2,
+          "sourceNumber": 2,
+          "cells": [],
+          "name": "on_street",
+          "titles": {"en": ["On Street"]},
+          "dc:description": {"@value": "The street that the tree is on.","@language": "en"},
+          "datatype": {"base": "string"}
+        },
+        {
+          "@id": "http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=3",
+          "@type": "Column",
+          "number": 3,
+          "sourceNumber": 3,
+          "cells": [],
+          "name": "species",
+          "titles": {"en": ["Species"]},
+          "dc:description": {"@value": "The species of the tree.","@language": "en"},
+          "datatype": {"base": "string"}
+        },
+        {
+          "@id": "http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=4",
+          "@type": "Column",
+          "number": 4,
+          "sourceNumber": 4,
+          "cells": [],
+          "name": "trim_cycle",
+          "titles": {"en": ["Trim Cycle"]},
+          "dc:description": {"@value": "The operation performed on the tree.","@language": "en"},
+          "datatype": {"base": "string"}
+        },
+        {
+          "@id": "http://w3c.github.io/csvw/tests/test011/tree-ops.csv#col=5",
+          "@type": "Column",
+          "number": 5,
+          "sourceNumber": 5,
+          "cells": [],
+          "name": "inventory_date",
+          "titles": {"en": ["Inventory Date"]},
+          "dc:description": {"@value": "The date of the operation that was performed.","@language": "en"},
+          "datatype": {"base": "date", "format": "M/d/yyyy"}
+        }
+      ],
+      "rows": []
+    }
+  ]
+}
+</code></pre></div></div>
 
 <p>Note that the <em>common properties</em> have been expanded and the <code class="highlighter-rouge">@context</code> simplified to remove <code class="highlighter-rouge">@language</code>. Also <code class="highlighter-rouge">datatype</code> values have been normalized to the expanded form. This happens through the process of <em>Normalization</em>.</p>
 
@@ -501,56 +490,55 @@ end
 
 <p>In the <a href="http://w3c.github.io/csvw/examples/tree-ops-virtual.json">tree-ops-virtual.json</a> example, <em>URI template properties</em> were defined:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tree-ops.csv"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"@context"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"http://www.w3.org/ns/csvw"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">"@language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">}],</span><span class="w">
-  </span><span class="nt">"tableSchema"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"columns"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GID"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GID"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"propertyUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"schema:url"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"valueUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#gid-{GID}"</span><span class="w">
-    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"on_street"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"On Street"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"aboutUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#location-{GID}"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"propertyUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"schema:streetAddress"</span><span class="w">
-    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"species"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Species"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"propertyUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"schema:name"</span><span class="w">
-    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"trim_cycle"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Trim Cycle"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
-    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"inventory_date"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Inventory Date"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"base"</span><span class="p">:</span><span class="w"> </span><span class="s2">"date"</span><span class="p">,</span><span class="w"> </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"M/d/yyyy"</span><span class="p">},</span><span class="w">
-      </span><span class="nt">"aboutUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#event-{inventory_date}"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"propertyUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"schema:startDate"</span><span class="w">
-    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"propertyUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"schema:event"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"valueUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#event-{inventory_date}"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"virtual"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"propertyUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"schema:location"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"valueUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#location-{GID}"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"virtual"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"aboutUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#location-{GID}"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"propertyUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rdf:type"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"valueUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"schema:PostalAddress"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"virtual"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-    </span><span class="p">}],</span><span class="w">
-    </span><span class="nt">"aboutUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#gid-{GID}"</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "url": "tree-ops.csv",
+  "@context": ["http://www.w3.org/ns/csvw", {"@language": "en"}],
+  "tableSchema": {
+    "columns": [{
+      "name": "GID",
+      "titles": "GID",
+      "datatype": "string",
+      "propertyUrl": "schema:url",
+      "valueUrl": "#gid-{GID}"
+    }, {
+      "name": "on_street",
+      "titles": "On Street",
+      "datatype": "string",
+      "aboutUrl": "#location-{GID}",
+      "propertyUrl": "schema:streetAddress"
+    }, {
+      "name": "species",
+      "titles": "Species",
+      "datatype": "string",
+      "propertyUrl": "schema:name"
+    }, {
+      "name": "trim_cycle",
+      "titles": "Trim Cycle",
+      "datatype": "string"
+    }, {
+      "name": "inventory_date",
+      "titles": "Inventory Date",
+      "datatype": {"base": "date", "format": "M/d/yyyy"},
+      "aboutUrl": "#event-{inventory_date}",
+      "propertyUrl": "schema:startDate"
+    }, {
+      "propertyUrl": "schema:event",
+      "valueUrl": "#event-{inventory_date}",
+      "virtual": true
+    }, {
+      "propertyUrl": "schema:location",
+      "valueUrl": "#location-{GID}",
+      "virtual": true
+    }, {
+      "aboutUrl": "#location-{GID}",
+      "propertyUrl": "rdf:type",
+      "valueUrl": "schema:PostalAddress",
+      "virtual": true
+    }],
+    "aboutUrl": "#gid-{GID}"
+  }
+}
+</code></pre></div></div>
 
 <p>This introduces several new concepts:</p>
 
@@ -560,9 +548,8 @@ end
 
 <p>The first column has <strong>“propertyUrl”: “schema:url”</strong>, which turns into the absolute URL <code class="highlighter-rouge">http://schema.org/url</code>, and is used as the <em>predicate</em> for that cell. As the column as a <code class="highlighter-rouge">valueUrl</code> (<strong>“valueUrl”: “#gid-{GID}”</strong>), that is expanded and used as the object for that cell. Thus, the first cell of the first row would result in the following triple:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;#gid-1&gt; schema:url &lt;#gid-1&gt; .
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;#gid-1&gt; schema:url &lt;#gid-1&gt; .
+</code></pre></div></div>
 
 <p>(relative to the URL file location).</p>
 
@@ -570,38 +557,37 @@ end
 
 <p>The last three columns are <em>virtual columns</em>, as they don’t correspond to data actually in the CSV; these are used for injecting information into the row. When fully processed, the following RDF is created (again, in minimal mode):</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>@base &lt;http://w3c.github.io/csvw/examples/tree-ops.csv&gt; .
-@prefix rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
-@prefix schema: &lt;http://schema.org/&gt; .
-@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">@base</span><span class="w"> </span><span class="nl">&lt;http://w3c.github.io/csvw/examples/tree-ops.csv&gt;</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span><span class="kd">@prefix</span><span class="w"> </span><span class="nn">rdf:</span><span class="w"> </span><span class="nl">&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span><span class="kd">@prefix</span><span class="w"> </span><span class="nn">schema:</span><span class="w"> </span><span class="nl">&lt;http://schema.org/&gt;</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span><span class="kd">@prefix</span><span class="w"> </span><span class="nn">xsd:</span><span class="w"> </span><span class="nl">&lt;http://www.w3.org/2001/XMLSchema#&gt;</span><span class="w"> </span><span class="p">.</span><span class="w">
 
-&lt;#event-2010-06-02&gt; schema:startDate "2010-06-02"^^xsd:date .
+</span><span class="nl">&lt;#event-2010-06-02&gt;</span><span class="w"> </span><span class="nn">schema:</span><span class="n">startDate</span><span class="w"> </span><span class="s">"2010-06-02"</span><span class="p">^^</span><span class="nn">xsd:</span><span class="n">date</span><span class="w"> </span><span class="p">.</span><span class="w">
 
-&lt;#event-2010-10-18&gt; schema:startDate "2010-10-18"^^xsd:date .
+</span><span class="nl">&lt;#event-2010-10-18&gt;</span><span class="w"> </span><span class="nn">schema:</span><span class="n">startDate</span><span class="w"> </span><span class="s">"2010-10-18"</span><span class="p">^^</span><span class="nn">xsd:</span><span class="n">date</span><span class="w"> </span><span class="p">.</span><span class="w">
 
-&lt;#gid-1&gt; schema:event &lt;#event-2010-10-18&gt;;
-   schema:location &lt;#location-1&gt;;
-   schema:name "Celtis australis";
-   schema:url &lt;#gid-1&gt;;
-   &lt;#trim_cycle&gt; "Large Tree Routine Prune" .
+</span><span class="nl">&lt;#gid-1&gt;</span><span class="w"> </span><span class="nn">schema:</span><span class="n">event</span><span class="w"> </span><span class="nl">&lt;#event-2010-10-18&gt;</span><span class="p">;</span><span class="w">
+   </span><span class="nn">schema:</span><span class="n">location</span><span class="w"> </span><span class="nl">&lt;#location-1&gt;</span><span class="p">;</span><span class="w">
+   </span><span class="nn">schema:</span><span class="n">name</span><span class="w"> </span><span class="s">"Celtis australis"</span><span class="p">;</span><span class="w">
+   </span><span class="nn">schema:</span><span class="n">url</span><span class="w"> </span><span class="nl">&lt;#gid-1&gt;</span><span class="p">;</span><span class="w">
+   </span><span class="nl">&lt;#trim_cycle&gt;</span><span class="w"> </span><span class="s">"Large Tree Routine Prune"</span><span class="w"> </span><span class="p">.</span><span class="w">
 
-&lt;#gid-2&gt; schema:event &lt;#event-2010-06-02&gt;;
-   schema:location &lt;#location-2&gt;;
-   schema:name "Liquidambar styraciflua";
-   schema:url &lt;#gid-2&gt;;
-   &lt;#trim_cycle&gt; "Large Tree Routine Prune" .
+</span><span class="nl">&lt;#gid-2&gt;</span><span class="w"> </span><span class="nn">schema:</span><span class="n">event</span><span class="w"> </span><span class="nl">&lt;#event-2010-06-02&gt;</span><span class="p">;</span><span class="w">
+   </span><span class="nn">schema:</span><span class="n">location</span><span class="w"> </span><span class="nl">&lt;#location-2&gt;</span><span class="p">;</span><span class="w">
+   </span><span class="nn">schema:</span><span class="n">name</span><span class="w"> </span><span class="s">"Liquidambar styraciflua"</span><span class="p">;</span><span class="w">
+   </span><span class="nn">schema:</span><span class="n">url</span><span class="w"> </span><span class="nl">&lt;#gid-2&gt;</span><span class="p">;</span><span class="w">
+   </span><span class="nl">&lt;#trim_cycle&gt;</span><span class="w"> </span><span class="s">"Large Tree Routine Prune"</span><span class="w"> </span><span class="p">.</span><span class="w">
 
-&lt;#location-1&gt; a schema:PostalAddress;
-   schema:streetAddress "ADDISON AV" .
+</span><span class="nl">&lt;#location-1&gt;</span><span class="w"> </span><span class="k">a</span><span class="w"> </span><span class="nn">schema:</span><span class="n">PostalAddress</span><span class="p">;</span><span class="w">
+   </span><span class="nn">schema:</span><span class="n">streetAddress</span><span class="w"> </span><span class="s">"ADDISON AV"</span><span class="w"> </span><span class="p">.</span><span class="w">
 
-&lt;#location-2&gt; a schema:PostalAddress;
-   schema:streetAddress "EMERSON ST" .
-</code></pre>
-</div>
+</span><span class="nl">&lt;#location-2&gt;</span><span class="w"> </span><span class="k">a</span><span class="w"> </span><span class="nn">schema:</span><span class="n">PostalAddress</span><span class="p">;</span><span class="w">
+   </span><span class="nn">schema:</span><span class="n">streetAddress</span><span class="w"> </span><span class="s">"EMERSON ST"</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span></code></pre></div></div>
 
 <p>Processing this requires some enhancement to <code class="highlighter-rouge">RDF::Tabular::Row#initialize</code> method:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code># Wraps each resulting row
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Wraps each resulting row
 class Row
   attr_reader :values
 
@@ -642,14 +628,13 @@ class Row
     ...
   end
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This introduces datatype matching through <code class="highlighter-rouge">#value_matching_datatype</code> (not detailed), creates a <code class="highlighter-rouge">map_values</code> structure that can be used for <a href="https://tools.ietf.org/html/rfc6570">URI template</a> processing, and then calls <code class="highlighter-rouge">Cell#set_urls</code> to actually create <code class="highlighter-rouge">aboutUrl</code>, <code class="highlighter-rouge">propertyUrl</code>, and <code class="highlighter-rouge">valueUrl</code> annotations on the cell.</p>
 
 <p>The <code class="highlighter-rouge">#each_statement</code> method is updated to take these into consideration:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>def each_statement(&amp;block)
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def each_statement(&amp;block)
   metadata.each_row(input) do |row|
     default_cell_subject = RDF::Node.new
     row.values.each_with_index do |cell, index|
@@ -659,8 +644,7 @@ end
     end
   end
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Here the only difference is that we use <code class="highlighter-rouge">cell.aboutUrl</code>, <code class="highlighter-rouge">cell.propertyUrl</code>, and <code class="highlighter-rouge">cell.valueUrl</code> if they are defined, and the defaults otherwise.</p>
 
@@ -670,35 +654,33 @@ end
 
 <p>For example the <a href="http://w3c.github.io/csvw/examples/tree-ops-ext.csv">tree-ops-ext.csv</a> example allows for multiple comments on a record using “;” as a separator:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>GID,On Street,Species,Trim Cycle,Diameter at Breast Ht,Inventory Date,Comments,Protected,KML
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GID,On Street,Species,Trim Cycle,Diameter at Breast Ht,Inventory Date,Comments,Protected,KML
 1,ADDISON AV,Celtis australis,Large Tree Routine Prune,11,10/18/2010,,,"&lt;Point&gt;&lt;coordinates&gt;-122.156485,37.440963&lt;/coordinates&gt;&lt;/Point&gt;"
 2,EMERSON ST,Liquidambar styraciflua,Large Tree Routine Prune,11,6/2/2010,,,"&lt;Point&gt;&lt;coordinates&gt;-122.156749,37.440958&lt;/coordinates&gt;&lt;/Point&gt;"
 6,ADDISON AV,Robinia pseudoacacia,Large Tree Routine Prune,29,6/1/2010,cavity or decay; trunk decay; codominant leaders; included bark; large leader or limb decay; previous failure root damage; root decay;  beware of BEES,YES,"&lt;Point&gt;&lt;coordinates&gt;-122.156299,37.441151&lt;/coordinates&gt;&lt;/Point&gt;"
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The <a href="http://w3c.github.io/csvw/examples/tree-ops-ext.csv-metadata.json">metadata file</a> adds the <code class="highlighter-rouge">separator</code> property to the <em>comments</em> column:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"tableSchema"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"columns"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-      </span><span class="err">...</span><span class="w">
-      </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"comments"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"titles"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Comments"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"dc:description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Supplementary comments relating to the operation or tree."</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"datatype"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"separator"</span><span class="p">:</span><span class="w"> </span><span class="s2">";"</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">]</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "tableSchema": {
+    "columns": [
+      ...
+      {
+        "name": "comments",
+        "titles": "Comments",
+        "dc:description": "Supplementary comments relating to the operation or tree.",
+        "datatype": "string",
+        "separator": ";"
+      }
+    ]
+  }
+}
+</code></pre></div></div>
 
 <p>The effect of <code class="highlighter-rouge">separator</code> is to split the string value into multiple values and parse them using any <code class="highlighter-rouge">datatype</code> description. This is shown using slight modifications to <code class="highlighter-rouge">RDF::Tabular::Row#initialize</code> and <code class="highlighter-rouge">RDF::Tabular::Reader#each_statement</code>:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code># Wraps each resulting row
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Wraps each resulting row
 class Row
   attr_reader :values
   def initialize(row, metadata, number, source_number)
@@ -735,12 +717,11 @@ class Row
 
   end
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The only change to <code class="highlighter-rouge">#each_statement</code> is to consider multiple cell values:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>def each_statement(&amp;block)
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def each_statement(&amp;block)
   metadata.each_row(input) do |row|
     default_cell_subject = RDF::Node.new
     row.values.each_with_index do |cell, index|
@@ -758,8 +739,7 @@ end
     end
   end
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="common-properties-and-notes">Common Properties and Notes</h3>
 
@@ -962,7 +942,7 @@ end
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

@@ -82,13 +82,13 @@
   <h1 class="post-title-main">Automatically generate in_place_editor_for</h1>
   <!-- Feel free to remove this div. Uses purplecoat: http://ellekasai.github.io/purplecoat.js -->
 <div data-purplecoat="shiori" data-purplecoat-label="post-header.html">
-<p class="text-muted">21 Jan 2009</p>
+<p class="text-muted">22 Jan 2009</p>
 </div>
 </div>
 <div class="post-content">
   <p>Recently, I was creating some in_place_editors for a polymorphic controller I’m working on. Although the problems not particular to polymorphic controllers, I didn’t want to embed too much model information within the controller. I came up with a way to use <code class="highlighter-rouge">meathod_missing</code> to define the <code class="highlighter-rouge">in_place_editor_for</code> on demand:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>class ResourcesController &lt;&lt; ApplicationController
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class ResourcesController &lt;&lt; ApplicationController
   def method_missing(method_id, *args)
     if method_id.to_s.match(/set_resource_(.*)$/) &amp;&amp; @resource.respond_to?($1)
       property = $1
@@ -103,8 +103,7 @@
     end
   end
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 </div>
 <div class="post-footer">
@@ -291,7 +290,7 @@ end
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

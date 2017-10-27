@@ -106,33 +106,30 @@
 
 <p>Consider the following query relating authors with many books:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>Author.find(:all, :include =&gt; :books)
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Author.find(:all, :include =&gt; :books)
+</code></pre></div></div>
 
 <p>This would likely produce the following SQL:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>SELECT
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SELECT
     authors.id AS t0_c0, authors.name AS t0_c1,
     books.id AS t1_c0, books.author_id AS t1_c1, books.title AS t1_c2
   FROM authors
   LEFT OUTER JOIN books ON books.author_id = authors.id
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The query might be written with books as the driver, rather than authors as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code> SELECT
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> SELECT
     authors.id, authors.name,
     books.id AS book_id, books.name AS book_name
   FROM books
   JOIN authors ON authors.id = books.author_id
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The Rails query would then be written as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>Author.find(:all, :include =&gt; books,
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Author.find(:all, :include =&gt; books,
            :finder_sql =&gt; "
                 SELECT
                     authors.id, authors.name,
@@ -156,12 +153,11 @@
                 }
               }
             })
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This is more verbose, but allows for absolute control of the SQL used to return results across multiple model associations. A more complicated example would be the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>QUERY = "
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>QUERY = "
 SELECT
     a.id AS author_id,
     a.name AS author_name,
@@ -212,16 +208,14 @@ Author.find(:all,
             :order=&gt;"authors.id",
             :finder_sql =&gt; QUERY,
             :column_mapping =&gt; MAPPING)
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This example shows the recursive nature of associations. It can also be used to render deeper structures that may reference the same model multiple times, such as the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>Firm.find(:all,
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Firm.find(:all,
           :include=&gt;{:account=&gt;{:firm=&gt;:account}},
           :order=&gt;"companies.id")
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>(Here, the query and mapping is left to the reader; or, you can look at the unit test which documents many more possibilities). Install using</p>
 
@@ -416,7 +410,7 @@ Author.find(:all,
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

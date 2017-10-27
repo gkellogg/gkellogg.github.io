@@ -88,19 +88,18 @@
 <div class="post-content">
   <p>Recently, I’ve been playing with RSpec to run <a href="http://github.com/msporny/rdfa-test-suite">RDFa test cases</a>. The suite has accepted and unreviewed test cases. My general way of testing is to parse the suite, and run each test through a generated spec as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>test_cases.each do |tc|
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>test_cases.each do |tc|
   specify "test #{tc.name}" do
     tc.run_test do |input|
       RdfaParser::RdfaParser.new.parse(input, tc.informationResourceInput)
     end
   end
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The problem is, some tests are pending, so that a failure should be soft, and not hard. The way to do this is to catch <code class="highlighter-rouge">Spec::Expectations::ExpectationNotMetError</code>. This this, we can modify the above test as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>test_cases.each do |tc|
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>test_cases.each do |tc|
   specify "test #{tc.name}" do
     tc.run_test do |input|
       begin
@@ -115,8 +114,7 @@ end
     end
   end
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 </div>
 <div class="post-footer">
@@ -305,7 +303,7 @@ end
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

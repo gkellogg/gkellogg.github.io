@@ -117,22 +117,21 @@
 
 <p>As an example, I recently worked with others to release the <a href="http://rubygems.org/gems/rdf-vocab">rdf-vocab</a> Ruby gem, which includes a Ruby version of different RDF Ontologies/Vocabularies used for reasoning on things such as the <a href="http://linter.structured-data.org/">Structured Data Linter</a>. One vocabulary we very much wanted to include as the <a href="http://www.iana.org/assignments/link-relations/link-relations.xhtml">IANA Link Relations</a>. This is not published as any kind of RDF dataset, much less as an RDFS or OWL vocabulary definition. In fact, this has prevented it from being used in different standards work, as the link relation for <code class="highlighter-rouge">describes</code> cannot easily be dereferenced to find it’s definition. Formally, the <code class="highlighter-rouge">describes</code> link relation maps to the <code class="highlighter-rouge">http://www.iana.org/assignments/link-relations/describes</code> URI, but dereferencing this results in an HTTP 404 status. However, this doesn’t need to get in the way of defining an RDFS vocabulary based on this dataset. Thankfully, the link relations are published in other formats, including <a href="http://www.iana.org/assignments/link-relations/link-relations-1.csv">csv</a>. This allows us to construct a <a href="https://github.com/ruby-rdf/rdf-vocab/blob/develop/etc/iana-metadata.json">metadata description</a> of this dataset:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"@context"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.w3.org/ns/csvw"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.iana.org/assignments/link-relations/link-relations-1.csv"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"tableSchema"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"aboutUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{name}"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"lang"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"columns"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-      </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"name"</span><span class="p">,</span><span class="w"> </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Relation Name"</span><span class="p">,</span><span class="w"> </span><span class="nt">"propertyUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rdfs:label"</span><span class="p">},</span><span class="w">
-      </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"comment"</span><span class="p">,</span><span class="w"> </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Description"</span><span class="p">,</span><span class="w"> </span><span class="nt">"propertyUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rdfs:comment"</span><span class="p">},</span><span class="w">
-      </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"type"</span><span class="p">,</span><span class="w"> </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Reference"</span><span class="p">,</span><span class="w"> </span><span class="nt">"propertyUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rdf:type"</span><span class="p">,</span><span class="w"> </span><span class="nt">"valueUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rdf:Property"</span><span class="p">},</span><span class="w">
-      </span><span class="p">{</span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Notes"</span><span class="p">,</span><span class="w"> </span><span class="nt">"suppressOutput"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span><span class="w">
-    </span><span class="p">]</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@context": "http://www.w3.org/ns/csvw",
+  "url": "http://www.iana.org/assignments/link-relations/link-relations-1.csv",
+  "tableSchema": {
+    "aboutUrl": "{name}",
+    "lang": "en",
+    "columns": [
+      {"name": "name", "title": "Relation Name", "propertyUrl": "rdfs:label"},
+      {"name": "comment", "title": "Description", "propertyUrl": "rdfs:comment"},
+      {"name": "type", "title": "Reference", "propertyUrl": "rdf:type", "valueUrl": "rdf:Property"},
+      {"title": "Notes", "suppressOutput": true}
+    ]
+  }
+}
+</code></pre></div></div>
 
 <p>This says that there is a table located at <code class="highlighter-rouge">http://www.iana.org/assignments/link-relations/link-relations-1.csv</code> with a <em>schema</em>. Each row identifies a different <em>subject</em> using the <code class="highlighter-rouge">aboutUrl</code> property. The <code class="highlighter-rouge">"{name}"</code> value is a <a href="https://tools.ietf.org/html/rfc6570">URI template</a> that creates a URI from the <code class="highlighter-rouge">name</code> variable relative to the location of the <em>CSV</em>.</p>
 
@@ -140,11 +139,10 @@
 
 <p>Mapping this on the CSV, for example, turns the first row into the following RDF:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;http://www.iana.org/assignments/link-relations/about&gt; rdfs:label "about@en";
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;http://www.iana.org/assignments/link-relations/about&gt; rdfs:label "about@en";
   rdfs:comment "Refers to a resource that is the subject of the link's context."@en;
   rdf:type rdf:Property .
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Within the <a href="http://rdf.rubyforge.org/">RDF.rb</a> tool chain, this allows the use of <code class="highlighter-rouge">RDF::Vocab::IANA.about</code> to refer to this property definition. The reasoner knows it’s a property, because it’s type if <code class="highlighter-rouge">rdf:Property</code>. The completely transformed CSV can be found <a href="https://raw.githubusercontent.com/ruby-rdf/rdf-vocab/develop/etc/iana.ttl">here</a>.</p>
 
@@ -351,7 +349,7 @@
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

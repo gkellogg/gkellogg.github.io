@@ -92,25 +92,23 @@
 
 <p>SPARQL Algebra passes all but four W3C DAWG tests (data-r2), with those four not being worth implementing, in my opinion. As an example of an SSE based on the SPARQL grammar, consider the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>PREFIX  foaf:  &lt;http://xmlns.com/foaf/0.1/&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PREFIX  foaf:  &lt;http://xmlns.com/foaf/0.1/&gt;
 
 SELECT ?mbox ?name
  {
    ?x foaf:mbox ?mbox .
    OPTIONAL { ?x foaf:name  ?name } .
  }
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>which is equivalent to the following SSE:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>(prefix ((foaf: &lt;http://xmlns.com/foaf/0.1/&gt;))
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(prefix ((foaf: &lt;http://xmlns.com/foaf/0.1/&gt;))
    (project (?mbox ?name)
      (leftjoin
        (bgp (triple ?x foaf:mbox ?mbox))
        (bgp (triple ?x foaf:name ?name)))))
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>There are outstanding pull requests to RDF.rb and sxp-ruby that are required to release it to RubyGems, but you’re encouraged to play with it and send feedback!</p>
 
@@ -309,7 +307,7 @@ SELECT ?mbox ?name
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

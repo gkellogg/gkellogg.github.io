@@ -238,7 +238,7 @@
 
 <p>this method was to check for authorization before performing the test.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code># Run a test
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Run a test
 get '/test-suite/check-test/:version/:suite/:num' do
   return [403, "Unauthorized access is not allowed"] unless authorized?
 
@@ -257,12 +257,11 @@ get '/test-suite/check-test/:version/:suite/:num' do
   # Return results as JSON
   {:status =&gt; result}.to_json
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>In the banner, we add a little bit of Haml:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>...
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
 %div.navbar-text.pull-right
   - if email
     %p.email
@@ -273,8 +272,7 @@ end
         (logout)
   - else
     = render_login_button
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>When the page is returned, the <code class="highlighter-rouge">email</code> variable is set if the user is</p>
 
@@ -292,7 +290,7 @@ end
 
 <p>either show the tests, or an explanation:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>// If logged in, create primary test collection and view
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// If logged in, create primary test collection and view
 if ($("span.email").length &gt; 0) {
   this.testList = new TestCollection([], {version: this.version});
   this.testList.fetch();
@@ -300,8 +298,7 @@ if ($("span.email").length &gt; 0) {
 } else {
   this.unauthorizedView = new UnauthorizedView();
 }
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>That’s pretty much all there is too it. The only complication I faced is</p>
 
@@ -530,7 +527,7 @@ if ($("span.email").length &gt; 0) {
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

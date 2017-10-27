@@ -118,18 +118,17 @@
 
 <p>Given a particular encoding, say of Hoagy Carmichael’s “Stardust”, a simple Manifestation might be described as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>[ a cme:Encoding, mo:MusicalManifestation;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ a cme:Encoding, mo:MusicalManifestation;
 dc:title "Stardust"@en-us;
 dc:format "audio/mpeg"^^dc:MediaType;
 cme:duration "PT3M53S"^^xsd:duration;
 dc:issued "1978-04-01"^^xsd:date
 ] .
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>As this represents a specific formatted manifestation of a recorded signal, we can add more information:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;#stardust&gt; a cme:Audio, mo:Signal;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;#stardust&gt; a cme:Audio, mo:Signal;
 dc:title "Stardust"@en-us;
 cme:displayArtist &lt;http://dbpedia.org/data/Willie_Nelson&gt;;
 cme:lyrics &lt;http://www.metrolyrics.com/stardust-lyrics-willie-nelson.html&gt;;
@@ -141,12 +140,11 @@ cme:encoding [ a cme:Encoding, mo:MusicalExpression;
   cme:duration "PT3M53S"^^xsd:duration;
   dc:issued "1978-04-01"^^xsd:date
 ] .
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>However, there’s more we can say about this recording, for instance, that it was recorded at a particular time with various performers:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>[ a mo:Performance;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ a mo:Performance;
 dc:title "Studio recording of Stardust"@en-us;
 dc:created "1977-12-12"^^dc:date;
 mo:producer &lt;http://dbpedia.org/data/Booker_T._Jones&gt;;
@@ -157,12 +155,11 @@ mo:performer &lt;http://dbpedia.org/data/Chris_Ethridge&gt;,
 cme:expression &lt;#stardust&gt;
 ] .
 &lt;#stardust&gt; a cme:Audio, mo:Signal .
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>We also know that Hoagy Charmichael composed the song “Stardust”</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;http://dbpedia.org/data/Stardust_(song)&gt; a mo:MusicalWork
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;http://dbpedia.org/data/Stardust_(song)&gt; a mo:MusicalWork
 dc:title "Stardust"@en-us;
 mo:composer &lt;http://dbpedia.org/data/Hoagy_Carmichael&gt;;
 db:created "1927-10-31"^^xsd:date
@@ -177,14 +174,13 @@ mo:performed_in [ a mo:Performance;
   cme:expression &lt;#stardust&gt;
 ] .
 &lt;#stardust&gt; a cme:Audio, mo:Signal ....
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>We could continue this to describe multiple performances, expressions or encodings.</p>
 
 <p>A particular encoding might appear on many different albums or playlists, so we can’t encode information such as track number with the <code class="highlighter-rouge">cme:Audio</code>. This is encoded in a <em>Collection</em> contained within an <em>Release</em>:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;&gt; a cme:PrimaryRelease;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;&gt; a cme:PrimaryRelease;
 owl:seeAlso &lt;http://dbpedia.org/data/Stardust_(album)&gt;;
 dc:title "Stardust"@en-us;
 cme:displayArtist &lt;http://dbpedia.org/data/Willie_Nelson&gt;;
@@ -200,8 +196,7 @@ cme:audioCollection [ a cme:AudioCollection;
 ] .
 &lt;http://dbpedia.org/data/Stardust_(song)&gt; a mo:MusicalWork ....
 &lt;#stardust&gt; a cme:Audio, mo:Signal ....
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>There is much more that can be said about an album, including links to reviews, alternate performances, videos, photos and so forth. RDF provides an expressive mechanism for describing such rich metadata.</p>
 
@@ -716,7 +711,7 @@ cme:audioCollection [ a cme:AudioCollection;
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

@@ -124,7 +124,7 @@
 
 <p>A basic RDFa test is a small amount of markup intended to test a single feature.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
 <span class="nt">&lt;html</span> <span class="na">prefix=</span><span class="s">"dc: http://purl.org/dc/elements/1.1/"</span><span class="nt">&gt;</span>
 <span class="nt">&lt;head&gt;</span>
    <span class="nt">&lt;title&gt;</span>Test 0001<span class="nt">&lt;/title&gt;</span>
@@ -137,27 +137,24 @@
           <span class="na">property=</span><span class="s">"dc:creator"</span><span class="nt">&gt;</span>Mark Birbeck<span class="nt">&lt;/span&gt;</span>.<span class="nt">&lt;/p&gt;</span>
 <span class="nt">&lt;/body&gt;</span>
 <span class="nt">&lt;/html&gt;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>In this example, we’re testing that the <code class="highlighter-rouge">@about</code> attribute sets the <em>subject</em>, <code class="highlighter-rouge"><span class="k">@property</span></code> sets the <em>property</em> and the</p>
 
 <p>text content sets the <em>object</em> of a single RDF statement. Rendered as Turtle, it would look like the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>@prefix dc: "http://purl.org/dc/elements/1.1/" .
-&lt;photo1.jpg&gt; dc:creator "Mark Birbeck" .
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">@prefix</span><span class="w"> </span><span class="nn">dc:</span><span class="w"> </span><span class="s">"http://purl.org/dc/elements/1.1/"</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span><span class="nl">&lt;photo1.jpg&gt;</span><span class="w"> </span><span class="nn">dc:</span><span class="n">creator</span><span class="w"> </span><span class="s">"Mark Birbeck"</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span></code></pre></div></div>
 
 <p>A query to test this looks like the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>PREFIX dc: &lt;http://purl.org/dc/elements/1.1/&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PREFIX dc: &lt;http://purl.org/dc/elements/1.1/&gt;
 ASK WHERE {
     &lt;http://rdfa.info/test-suite/test-cases/rdfa1.1/html5/photo1.jpg&gt;
       dc:creator "Mark Birbeck" .
 }
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Note that the relative IRI in the <code class="highlighter-rouge">@about</code> is expanded relative to the document location, as is tested in the SPARQL query.</p>
 
@@ -171,11 +168,10 @@ ASK WHERE {
   <li>The Web application performs a <code class="highlighter-rouge">GET</code> on the <code class="highlighter-rouge">/test-suite/check-test/:version/:suite/:num</code> service URL along</li>
 </ol>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>with the processor endpoint as a query parameter.   2. The service invokes the processor endpoint passing the URL of the test document.   3. The processor then parses that document
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>with the processor endpoint as a query parameter.   2. The service invokes the processor endpoint passing the URL of the test document.   3. The processor then parses that document
   
 and returns a result in a different RDF format (for example [Turtle](http://www.w3.org/TR/turtle/) or [RDF/XML](http://www.w3.org/TR/REC-rdf-syntax/)).   4. The processor parses the returned RDF document into a graph, and performs a SPARQL query against that graph.   5. The result is a `true` or `false` value, which determines if the test passes or not.   6. The result is formatted as JSON and returned the Web application.   7. The Web application updates the test status in the UI.   8. If running all tests, the completion event triggers the next test to run.
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h2 id="sinatra">Sinatra</h2>
 
@@ -187,7 +183,7 @@ and returns a result in a different RDF format (for example [Turtle](http://www.
 
 <p>The basic setup of the app is fairly straight forward:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code># Return the test suite driver page
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Return the test suite driver page
 get '/test-suite/' do
   haml :test_suite
 end
@@ -222,8 +218,7 @@ get '/test-suite/check-test/:version/:suite/:num' do
   # Return results as JSON
   {:status =&gt; result}.to_json
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Backing up the Sinatra application are a number of Ruby Gems for working with <a href="http://rubygems.org/gems/linkeddata">Linked Data</a> and <a href="http://rubygems.org/gems/sparql">SPARQL</a>. In</p>
 
@@ -247,7 +242,7 @@ end
 
 <p>along with the current processor endpoint. It looks something like the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>window.Version = Backbone.Model.extend({
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>window.Version = Backbone.Model.extend({
   defaults: {
     processorURL: "http://www.w3.org/2012/pyRdfa/extract?uri=",
     processorName: "pyRdfa",
@@ -266,8 +261,7 @@ end
     }[this.get("version")];
   }
 });
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The Test model, uses the <a href="http://rdfa.info/test-suite/manifest.ttl">test manifest</a> to instantiate a number of</p>
 
@@ -303,15 +297,14 @@ end
 
 <p>tests. A typical entry looks like the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="o">&lt;</span><span class="n">test</span><span class="o">-</span><span class="n">cases</span><span class="o">/</span><span class="mo">0001</span><span class="o">&gt;</span> <span class="n">a</span> <span class="n">test</span><span class="o">:</span><span class="n">TestCase</span><span class="p">;</span>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="n">test</span><span class="o">-</span><span class="n">cases</span><span class="o">/</span><span class="mo">0001</span><span class="o">&gt;</span> <span class="n">a</span> <span class="n">test</span><span class="o">:</span><span class="n">TestCase</span><span class="p">;</span>
    <span class="n">dc</span><span class="o">:</span><span class="n">title</span> <span class="s">"Predicate establishment with @property"</span><span class="p">;</span>
    <span class="n">rdfatest</span><span class="o">:</span><span class="n">rdfaVersion</span> <span class="s">"rdfa1.0"</span><span class="p">,</span> <span class="s">"rdfa1.1"</span><span class="p">;</span>
    <span class="n">rdfatest</span><span class="o">:</span><span class="n">hostLanguage</span> <span class="s">"xml"</span><span class="p">,</span> <span class="s">"xhtml1"</span><span class="p">,</span> <span class="s">"html4"</span><span class="p">,</span> <span class="s">"html5"</span><span class="p">,</span> <span class="s">"xhtml5"</span><span class="p">;</span>
    <span class="n">test</span><span class="o">:</span><span class="n">classification</span> <span class="n">test</span><span class="o">:</span><span class="n">required</span><span class="p">;</span>
    <span class="n">test</span><span class="o">:</span><span class="n">informationResourceInput</span> <span class="o">&lt;</span><span class="n">test</span><span class="o">-</span><span class="n">cases</span><span class="o">/</span><span class="mo">0001</span><span class="p">.</span><span class="n">html</span><span class="o">&gt;</span><span class="p">;</span>
    <span class="n">test</span><span class="o">:</span><span class="n">informationResourceResults</span> <span class="o">&lt;</span><span class="n">test</span><span class="o">-</span><span class="n">cases</span><span class="o">/</span><span class="mo">0001</span><span class="p">.</span><span class="n">sparql</span><span class="o">&gt;</span> <span class="p">.</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The basically describes an IRI for the test, in this case <code class="highlighter-rouge">test-cases/0001</code> relative to the location of the test suite,</p>
 
@@ -518,7 +511,7 @@ end
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

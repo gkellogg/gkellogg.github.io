@@ -94,34 +94,31 @@
 
 <p>RDFa 1.1 allows URIs to be expressed using an NCName, called a term, by using the <code class="highlighter-rouge">@vocab</code> attribute, an author can define a URI to be used for a bare word to turn it into a URI. Take for example the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;div vocab="http://xmlns.com/foaf/0.1/"&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;div vocab="http://xmlns.com/foaf/0.1/"&gt;
    &lt;p about="#me" typeof="Person" property="name"&gt;Gregg Kellogg&lt;/p&gt;
 &lt;/div&gt;
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>will generate the following triples:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;#me&gt; a foaf:Person;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;#me&gt; a foaf:Person;
   foaf:name "Gregg Kellogg" .
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="profile-documents-for-defining-prefixes-and-terms">Profile documents for defining prefixes and terms</h3>
 
 <p>A <em>Profile</em> document allows the specification of a set of URI mappings and term mappings in a single document. These documents are RDF formatted, and may or may not be RDFa. The following shows an example <em>Profile</em> document:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>@prefix rdfa: &lt;http://www.w3.org/ns/rdfa#&gt; .
-[ rdfa:prefix "foaf"; rdfa:uri "http://xmlns.com/foaf/0.1/"] .
-[ rdfa:prefix "dc"; rdfa:uri "http://purl.org/dc/terms/"] .
-[ rda:term "name"; rdfa:uri "http://xmlns.com/foaf/0.1/name"] .
-[ rda:term "created"; rdfa:uri "http://purl.org/dc/terms/created"] .
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">@prefix</span><span class="w"> </span><span class="nn">rdfa:</span><span class="w"> </span><span class="nl">&lt;http://www.w3.org/ns/rdfa#&gt;</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span><span class="p">[</span><span class="w"> </span><span class="nn">rdfa:</span><span class="kd">prefix</span><span class="w"> </span><span class="s">"foaf"</span><span class="p">;</span><span class="w"> </span><span class="nn">rdfa:</span><span class="n">uri</span><span class="w"> </span><span class="s">"http://xmlns.com/foaf/0.1/"</span><span class="p">]</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span><span class="p">[</span><span class="w"> </span><span class="nn">rdfa:</span><span class="kd">prefix</span><span class="w"> </span><span class="s">"dc"</span><span class="p">;</span><span class="w"> </span><span class="nn">rdfa:</span><span class="n">uri</span><span class="w"> </span><span class="s">"http://purl.org/dc/terms/"</span><span class="p">]</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span><span class="p">[</span><span class="w"> </span><span class="nn">rda:</span><span class="n">term</span><span class="w"> </span><span class="s">"name"</span><span class="p">;</span><span class="w"> </span><span class="nn">rdfa:</span><span class="n">uri</span><span class="w"> </span><span class="s">"http://xmlns.com/foaf/0.1/name"</span><span class="p">]</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span><span class="p">[</span><span class="w"> </span><span class="nn">rda:</span><span class="n">term</span><span class="w"> </span><span class="s">"created"</span><span class="p">;</span><span class="w"> </span><span class="nn">rdfa:</span><span class="n">uri</span><span class="w"> </span><span class="s">"http://purl.org/dc/terms/created"</span><span class="p">]</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span></code></pre></div></div>
 
 <p>This bit profile results in namespace mappings and a bare terms. Multiple vocabularies may be used together to create a namespace composed of terms from several vocabularies, without needing to describe them explicitly. These may then be used in a document as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;div profile="http://example.com/my_vocab"&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;div profile="http://example.com/my_vocab"&gt;
   &lt;p about="#me"&gt;
     &lt;span property="name"&gt;Gregg Kellogg&lt;/span&gt;
     is the author of
@@ -131,14 +128,13 @@
     &lt;/a&gt;
   &lt;/p&gt;
 &lt;/div&gt;
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="namespace-definitions">Namespace definitions</h3>
 
-<p>RDFa 1.1 deprecates the use of @xmlns for defining namespace prefixes. The <code class="highlighter-rouge">@prefix</code> attribute defines one or more mappings between prefixes and URIs. For example:</p>
+<p>RDFa 1.1 deprecates the use of @xmlns for defining namespace prefixes. The <code class="highlighter-rouge"><span class="kd">@prefix</span></code> attribute defines one or more mappings between prefixes and URIs. For example:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;div prefix="foaf: http://xmlns.com/foaf/0.1/ dc: http://purl.org/dc/terms/"&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;div prefix="foaf: http://xmlns.com/foaf/0.1/ dc: http://purl.org/dc/terms/"&gt;
   &lt;p about="#me"&gt;
     &lt;span property="foaf:name"&gt;Gregg Kellogg&lt;/span&gt;
     is the author of
@@ -148,8 +144,7 @@
     &lt;/a&gt;
   &lt;/p&gt;
 &lt;/div&gt;
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Defines and uses two different namespace mappings.</p>
 
@@ -157,7 +152,7 @@
 
 <p>In RDFa 1.0, certain attributes took a URI, others a CURIE, and still others either a URI or a Safe CURIE. This is confusing, and RDFa 1.1 now allows either URIs, CURIEs, or SafeCURIEs to be used most anywhere (SafeCURIEs are maintained for backwards compatibility). For example:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;div&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;div&gt;
   &lt;p about="#me"&gt;
     &lt;span property="http://xmlns.com/foaf/0.1/name"&gt;
       Gregg Kellogg
@@ -169,8 +164,7 @@
     &lt;/a&gt;
   &lt;/p&gt;
 &lt;/div&gt;
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="change-history">Change History</h3>
 
@@ -378,7 +372,7 @@
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

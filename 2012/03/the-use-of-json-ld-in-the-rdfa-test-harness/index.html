@@ -92,21 +92,20 @@
 
 <p>The RDFa <a href="http://rdfa.info/test-suite/manifest.ttl">test manifest</a> is a <a href="http://www.w3.org/TR/turtle/">Turtle</a> document used to specify the tests that apply to different versions and host languages in <a href="http://rdfa.info/">RDFa</a>. <a href="http://www.w3.org/TR/turtle/">Turtle</a> is a great language for representing information in a reasonably human-understandable way. Most people authoring RDF by hand stick to Turtle, because of it’s ease of use and concise way of expressing Linked Data graphs. For example, to specify a specific test entry, we could write some Turtle as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="o">&lt;</span><span class="n">test</span><span class="o">-</span><span class="n">cases</span><span class="o">/</span><span class="mo">0001</span><span class="o">&gt;</span> <span class="n">a</span> <span class="n">test</span><span class="o">:</span><span class="n">TestCase</span><span class="p">;</span>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="n">test</span><span class="o">-</span><span class="n">cases</span><span class="o">/</span><span class="mo">0001</span><span class="o">&gt;</span> <span class="n">a</span> <span class="n">test</span><span class="o">:</span><span class="n">TestCase</span><span class="p">;</span>
    <span class="n">dc</span><span class="o">:</span><span class="n">title</span> <span class="s">"Predicate establishment with @property"</span><span class="p">;</span>
    <span class="n">rdfatest</span><span class="o">:</span><span class="n">rdfaVersion</span> <span class="s">"rdfa1.0"</span><span class="p">,</span> <span class="s">"rdfa1.1"</span><span class="p">;</span>
    <span class="n">rdfatest</span><span class="o">:</span><span class="n">hostLanguage</span> <span class="s">"xml"</span><span class="p">,</span> <span class="s">"xhtml1"</span><span class="p">,</span> <span class="s">"html4"</span><span class="p">,</span> <span class="s">"html5"</span><span class="p">,</span> <span class="s">"xhtml5"</span><span class="p">;</span>
    <span class="n">test</span><span class="o">:</span><span class="n">classification</span> <span class="n">test</span><span class="o">:</span><span class="n">required</span><span class="p">;</span>
    <span class="n">test</span><span class="o">:</span><span class="n">informationResourceInput</span> <span class="o">&lt;</span><span class="n">test</span><span class="o">-</span><span class="n">cases</span><span class="o">/</span><span class="mo">0001</span><span class="p">.</span><span class="n">html</span><span class="o">&gt;</span><span class="p">;</span>
    <span class="n">test</span><span class="o">:</span><span class="n">informationResourceResults</span> <span class="o">&lt;</span><span class="n">test</span><span class="o">-</span><span class="n">cases</span><span class="o">/</span><span class="mo">0001</span><span class="p">.</span><span class="n">sparql</span><span class="o">&gt;</span> <span class="p">.</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Basically, this defines a (relative) URL identifying the test case, gives it a title, describes the relevant RDFa versions and host languages, says it’s required, and shows the files used to provide input and to test the results. The problem is, this is not a convenient form to use programatically. Modern Web applications make use of JSON for representing data, for one reason because JSON can be represented natively in JavaScript, but also because it has a convenient representation in Ruby and other languages.</p>
 
 <p>Let’s look at the equivalent test representation in <a href="http://json-ld.org/">JSON-LD</a>:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span>
   <span class="s">"@context"</span><span class="o">:</span> <span class="s">"http://rdfa.info/contexts/rdfa-test.jsonld"</span><span class="p">,</span>
   <span class="s">"@graph"</span><span class="o">:</span> <span class="p">[</span>
     <span class="p">{</span>
@@ -123,49 +122,46 @@
     <span class="p">}</span>
   <span class="p">]</span>
 <span class="p">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Other than the encapsulating elements, this looks pretty similar to the Turtle representation. There are a couple of differences though: instead of <code class="highlighter-rouge">dc:title</code>, we use the term <code class="highlighter-rouge">description</code>, instead of <code class="highlighter-rouge">rdfatest:hostLanguage</code>, we use <code class="highlighter-rouge">hostLanguages</code>. How are these related? The key is looking at the <code class="highlighter-rouge">@context</code> value. Looking at <a href="http://rdfa.info/contexts/rdfa-test.jsonld">http://rdfa.info/contexts/rdfa-test.jsonld</a>, we see the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"@context"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"dc"</span><span class="p">:</span><span class="w">         </span><span class="s2">"http://purl.org/dc/terms/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"xsd"</span><span class="p">:</span><span class="w">        </span><span class="s2">"http://www.w3.org/2001/XMLSchema#"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"rdfatest"</span><span class="p">:</span><span class="w">   </span><span class="s2">"http://rdfa.info/vocabs/rdfa-test#"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"test"</span><span class="p">:</span><span class="w">       </span><span class="s2">"http://www.w3.org/2006/03/test-description#"</span><span class="p">,</span><span class="w">
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@context": {
+    "dc":         "http://purl.org/dc/terms/",
+    "xsd":        "http://www.w3.org/2001/XMLSchema#",
+    "rdfatest":   "http://rdfa.info/vocabs/rdfa-test#",
+    "test":       "http://www.w3.org/2006/03/test-description#",
 
-    </span><span class="nt">"classification"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test:classification"</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"contributor"</span><span class="p">:</span><span class="w">    </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dc:contributor"</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"description"</span><span class="p">:</span><span class="w">    </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dc:title"</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"expectedResults"</span><span class="p">:{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test:expectedResults"</span><span class="p">,</span><span class="w">
-                       </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xsd:boolean"</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"hostLanguages"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rdfatest:hostLanguage"</span><span class="p">,</span><span class="w">
-                       </span><span class="nt">"@container"</span><span class="p">:</span><span class="w"> </span><span class="s2">"@set"</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"input"</span><span class="p">:</span><span class="w">          </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test:informationResourceInput"</span><span class="p">,</span><span class="w">
-                       </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"@id"</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"num"</span><span class="p">:</span><span class="w">            </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rdfatest:num"</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"purpose"</span><span class="p">:</span><span class="w">        </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test:purpose"</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"versions"</span><span class="p">:</span><span class="w">       </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rdfatest:rdfaVersion"</span><span class="p">,</span><span class="w">
-                       </span><span class="nt">"@container"</span><span class="p">:</span><span class="w"> </span><span class="s2">"@set"</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"reference"</span><span class="p">:</span><span class="w">      </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test:specificationReference"</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"results"</span><span class="p">:</span><span class="w">        </span><span class="p">{</span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test:informationResourceResults"</span><span class="p">,</span><span class="w">
-                       </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"@id"</span><span class="p">}</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+    "classification": {"@id": "test:classification"},
+    "contributor":    {"@id": "dc:contributor"},
+    "description":    {"@id": "dc:title"},
+    "expectedResults":{"@id": "test:expectedResults",
+                       "@type": "xsd:boolean"},
+    "hostLanguages":  {"@id": "rdfatest:hostLanguage",
+                       "@container": "@set"},
+    "input":          {"@id": "test:informationResourceInput",
+                       "@type": "@id"},
+    "num":            {"@id": "rdfatest:num"},
+    "purpose":        {"@id": "test:purpose"},
+    "versions":       {"@id": "rdfatest:rdfaVersion",
+                       "@container": "@set"},
+    "reference":      {"@id": "test:specificationReference"},
+    "results":        {"@id": "test:informationResourceResults",
+                       "@type": "@id"}
+  }
+}
+</code></pre></div></div>
 
 <p>The context does exactly that: it provides a context for interpreting JSON data. Note the definition of <code class="highlighter-rouge">hostLanguages</code>: this indicates that <code class="highlighter-rouge">hostLanguages</code> is a <em>term</em> definition, meaning that the term is replaced with the <code class="highlighter-rouge">@id</code> value, in this case <code class="highlighter-rouge">rdfatest:hostLanguage</code>, the same as used in Turtle. Both of these expand to an equivalent IRI <a href="http://rdfa.info/vocabs/rdfa-test#hostLanguage">http://rdfa.info/vocabs/rdfa-test#hostLanguage</a>. In RDF, and in Linked Data in general, everything is described as a resource, either an IRI, a Literal or a Blank Node (basically a variable representing something we don’t know or don’t want to identify). The <code class="highlighter-rouge">"@container": "@set"</code> bit just says to expect that the value of <code class="highlighter-rouge">hostLanguages</code> will always be an array, to make processing more convenient.</p>
 
 <p>Because we use <em>terms</em> in JSON Object <em>key</em> positions, this means that access from JavaScript can be quite convenient. Taking a look at the test suite Test model description, we can download the Manifest with an Ajax request and access elements using ‘.’ notation, such as the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>var filteredTests = _.filter(this.loadedData, function(data) {
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var filteredTests = _.filter(this.loadedData, function(data) {
   return _.include(data.versions, version) &amp;&amp;
          _.include(data.hostLanguages, hostLanguage);
 });
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Another advantage in using JSON is that the parse time is negligible. The manifest has about 3000 triples, which can actually take a while to parse as Turtle, but opening and parsing the JSON document is substantially faster.</p>
 
@@ -177,7 +173,7 @@
 
 <p>The basic EARL template looks like the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;script id='earl-item-template' type='text/template'&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;script id='earl-item-template' type='text/template'&gt;
   &lt;h4&gt;
     [
      &lt;span property='rdfatest:rdfaVersion'&gt;&lt;%= version %&gt;&lt;/span&gt;
@@ -201,12 +197,11 @@
     &lt;/p&gt;
   &lt;/div&gt;
 &lt;/script&gt;
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The <em>Earl view</em> uses this template to generate a report for an individual test entry and fills in attribute or content values from within the view:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>var EarlItemView = Backbone.View.extend({
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var EarlItemView = Backbone.View.extend({
   template: _.template($('#earl-item-template').html()),
 
   render: function () {
@@ -229,8 +224,7 @@
     return this;
   }
 });
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The result is a test result for a specific processor with a specific RDFa version and host-language. You can see an example report <a href="http://rdfa.info/earl-reports/rdf.rb-rdfa1.1-html5.html">here</a>.</p>
 
@@ -238,19 +232,18 @@
 
 <p>This is where <a href="http://json-ld.org/">JSON-LD</a> use in languages like Ruby come to play. Ruby has great libraries for working with JSON, which basically transforms the JSON to a combination of Ruby native Hash, Array, String, Number and Boolean values. A <a href="http://json-ld.org/">JSON-LD</a> representation a test assertion entry looks like the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://rdfa.info/test-suite/test-details/rdfa1.1/..."</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"earl:Assertion"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"assertedBy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://rdfa.info/test-suite/"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"test"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://rdfa.info/test-suite/test-cases/rdfa1.1/html5/0001.html"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"subject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://rubygems.org/gems/rdf-rdfa"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"earl:TestResult"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"outcome"</span><span class="p">:</span><span class="w"> </span><span class="s2">"earl:pass"</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@id": "http://rdfa.info/test-suite/test-details/rdfa1.1/...",
+  "@type": "earl:Assertion",
+  "assertedBy": "http://rdfa.info/test-suite/",
+  "test": "http://rdfa.info/test-suite/test-cases/rdfa1.1/html5/0001.html",
+  "subject": "http://rubygems.org/gems/rdf-rdfa",
+  "result": {
+    "@type": "earl:TestResult",
+    "outcome": "earl:pass"
+  }
+}
+</code></pre></div></div>
 
 <p>Transforming this to Ruby gives essentially the exact same representation, so we can iterate over this using Ruby <a href="http://haml-lang.com/">Haml</a>. The natural thing to do is see how we can represent EARL test results through a hierarchical test structure.</p>
 
@@ -330,20 +323,19 @@
 
 <p>To take advantage of <a href="http://json-ld.org/">JSON-LD</a> chaining, we really want a data structure that we can easily iterate on. By adding some extra markup to the report, we can do this using <a href="http://json-ld.org/">JSON-LD</a> <em>Framing</em>, basically a query language for <a href="http://json-ld.org/">JSON-LD</a> that allows us to change the data into a format we want to use. The frame document allows us to specify how we’d like our output. An abbreviated example is the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"@context"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://rdfa.info/contexts/rdfa-earl.jsonld"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"earl:Software"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"rdfa1.1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rdfatest:Version"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"html5"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"earl:TestCase"</span><span class="p">}]</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@context": "http://rdfa.info/contexts/rdfa-earl.jsonld",
+  "@type": "earl:Software",
+  "rdfa1.1": {
+    "@type": "rdfatest:Version",
+    "html5": [{"@type": "earl:TestCase"}]
+  }
+}
+</code></pre></div></div>
 
 <p>This says show items of type <code class="highlighter-rouge">earl:Software</code> with a property (associated with the version), referencing an object of type <code class="highlighter-rouge">rdfa:Version</code>, which has a property for each host language, which references a list of <code class="highlighter-rouge">earl:TestCase</code> items. This gives us a <a href="http://json-ld.org/">JSON-LD</a> snippet such as the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span>
   <span class="s">"@context"</span><span class="o">:</span> <span class="s">"http://rdfa.info/contexts/rdfa-earl.jsonld"</span><span class="p">,</span>
   <span class="s">"@id"</span><span class="o">:</span> <span class="s">"http://rdfa.info/test-suite/"</span><span class="p">,</span>
   <span class="s">"@type"</span><span class="o">:</span> <span class="p">[</span>
@@ -382,8 +374,7 @@
     <span class="p">]</span>
   <span class="p">}</span>
 <span class="p">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>We’ve basically wrapped each individual test case in a structure that inverts the information contained within the test case. Now we can use this within a <a href="http://haml-lang.com/">Haml</a> template to create the HTML we’re interested in.</p>
 
@@ -590,7 +581,7 @@
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

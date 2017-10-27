@@ -82,7 +82,7 @@
   <h1 class="post-title-main">RDF::RDFa update with vocabulary expansion, RDF collections and more</h1>
   <!-- Feel free to remove this div. Uses purplecoat: http://ellekasai.github.io/purplecoat.js -->
 <div data-purplecoat="shiori" data-purplecoat-label="post-header.html">
-<p class="text-muted">05 Sep 2011</p>
+<p class="text-muted">06 Sep 2011</p>
 </div>
 </div>
 <div class="post-content">
@@ -112,7 +112,7 @@
 
 <p>One significant RDF feature missing from RDFa was support for ordered collections, or lists. RDF supports this with special properties <code class="highlighter-rouge">rdf:first</code>, <code class="highlighter-rouge">rdf:rest</code>, and <code class="highlighter-rouge">rdf:nil</code>, but other RDF languages have first-class support for this concept. For example, in <a href="http://www.w3.org/TR/2011/WD-turtle-20110809/">Turtle</a>, a list can be defined as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>[ a schema:MusicPlayList;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ a schema:MusicPlayList;
   schema:name "Classic Rock Playlist";
   schema:numTracks 5;
   schema:tracks (
@@ -123,12 +123,11 @@
     [ a schema:MusicRecording; schema:name "Hurt So Good";             schema:byArtist "John Cougar"]
   )
 ]
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>defines a playlist with an ordered set of tracks. RDFa adds the @member attribute, which is used to identify values (object or literal) that are to be placed in a list. The same playlist might be defined in RDFa as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;div vocab="http://schema.org/" typeof="MusicPlaylist"&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;div vocab="http://schema.org/" typeof="MusicPlaylist"&gt;
   &lt;span property="name"&gt;Classic Rock Playlist&lt;/span&gt;
   &lt;meta property="numTracks" content="5"/&gt;
 
@@ -159,8 +158,7 @@
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This basically does the same thing, but places each track in an rdf:List in the defined order.</p>
 
@@ -355,7 +353,7 @@
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

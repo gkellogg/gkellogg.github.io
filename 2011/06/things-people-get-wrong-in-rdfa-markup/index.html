@@ -94,46 +94,41 @@
 
 <p>Having code such as the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;img rel="image" src="image.jpg" /&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;img rel="image" src="image.jpg" /&gt;
 ...
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>You’d think that this would indicate that the icon for the document is</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;&gt; xhv:image &lt;image.jpg&gt;
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;&gt; xhv:image &lt;image.jpg&gt;
+</code></pre></div></div>
 
 <p>but it actually says:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;image.jpg&gt; xhv:image &lt;&gt; .
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;image.jpg&gt; xhv:image &lt;&gt; .
+</code></pre></div></div>
 
 <p>The why of this is lost in the haze of history, but people regularly get this wrong. To get what you need, consider something like the following markup:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;span rel="image"&gt;&lt;img src="image.jpg" /&gt;&lt;/span&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;span rel="image"&gt;&lt;img src="image.jpg" /&gt;&lt;/span&gt;
 ...
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h2 id="rel-and-typeof-andor-about-shouldnt-be-on-the-same-element">@rel and @typeof and/or @about shouldn’t be on the same element</h2>
 
 <p>Another common mistake is format such as the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;div rel="mainContentOfPage" about="#me" typeof="Person"&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;div rel="mainContentOfPage" about="#me" typeof="Person"&gt;
   &lt;p&gt;
     Name: &lt;span property="name"&gt;Gregg Kellogg&lt;/span&gt;&lt;/p&gt;
   &lt;p&gt;
     Knows: &lt;a href="http://greggkellogg.net/#me" rel="knows"&gt;Myself&lt;/a&gt;&lt;/p&gt;
 &lt;/div&gt;
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Placing <code class="highlighter-rouge">@rel</code> and <code class="highlighter-rouge">@about</code> or <code class="highlighter-rouge">@typeof</code> on the same element indicates that the <code class="highlighter-rouge">@about</code>/<code class="highlighter-rouge">@typeof</code> indicate the subject not the object of a relation. To get the desired effect, use <code class="highlighter-rouge">@resource</code> (or <code class="highlighter-rouge">@href</code>), however, this does not let you set the type of the object resource. Alternatively, use the following type of markup:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;div rel="mainContentOfPage"&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;div rel="mainContentOfPage"&gt;
   &lt;div about="#me" typeof="Person"&gt;
     &lt;p&gt;
       Name: &lt;span property="name"&gt;Gregg Kellogg&lt;/span&gt;&lt;/p&gt;
@@ -142,12 +137,11 @@
     &lt;/p&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Another area of common mis-understanding is that the document order of statements within an HTML document is not significant when creating a list of resources. Consider the following example from schema.org/MusicPlaylist:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;div itemscope="" itemtype="http://schema.org/MusicPlaylist"&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;div itemscope="" itemtype="http://schema.org/MusicPlaylist"&gt;
   &lt;span itemprop="name"&gt;Classic Rock Playlist&lt;/span&gt;
   &lt;div itemprop="tracks" itemscope="" itemtype="http://schema.org/MusicRecording"&gt;
     1. &lt;span itemprop="name"&gt;Sweet Home Alabama&lt;/span&gt; - &lt;span itemprop="byArtist"&gt;Lynard Skynard&lt;/span&gt;
@@ -157,23 +151,21 @@
   &lt;/div&gt;
   ...
 &lt;/div&gt;
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>You would think that this describes a track ordering, but it does not (at least in RDF). Doing this requires RDF List constructs missing from both Microdata and RDFa. In Turtle, you could do it as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>@prefix: &lt;http://schema.org&gt; .
-[ a :MusicPlaylist;
-  :name "Classic Rock Playlist";
-  :numTracks 5;
-  :tracks (
-    [ a :MusicRecording; :name "Sweet Home Alabama"; :byArtist "Lynard Skynard"]
-    [a :MusicRecording; :name "Shook you all Night Long"; :byArtist "AC/DC"]
-    ...
-  )
-]
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">@prefix</span><span class="err">:</span><span class="w"> </span><span class="nl">&lt;http://schema.org&gt;</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span><span class="p">[</span><span class="w"> </span><span class="k">a</span><span class="w"> </span><span class="err">:</span><span class="n">MusicPlaylist</span><span class="p">;</span><span class="w">
+  </span><span class="err">:</span><span class="n">name</span><span class="w"> </span><span class="s">"Classic Rock Playlist"</span><span class="p">;</span><span class="w">
+  </span><span class="err">:</span><span class="n">numTracks</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w">
+  </span><span class="err">:</span><span class="n">tracks</span><span class="w"> </span><span class="p">(</span><span class="w">
+    </span><span class="p">[</span><span class="w"> </span><span class="k">a</span><span class="w"> </span><span class="err">:</span><span class="n">MusicRecording</span><span class="p">;</span><span class="w"> </span><span class="err">:</span><span class="n">name</span><span class="w"> </span><span class="s">"Sweet Home Alabama"</span><span class="p">;</span><span class="w"> </span><span class="err">:</span><span class="n">byArtist</span><span class="w"> </span><span class="s">"Lynard Skynard"</span><span class="p">]</span><span class="w">
+    </span><span class="p">[</span><span class="k">a</span><span class="w"> </span><span class="err">:</span><span class="n">MusicRecording</span><span class="p">;</span><span class="w"> </span><span class="err">:</span><span class="n">name</span><span class="w"> </span><span class="s">"Shook you all Night Long"</span><span class="p">;</span><span class="w"> </span><span class="err">:</span><span class="n">byArtist</span><span class="w"> </span><span class="s">"AC/DC"</span><span class="p">]</span><span class="w">
+    </span><span class="p">...</span><span class="w">
+  </span><span class="p">)</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
 
 <p>It would seem obvious that an HTML ordered list could be used to generate an RDF List, but it received to achieve enough interest to make it through.</p>
 
@@ -195,22 +187,20 @@
 
 <p>The RDFa Working Group recently decided to change the behavior of @src in RDFa Core 1.1 to be the same as @href. This means that</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;img rel="image" src="image.jpg" /&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;img rel="image" src="image.jpg" /&gt;
 ...
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Actually does now generate the following:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;&gt; xhv:image &lt;image.jpg&gt;
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;&gt; xhv:image &lt;image.jpg&gt;
+</code></pre></div></div>
 
 <p>Recent updates to Microdata to RDF processing now do place multiple items in a list, but this is subject to further specification.</p>
 
 <p>In RDFa, this can now be done with the @inlist attribute, which places values in an RDF Collection (rdf:List).</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>&lt;div vocab="http://schema.org/" typeof="MusicPlaylist"&gt;
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;div vocab="http://schema.org/" typeof="MusicPlaylist"&gt;
   &lt;span property="name"&gt;Classic Rock Playlist&lt;/span&gt;
   &lt;div rel="tracks" inlist=""&gt;
     1. &lt;div typeof="MusicRecording"&gt;
@@ -221,22 +211,20 @@
   &lt;/div&gt;
   ...
 &lt;/div&gt;
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Now generates the following Turtle:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>@prefix: &lt;http://schema.org&gt; .
-[ a :MusicPlaylist;
-  :name "Classic Rock Playlist";
-  :tracks (
-    [ a :MusicRecording; :name "Sweet Home Alabama"; :byArtist "Lynard Skynard"]
-    [ a :MusicRecording; :name "Shook you all Night Long"; :byArtist "AC/DC"]
-    ...
-  )
-]
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">@prefix</span><span class="err">:</span><span class="w"> </span><span class="nl">&lt;http://schema.org&gt;</span><span class="w"> </span><span class="p">.</span><span class="w">
+</span><span class="p">[</span><span class="w"> </span><span class="k">a</span><span class="w"> </span><span class="err">:</span><span class="n">MusicPlaylist</span><span class="p">;</span><span class="w">
+  </span><span class="err">:</span><span class="n">name</span><span class="w"> </span><span class="s">"Classic Rock Playlist"</span><span class="p">;</span><span class="w">
+  </span><span class="err">:</span><span class="n">tracks</span><span class="w"> </span><span class="p">(</span><span class="w">
+    </span><span class="p">[</span><span class="w"> </span><span class="k">a</span><span class="w"> </span><span class="err">:</span><span class="n">MusicRecording</span><span class="p">;</span><span class="w"> </span><span class="err">:</span><span class="n">name</span><span class="w"> </span><span class="s">"Sweet Home Alabama"</span><span class="p">;</span><span class="w"> </span><span class="err">:</span><span class="n">byArtist</span><span class="w"> </span><span class="s">"Lynard Skynard"</span><span class="p">]</span><span class="w">
+    </span><span class="p">[</span><span class="w"> </span><span class="k">a</span><span class="w"> </span><span class="err">:</span><span class="n">MusicRecording</span><span class="p">;</span><span class="w"> </span><span class="err">:</span><span class="n">name</span><span class="w"> </span><span class="s">"Shook you all Night Long"</span><span class="p">;</span><span class="w"> </span><span class="err">:</span><span class="n">byArtist</span><span class="w"> </span><span class="s">"AC/DC"</span><span class="p">]</span><span class="w">
+    </span><span class="p">...</span><span class="w">
+  </span><span class="p">)</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
 
 </div>
 <div class="post-footer">
@@ -424,7 +412,7 @@
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   

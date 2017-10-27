@@ -92,7 +92,7 @@
 
 <p>As a simple example, the <a href="http://www.sinatrarb.com/">Sinatra</a> example in the README performs a simple query against a small repository:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="c1">#!/usr/bin/env ruby -rubygems</span>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env ruby -rubygems</span>
 <span class="nb">require</span> <span class="s1">'sinatra'</span>
 <span class="nb">require</span> <span class="s1">'sinatra/sparql'</span>
 
@@ -103,12 +103,11 @@
 <span class="n">get</span> <span class="s1">'/sparql'</span> <span class="k">do</span>
   <span class="no">SPARQL</span><span class="p">.</span><span class="nf">execute</span><span class="p">(</span><span class="s2">"SELECT * WHERE { ?s ?p ?o }"</span><span class="p">,</span> <span class="n">repository</span><span class="p">)</span>
 <span class="k">end</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>A minimal SPARQL endpoint can be described as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code># Sinatra example
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Sinatra example
 #
 # Call as http://localhost:4567/sparql?query=uri,
 # where `uri` is the URI of a SPARQL query, or
@@ -130,16 +129,14 @@ get '/' do
     service_description(:repo =&gt; repository)
   end
 end
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This can be run using <code class="highlighter-rouge">ruby -rubygems example.rb</code>, or with <code class="highlighter-rouge">rackup</code> or <code class="highlighter-rouge">shotgun</code> as <code class="highlighter-rouge">rackup example.rb</code></p>
 
 <p>To load a complete to the query repository, or a full dataset including multiple context, load the repository as follows:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>repository = RDF::Repository.load("http://path-to-repo")
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>repository = RDF::Repository.load("http://path-to-repo")
+</code></pre></div></div>
 
 <p>This will incur a large startup time for each request, but you can also use a persistent store such as <code class="highlighter-rouge">rdf-mongo</code>: repository = RDF::Mongo::Repository.new() This will instantiate a persistent MongoDB store, which can be initialized one time using RDF::Mongo::Repository.load. Subsequent instantiations will use the persistent storage, and have better query performance for larger datasets.</p>
 
@@ -338,7 +335,7 @@ end
     
       
       <li class="post-title-reference">
-        <a href="/2012/05" class="post-title-archive">May 2012</a>
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
       </li>
     
   
