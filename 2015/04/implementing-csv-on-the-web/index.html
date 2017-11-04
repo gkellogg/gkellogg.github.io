@@ -118,9 +118,9 @@
 </span><span class="p">]</span><span class="w"> </span><span class="p">.</span><span class="w">
 </span></code></pre></div></div>
 
-<p>This is minimally useful, but we can use this as a walk-through of how the <a href="">rdf-tabular gem</a> creates this.</p>
+<p>This is minimally useful, but we can use this as a walk-through of how the <a href="http://rubygems.org/gems/rdf-tabular">rdf-tabular gem</a> creates this.</p>
 
-<p>The first step is to retrieve the document from it’s URL: <code class="highlighter-rouge">http://w3c.github.io/csvw/tests/tree-ops.csv</code>. We then can look for metadata associated with the file to inform the creation of the <em>annotated table</em>; this information might come from by the user specifying to location of metadata separately, from an HTTP Link header, by looking at <code class="highlighter-rouge">http://w3c.github.io/csvw/tests/tree-ops.csv-metadata.json</code> for file-specific metadata, or at <code class="highlighter-rouge">http://w3c.github.io/csvw/tests/metadata.json</code> for directory-specific metadata. In this case, there is none, so we constructed <em>embedded metatata</em> from just the <em>header row</em>. The process for locating metadata is described in <a href="http://www.w3.org/TR/tabular-data-model/#creating-annotated-tables">Creating Annotated Tables</a>, and creating embedded metadata is described in <a href="http://www.w3.org/TR/tabular-data-model/#parsing">Parsing Tabular Data</a>. Basically, we’re looking to create a <em>table description</em> with a <em>schema</em> describing each <em>column</em> resulting in the following:</p>
+<p>The first step is to retrieve the document from It’s URL: <code class="highlighter-rouge">http://w3c.github.io/csvw/tests/tree-ops.csv</code>. We then can look for metadata associated with the file to inform the creation of the <em>annotated table</em>; this information might come from by the user specifying to location of metadata separately, from an HTTP Link header, by looking at <code class="highlighter-rouge">http://w3c.github.io/csvw/tests/tree-ops.csv-metadata.json</code> for file-specific metadata, or at <code class="highlighter-rouge">http://w3c.github.io/csvw/tests/metadata.json</code> for directory-specific metadata. In this case, there is none, so we constructed <em>embedded metatata</em> from just the <em>header row</em>. The process for locating metadata is described in <a href="http://www.w3.org/TR/tabular-data-model/#creating-annotated-tables">Creating Annotated Tables</a>, and creating embedded metadata is described in <a href="http://www.w3.org/TR/tabular-data-model/#parsing">Parsing Tabular Data</a>. Basically, we’re looking to create a <em>table description</em> with a <em>schema</em> describing each <em>column</em> resulting in the following:</p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
   "@context": "http://www.w3.org/ns/csvw",
@@ -264,7 +264,7 @@ end
 end
 </code></pre></div></div>
 
-<p>That’s pretty much the basis of a Ruby implementation. There’s more work to do in <code class="highlighter-rouge">#each_statement</code>, as it’s initially invoked with a <em>TableGroup</em>, which recursively invokes it again for each <em>Table</em>, which then calls again for the actual CSV, but that’s all setup. There’s also work in <code class="highlighter-rouge">RDF::Tabular::Reader#initialize</code> to find the metadata, ensure that it is compatible with the actual tables, and so forth.</p>
+<p>That’s pretty much the basis of a Ruby implementation. There’s more work to do in <code class="highlighter-rouge">#each_statement</code>, as It’s initially invoked with a <em>TableGroup</em>, which recursively invokes it again for each <em>Table</em>, which then calls again for the actual CSV, but that’s all setup. There’s also work in <code class="highlighter-rouge">RDF::Tabular::Reader#initialize</code> to find the metadata, ensure that it is compatible with the actual tables, and so forth.</p>
 
 <h2 id="fleshing-out-with-more-details">Fleshing out with more details</h2>
 
@@ -386,7 +386,7 @@ end
 }
 </pre>
 
-<p>The <code class="highlighter-rouge">tableSchema</code> property tells us that this is a <em>Table description</em>; we could also have added a <code class="highlighter-rouge">"@type": "Table"</code> property to make this explicit, but it’s not necessary. Metadata always starts with either a <em>Table description</em> or a <em>TableGroup description</em>.</p>
+<p>The <code class="highlighter-rouge">tableSchema</code> property tells us that this is a <em>Table description</em>; we could also have added a <code class="highlighter-rouge">"@type": "Table"</code> property to make this explicit, but It’s not necessary. Metadata always starts with either a <em>Table description</em> or a <em>TableGroup description</em>.</p>
 
 <p>We define an explicit <em>name</em> property for the first column. If we didn’t, it would take the first value from <em>titles</em>. The <em>column</em> has a <em>common property</em>, which is presently not used in the transformation, but exists in the <em>annotated tabular data model</em>. It also declares the data type to be <code class="highlighter-rouge">string</code>, which is a synonym for <code class="highlighter-rouge">xsd:string</code>, and a value is <code class="highlighter-rouge">required</code>, meaning that it is considered an error if a cell value has an empty string (or one matching that defined using the <code class="highlighter-rouge">null</code> annotation). Note that <code class="highlighter-rouge">datatype</code> is an <em>inherited property</em>, meaning that it could have been defined on the <em>Table</em>, <em>Schema</em> or <em>Column</em> and would be in scope for all cells based on the inheritance model.</p>
 
@@ -553,7 +553,7 @@ end
 
 <p>(relative to the URL file location).</p>
 
-<p>The second column has it’s own <code class="highlighter-rouge">aboutUrl</code> (<strong>“aboutUrl”: “#location-{GID}”</strong>), meaning that the <em>subject</em> for triples for this column are different than the <em>default subject</em>.</p>
+<p>The second column has It’s own <code class="highlighter-rouge">aboutUrl</code> (<strong>“aboutUrl”: “#location-{GID}”</strong>), meaning that the <em>subject</em> for triples for this column are different than the <em>default subject</em>.</p>
 
 <p>The last three columns are <em>virtual columns</em>, as they don’t correspond to data actually in the CSV; these are used for injecting information into the row. When fully processed, the following RDF is created (again, in minimal mode):</p>
 
@@ -781,9 +781,8 @@ end
             <a href="/archive">View Archive (63)</a>
           </h3>
           <h2 class="post-title-link"><a href="/%3Fp%3D293">CSV on the Web</a></h2>
-          <p>As many who follow me know, I’ve long been involved in the Linked Data and Semantic Web movements. It’s been my privilege to work on several successful projects, notably [RDFa][1], [Microdata RDF][2], and [JSON-LD][3]. For the past several months I’ve actively been working with the W3C [CSV on the Web][4] Working Group to help define a mechanism for transforming tabular data into RDF and JSON.</p>
+          <p>As many who follow me know, I’ve long been involved in the Linked Data and Semantic Web movements. It’s been my privilege to work on several successful projects, notably <a href="http://www.w3.org/TR/rdfa-core" title="HTML+RDFa 1.1">RDFa</a>, <a href="http://www.w3.org/TR/microdata-rdf" title="Microdata to RDF">Microdata RDF</a>, and <a href="http://www.w3.org/TR/json-ld" title="JSON-LD 1.0">JSON-LD</a>. For the past several months I’ve actively been working with the W3C <a href="http://www.w3.org/2013/csvw/wiki/Main_Page">CSV on the Web</a> Working Group to help define a mechanism for transforming tabular data into RDF and JSON.</p>
 
-<p><a href="&lt;?php echo get_permalink(); ?&gt;"> Read More…</a></p>
 
         </div>
       
@@ -812,6 +811,10 @@ end
   <ul>
   
     <li class="post-title-reference">
+      <a href="/2008-10-07-nicks-cove" class="post-title-archive"></a>
+    </li>
+  
+    <li class="post-title-reference">
       <a href="/2015/08/csv-on-the-web-presentation/" class="post-title-archive">CSV on the Web presentation</a>
     </li>
   
@@ -825,10 +828,6 @@ end
   
     <li class="post-title-reference">
       <a href="/2013/12/release-1-1-0-of-ruby-rdf-libraries/" class="post-title-archive">Release 1.1.0 of Ruby RDF libraries</a>
-    </li>
-  
-    <li class="post-title-reference">
-      <a href="/2013/09/philippines-september-2013/" class="post-title-archive">Philippines September 2013</a>
     </li>
   
   </ul>
@@ -889,6 +888,13 @@ end
   </h3>
   
   <ul>
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2017/11" class="post-title-archive">November 2017</a>
+      </li>
+    
   
     
       
@@ -1090,13 +1096,6 @@ end
       
       <li class="post-title-reference">
         <a href="/2009/01" class="post-title-archive">January 2009</a>
-      </li>
-    
-  
-    
-      
-      <li class="post-title-reference">
-        <a href="/2008/10" class="post-title-archive">October 2008</a>
       </li>
     
   

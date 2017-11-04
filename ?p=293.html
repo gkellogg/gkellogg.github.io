@@ -90,7 +90,7 @@
 
 <p>Much of the data published on the Web is not HTML, or even some other structured content. In fact, a substantial amount of information is published as tabular data (comma-separated-values or tab-separated-values, commonly <em>CSVs</em>). This includes a vast amount of open government publications, such as records, weather and climate information, infrastructure assets, and so forth (see <a href="http://www.w3.org/TR/csvw-ucr/">Use Cases</a> for more detail). The charter of the <a href="http://www.w3.org/2013/csvw/wiki/Main_Page">CSV on the Web</a> Working Group is to provide technologies to promote greater interoperability of these datasets.</p>
 
-<p>Real data is often messy, and information contained in relational databases and large spreadsheets is often lost when it’s published as <em>CSVs</em>:</p>
+<p>Real data is often messy, and information contained in relational databases and large spreadsheets is often lost when It’s published as <em>CSVs</em>:</p>
 
 <ul>
   <li>Foreign Key relationships between tables</li>
@@ -115,7 +115,7 @@
 
 <p>Creating a data model from <em>CSVs</em> is the process of either starting with metadata describing those <em>CSVs</em>, or locating metadata given a <em>CSV</em>. The <a href="http://www.w3.org/TR/tabular-data-model/" title="Model for Tabular Data and Metadata on the Web">Model for Tabular Data</a> describes the process of locating such metadata and reconciling multiple metadata files that may be encountered. The <a href="http://www.w3.org/TR/tabular-metadata/" title="Metadata Vocabulary for Tabular Data">Metadata Format</a> then describes the structure of this data (syntactically, as a <a href="http://www.w3.org/TR/json-ld" title="JSON-LD 1.0">JSON-LD</a> formatted document) and working with it to create the basis of the <em>core annotations</em> of the <em>annotated data model</em>.</p>
 
-<p>As an example, I recently worked with others to release the <a href="http://rubygems.org/gems/rdf-vocab">rdf-vocab</a> Ruby gem, which includes a Ruby version of different RDF Ontologies/Vocabularies used for reasoning on things such as the <a href="http://linter.structured-data.org/">Structured Data Linter</a>. One vocabulary we very much wanted to include as the <a href="http://www.iana.org/assignments/link-relations/link-relations.xhtml">IANA Link Relations</a>. This is not published as any kind of RDF dataset, much less as an RDFS or OWL vocabulary definition. In fact, this has prevented it from being used in different standards work, as the link relation for <code class="highlighter-rouge">describes</code> cannot easily be dereferenced to find it’s definition. Formally, the <code class="highlighter-rouge">describes</code> link relation maps to the <code class="highlighter-rouge">http://www.iana.org/assignments/link-relations/describes</code> URI, but dereferencing this results in an HTTP 404 status. However, this doesn’t need to get in the way of defining an RDFS vocabulary based on this dataset. Thankfully, the link relations are published in other formats, including <a href="http://www.iana.org/assignments/link-relations/link-relations-1.csv">csv</a>. This allows us to construct a <a href="https://github.com/ruby-rdf/rdf-vocab/blob/develop/etc/iana-metadata.json">metadata description</a> of this dataset:</p>
+<p>As an example, I recently worked with others to release the <a href="http://rubygems.org/gems/rdf-vocab">rdf-vocab</a> Ruby gem, which includes a Ruby version of different RDF Ontologies/Vocabularies used for reasoning on things such as the <a href="http://linter.structured-data.org/">Structured Data Linter</a>. One vocabulary we very much wanted to include as the <a href="http://www.iana.org/assignments/link-relations/link-relations.xhtml">IANA Link Relations</a>. This is not published as any kind of RDF dataset, much less as an RDFS or OWL vocabulary definition. In fact, this has prevented it from being used in different standards work, as the link relation for <code class="highlighter-rouge">describes</code> cannot easily be dereferenced to find It’s definition. Formally, the <code class="highlighter-rouge">describes</code> link relation maps to the <code class="highlighter-rouge">http://www.iana.org/assignments/link-relations/describes</code> URI, but dereferencing this results in an HTTP 404 status. However, this doesn’t need to get in the way of defining an RDFS vocabulary based on this dataset. Thankfully, the link relations are published in other formats, including <a href="http://www.iana.org/assignments/link-relations/link-relations-1.csv">csv</a>. This allows us to construct a <a href="https://github.com/ruby-rdf/rdf-vocab/blob/develop/etc/iana-metadata.json">metadata description</a> of this dataset:</p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
   "@context": "http://www.w3.org/ns/csvw",
@@ -144,7 +144,7 @@
   rdf:type rdf:Property .
 </code></pre></div></div>
 
-<p>Within the <a href="http://rdf.rubyforge.org/">RDF.rb</a> tool chain, this allows the use of <code class="highlighter-rouge">RDF::Vocab::IANA.about</code> to refer to this property definition. The reasoner knows it’s a property, because it’s type if <code class="highlighter-rouge">rdf:Property</code>. The completely transformed CSV can be found <a href="https://raw.githubusercontent.com/ruby-rdf/rdf-vocab/develop/etc/iana.ttl">here</a>.</p>
+<p>Within the <a href="http://rdf.rubyforge.org/">RDF.rb</a> tool chain, this allows the use of <code class="highlighter-rouge">RDF::Vocab::IANA.about</code> to refer to this property definition. The reasoner knows It’s a property, because It’s type if <code class="highlighter-rouge">rdf:Property</code>. The completely transformed CSV can be found <a href="https://raw.githubusercontent.com/ruby-rdf/rdf-vocab/develop/etc/iana.ttl">here</a>.</p>
 
 <p>The group has just released new working drafts for <a href="http://www.w3.org/TR/tabular-data-model/" title="Model for Tabular Data and Metadata on the Web">Model for Tabular Data</a> and the <a href="http://www.w3.org/TR/tabular-metadata/" title="Metadata Vocabulary for Tabular Data">Metadata Format</a>, along with <a href="http://w3c.github.io/csvw/csv2rdf/" title="Generating RDF from Tabular Data on the Web">CSV2RDF</a> and <a href="http://w3c.github.io/csvw/csv2json/" title="Generating JSON from Tabular Data on the Web">CSV2JSON</a>.</p>
 
@@ -200,8 +200,8 @@
             
           </h3>
           <h2 class="post-title-link"><a href="/2015/04/implementing-csv-on-the-web/">Implementing CSV on the Web</a></h2>
-          <p>As I blogged about <a href="http://greggkellogg.net/%3Fp%3D293">before</a>, I’ve implemented the <a href="http://www.w3.org/blog/data/2015/04/16/csv-on-the-web-seeking-comments-and-implementations/">current drafts</a> of [CSV on the Web][] in the [rdf-tabular gem][]. The gem is is available from [rdf-tabular repo][] and is in the public domain (<a href="http://unlicense.org">Unlicense</a>) and is freely usable by anyone wishing to get a start on their own implementation. For those wishing to take an incremental approach, this post describes the basic workings of the gems, highlights more advanced cases necessary to pass the [Test Suite][] and attempts to provide some insight into the process of implementing the specifications.
-<a href="&lt;?php echo get_permalink(); ?&gt;"> Read More…</a></p>
+          <p>As I blogged about <a href="http://greggkellogg.net/%3Fp%3D293">before</a>, I’ve implemented the <a href="http://www.w3.org/blog/data/2015/04/16/csv-on-the-web-seeking-comments-and-implementations/">current drafts</a> of <a href="http://www.w3.org/2013/csvw/wiki/Main_Page">CSV on the Web</a> in the <a href="http://rubygems.org/gems/rdf-tabular">rdf-tabular gem</a>. The gem is is available from <a href="http://github.com/ruby-rdf/rdf-tabular">rdf-tabular repo</a> and is in the public domain (<a href="http://unlicense.org">Unlicense</a>) and is freely usable by anyone wishing to get a start on their own implementation. For those wishing to take an incremental approach, this post describes the basic workings of the gem, highlights more advanced cases necessary to pass the <a href="http://w3c.github.io/csvw/tests/">Test Suite</a> and attempts to provide some insight into the process of implementing the specifications.</p>
+
 
         </div>
       
@@ -219,6 +219,10 @@
   <ul>
   
     <li class="post-title-reference">
+      <a href="/2008-10-07-nicks-cove" class="post-title-archive"></a>
+    </li>
+  
+    <li class="post-title-reference">
       <a href="/2015/08/csv-on-the-web-presentation/" class="post-title-archive">CSV on the Web presentation</a>
     </li>
   
@@ -232,10 +236,6 @@
   
     <li class="post-title-reference">
       <a href="/2013/12/release-1-1-0-of-ruby-rdf-libraries/" class="post-title-archive">Release 1.1.0 of Ruby RDF libraries</a>
-    </li>
-  
-    <li class="post-title-reference">
-      <a href="/2013/09/philippines-september-2013/" class="post-title-archive">Philippines September 2013</a>
     </li>
   
   </ul>
@@ -296,6 +296,13 @@
   </h3>
   
   <ul>
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2017/11" class="post-title-archive">November 2017</a>
+      </li>
+    
   
     
       
@@ -497,13 +504,6 @@
       
       <li class="post-title-reference">
         <a href="/2009/01" class="post-title-archive">January 2009</a>
-      </li>
-    
-  
-    
-      
-      <li class="post-title-reference">
-        <a href="/2008/10" class="post-title-archive">October 2008</a>
       </li>
     
   

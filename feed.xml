@@ -5,15 +5,26 @@
     <description>Gregg's Personal Blog</description>
     <link>http://greggkellogg.net/</link>
     <atom:link href="http://greggkellogg.net/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 27 Oct 2017 13:06:55 -0400</pubDate>
-    <lastBuildDate>Fri, 27 Oct 2017 13:06:55 -0400</lastBuildDate>
+    <pubDate>Sat, 04 Nov 2017 12:08:17 -0700</pubDate>
+    <lastBuildDate>Sat, 04 Nov 2017 12:08:17 -0700</lastBuildDate>
     <generator>Jekyll v3.6.2</generator>
+    
+      <item>
+        <title></title>
+        <description>&lt;p&gt;&lt;a href=&quot;/galleries/Nick%27s%20Cove/&quot;&gt;Here&lt;/a&gt; are photos from our weekend at Nick’s Cove in Tamales Bay with Jen &amp;amp; Ty. The first 9 are from a trip I took there in 2002, well before it was restored. The rest are from the other day. The place you see in the first photo, is actually the “Big Rock” villa we stayed in, before renovation. The Warf has been completely rebuilt and extended. Still very picturesque.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 04 Nov 2017 12:08:17 -0700</pubDate>
+        <link>http://greggkellogg.net/2008-10-07-nicks-cove</link>
+        <guid isPermaLink="true">http://greggkellogg.net/2008-10-07-nicks-cove</guid>
+        
+        
+      </item>
     
       <item>
         <title>CSV on the Web presentation</title>
         <description>&lt;p&gt;I presented &lt;a href=&quot;http://www.w3.org/2013/csvw/wiki/Main_Page&quot;&gt;CSV on the Web&lt;/a&gt; at the &lt;a href=&quot;http://smartdata2015.dataversity.net&quot;&gt;Smart Data Conference&lt;/a&gt; in San Jose. The slides are on &lt;a href=&quot;http://www.slideshare.net/gkellogg1/tabular-data-on-the-web&quot;&gt;SlideShare&lt;/a&gt;.&lt;/p&gt;
 </description>
-        <pubDate>Thu, 20 Aug 2015 13:10:48 -0400</pubDate>
+        <pubDate>Thu, 20 Aug 2015 10:10:48 -0700</pubDate>
         <link>http://greggkellogg.net/2015/08/csv-on-the-web-presentation/</link>
         <guid isPermaLink="true">http://greggkellogg.net/2015/08/csv-on-the-web-presentation/</guid>
         
@@ -56,9 +67,9 @@
 &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;This is minimally useful, but we can use this as a walk-through of how the &lt;a href=&quot;&quot;&gt;rdf-tabular gem&lt;/a&gt; creates this.&lt;/p&gt;
+&lt;p&gt;This is minimally useful, but we can use this as a walk-through of how the &lt;a href=&quot;http://rubygems.org/gems/rdf-tabular&quot;&gt;rdf-tabular gem&lt;/a&gt; creates this.&lt;/p&gt;
 
-&lt;p&gt;The first step is to retrieve the document from it’s URL: &lt;code class=&quot;highlighter-rouge&quot;&gt;http://w3c.github.io/csvw/tests/tree-ops.csv&lt;/code&gt;. We then can look for metadata associated with the file to inform the creation of the &lt;em&gt;annotated table&lt;/em&gt;; this information might come from by the user specifying to location of metadata separately, from an HTTP Link header, by looking at &lt;code class=&quot;highlighter-rouge&quot;&gt;http://w3c.github.io/csvw/tests/tree-ops.csv-metadata.json&lt;/code&gt; for file-specific metadata, or at &lt;code class=&quot;highlighter-rouge&quot;&gt;http://w3c.github.io/csvw/tests/metadata.json&lt;/code&gt; for directory-specific metadata. In this case, there is none, so we constructed &lt;em&gt;embedded metatata&lt;/em&gt; from just the &lt;em&gt;header row&lt;/em&gt;. The process for locating metadata is described in &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/#creating-annotated-tables&quot;&gt;Creating Annotated Tables&lt;/a&gt;, and creating embedded metadata is described in &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/#parsing&quot;&gt;Parsing Tabular Data&lt;/a&gt;. Basically, we’re looking to create a &lt;em&gt;table description&lt;/em&gt; with a &lt;em&gt;schema&lt;/em&gt; describing each &lt;em&gt;column&lt;/em&gt; resulting in the following:&lt;/p&gt;
+&lt;p&gt;The first step is to retrieve the document from It’s URL: &lt;code class=&quot;highlighter-rouge&quot;&gt;http://w3c.github.io/csvw/tests/tree-ops.csv&lt;/code&gt;. We then can look for metadata associated with the file to inform the creation of the &lt;em&gt;annotated table&lt;/em&gt;; this information might come from by the user specifying to location of metadata separately, from an HTTP Link header, by looking at &lt;code class=&quot;highlighter-rouge&quot;&gt;http://w3c.github.io/csvw/tests/tree-ops.csv-metadata.json&lt;/code&gt; for file-specific metadata, or at &lt;code class=&quot;highlighter-rouge&quot;&gt;http://w3c.github.io/csvw/tests/metadata.json&lt;/code&gt; for directory-specific metadata. In this case, there is none, so we constructed &lt;em&gt;embedded metatata&lt;/em&gt; from just the &lt;em&gt;header row&lt;/em&gt;. The process for locating metadata is described in &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/#creating-annotated-tables&quot;&gt;Creating Annotated Tables&lt;/a&gt;, and creating embedded metadata is described in &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/#parsing&quot;&gt;Parsing Tabular Data&lt;/a&gt;. Basically, we’re looking to create a &lt;em&gt;table description&lt;/em&gt; with a &lt;em&gt;schema&lt;/em&gt; describing each &lt;em&gt;column&lt;/em&gt; resulting in the following:&lt;/p&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;{
   &quot;@context&quot;: &quot;http://www.w3.org/ns/csvw&quot;,
@@ -202,7 +213,7 @@ end
 end
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;That’s pretty much the basis of a Ruby implementation. There’s more work to do in &lt;code class=&quot;highlighter-rouge&quot;&gt;#each_statement&lt;/code&gt;, as it’s initially invoked with a &lt;em&gt;TableGroup&lt;/em&gt;, which recursively invokes it again for each &lt;em&gt;Table&lt;/em&gt;, which then calls again for the actual CSV, but that’s all setup. There’s also work in &lt;code class=&quot;highlighter-rouge&quot;&gt;RDF::Tabular::Reader#initialize&lt;/code&gt; to find the metadata, ensure that it is compatible with the actual tables, and so forth.&lt;/p&gt;
+&lt;p&gt;That’s pretty much the basis of a Ruby implementation. There’s more work to do in &lt;code class=&quot;highlighter-rouge&quot;&gt;#each_statement&lt;/code&gt;, as It’s initially invoked with a &lt;em&gt;TableGroup&lt;/em&gt;, which recursively invokes it again for each &lt;em&gt;Table&lt;/em&gt;, which then calls again for the actual CSV, but that’s all setup. There’s also work in &lt;code class=&quot;highlighter-rouge&quot;&gt;RDF::Tabular::Reader#initialize&lt;/code&gt; to find the metadata, ensure that it is compatible with the actual tables, and so forth.&lt;/p&gt;
 
 &lt;h2 id=&quot;fleshing-out-with-more-details&quot;&gt;Fleshing out with more details&lt;/h2&gt;
 
@@ -324,7 +335,7 @@ end
 }
 &lt;/pre&gt;
 
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;tableSchema&lt;/code&gt; property tells us that this is a &lt;em&gt;Table description&lt;/em&gt;; we could also have added a &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;@type&quot;: &quot;Table&quot;&lt;/code&gt; property to make this explicit, but it’s not necessary. Metadata always starts with either a &lt;em&gt;Table description&lt;/em&gt; or a &lt;em&gt;TableGroup description&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;tableSchema&lt;/code&gt; property tells us that this is a &lt;em&gt;Table description&lt;/em&gt;; we could also have added a &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;@type&quot;: &quot;Table&quot;&lt;/code&gt; property to make this explicit, but It’s not necessary. Metadata always starts with either a &lt;em&gt;Table description&lt;/em&gt; or a &lt;em&gt;TableGroup description&lt;/em&gt;.&lt;/p&gt;
 
 &lt;p&gt;We define an explicit &lt;em&gt;name&lt;/em&gt; property for the first column. If we didn’t, it would take the first value from &lt;em&gt;titles&lt;/em&gt;. The &lt;em&gt;column&lt;/em&gt; has a &lt;em&gt;common property&lt;/em&gt;, which is presently not used in the transformation, but exists in the &lt;em&gt;annotated tabular data model&lt;/em&gt;. It also declares the data type to be &lt;code class=&quot;highlighter-rouge&quot;&gt;string&lt;/code&gt;, which is a synonym for &lt;code class=&quot;highlighter-rouge&quot;&gt;xsd:string&lt;/code&gt;, and a value is &lt;code class=&quot;highlighter-rouge&quot;&gt;required&lt;/code&gt;, meaning that it is considered an error if a cell value has an empty string (or one matching that defined using the &lt;code class=&quot;highlighter-rouge&quot;&gt;null&lt;/code&gt; annotation). Note that &lt;code class=&quot;highlighter-rouge&quot;&gt;datatype&lt;/code&gt; is an &lt;em&gt;inherited property&lt;/em&gt;, meaning that it could have been defined on the &lt;em&gt;Table&lt;/em&gt;, &lt;em&gt;Schema&lt;/em&gt; or &lt;em&gt;Column&lt;/em&gt; and would be in scope for all cells based on the inheritance model.&lt;/p&gt;
 
@@ -491,7 +502,7 @@ end
 
 &lt;p&gt;(relative to the URL file location).&lt;/p&gt;
 
-&lt;p&gt;The second column has it’s own &lt;code class=&quot;highlighter-rouge&quot;&gt;aboutUrl&lt;/code&gt; (&lt;strong&gt;“aboutUrl”: “#location-{GID}”&lt;/strong&gt;), meaning that the &lt;em&gt;subject&lt;/em&gt; for triples for this column are different than the &lt;em&gt;default subject&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;The second column has It’s own &lt;code class=&quot;highlighter-rouge&quot;&gt;aboutUrl&lt;/code&gt; (&lt;strong&gt;“aboutUrl”: “#location-{GID}”&lt;/strong&gt;), meaning that the &lt;em&gt;subject&lt;/em&gt; for triples for this column are different than the &lt;em&gt;default subject&lt;/em&gt;.&lt;/p&gt;
 
 &lt;p&gt;The last three columns are &lt;em&gt;virtual columns&lt;/em&gt;, as they don’t correspond to data actually in the CSV; these are used for injecting information into the row. When fully processed, the following RDF is created (again, in minimal mode):&lt;/p&gt;
 
@@ -691,7 +702,7 @@ end
 
 &lt;p&gt;This post has been updated to reflect the fact the metadata merging has been removed from CSVW, simplifying an implementation even further.&lt;/p&gt;
 </description>
-        <pubDate>Sat, 18 Apr 2015 16:14:54 -0400</pubDate>
+        <pubDate>Sat, 18 Apr 2015 13:14:54 -0700</pubDate>
         <link>http://greggkellogg.net/2015/04/implementing-csv-on-the-web/</link>
         <guid isPermaLink="true">http://greggkellogg.net/2015/04/implementing-csv-on-the-web/</guid>
         
@@ -708,7 +719,7 @@ end
 
 &lt;p&gt;Much of the data published on the Web is not HTML, or even some other structured content. In fact, a substantial amount of information is published as tabular data (comma-separated-values or tab-separated-values, commonly &lt;em&gt;CSVs&lt;/em&gt;). This includes a vast amount of open government publications, such as records, weather and climate information, infrastructure assets, and so forth (see &lt;a href=&quot;http://www.w3.org/TR/csvw-ucr/&quot;&gt;Use Cases&lt;/a&gt; for more detail). The charter of the &lt;a href=&quot;http://www.w3.org/2013/csvw/wiki/Main_Page&quot;&gt;CSV on the Web&lt;/a&gt; Working Group is to provide technologies to promote greater interoperability of these datasets.&lt;/p&gt;
 
-&lt;p&gt;Real data is often messy, and information contained in relational databases and large spreadsheets is often lost when it’s published as &lt;em&gt;CSVs&lt;/em&gt;:&lt;/p&gt;
+&lt;p&gt;Real data is often messy, and information contained in relational databases and large spreadsheets is often lost when It’s published as &lt;em&gt;CSVs&lt;/em&gt;:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;Foreign Key relationships between tables&lt;/li&gt;
@@ -733,7 +744,7 @@ end
 
 &lt;p&gt;Creating a data model from &lt;em&gt;CSVs&lt;/em&gt; is the process of either starting with metadata describing those &lt;em&gt;CSVs&lt;/em&gt;, or locating metadata given a &lt;em&gt;CSV&lt;/em&gt;. The &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/&quot; title=&quot;Model for Tabular Data and Metadata on the Web&quot;&gt;Model for Tabular Data&lt;/a&gt; describes the process of locating such metadata and reconciling multiple metadata files that may be encountered. The &lt;a href=&quot;http://www.w3.org/TR/tabular-metadata/&quot; title=&quot;Metadata Vocabulary for Tabular Data&quot;&gt;Metadata Format&lt;/a&gt; then describes the structure of this data (syntactically, as a &lt;a href=&quot;http://www.w3.org/TR/json-ld&quot; title=&quot;JSON-LD 1.0&quot;&gt;JSON-LD&lt;/a&gt; formatted document) and working with it to create the basis of the &lt;em&gt;core annotations&lt;/em&gt; of the &lt;em&gt;annotated data model&lt;/em&gt;.&lt;/p&gt;
 
-&lt;p&gt;As an example, I recently worked with others to release the &lt;a href=&quot;http://rubygems.org/gems/rdf-vocab&quot;&gt;rdf-vocab&lt;/a&gt; Ruby gem, which includes a Ruby version of different RDF Ontologies/Vocabularies used for reasoning on things such as the &lt;a href=&quot;http://linter.structured-data.org/&quot;&gt;Structured Data Linter&lt;/a&gt;. One vocabulary we very much wanted to include as the &lt;a href=&quot;http://www.iana.org/assignments/link-relations/link-relations.xhtml&quot;&gt;IANA Link Relations&lt;/a&gt;. This is not published as any kind of RDF dataset, much less as an RDFS or OWL vocabulary definition. In fact, this has prevented it from being used in different standards work, as the link relation for &lt;code class=&quot;highlighter-rouge&quot;&gt;describes&lt;/code&gt; cannot easily be dereferenced to find it’s definition. Formally, the &lt;code class=&quot;highlighter-rouge&quot;&gt;describes&lt;/code&gt; link relation maps to the &lt;code class=&quot;highlighter-rouge&quot;&gt;http://www.iana.org/assignments/link-relations/describes&lt;/code&gt; URI, but dereferencing this results in an HTTP 404 status. However, this doesn’t need to get in the way of defining an RDFS vocabulary based on this dataset. Thankfully, the link relations are published in other formats, including &lt;a href=&quot;http://www.iana.org/assignments/link-relations/link-relations-1.csv&quot;&gt;csv&lt;/a&gt;. This allows us to construct a &lt;a href=&quot;https://github.com/ruby-rdf/rdf-vocab/blob/develop/etc/iana-metadata.json&quot;&gt;metadata description&lt;/a&gt; of this dataset:&lt;/p&gt;
+&lt;p&gt;As an example, I recently worked with others to release the &lt;a href=&quot;http://rubygems.org/gems/rdf-vocab&quot;&gt;rdf-vocab&lt;/a&gt; Ruby gem, which includes a Ruby version of different RDF Ontologies/Vocabularies used for reasoning on things such as the &lt;a href=&quot;http://linter.structured-data.org/&quot;&gt;Structured Data Linter&lt;/a&gt;. One vocabulary we very much wanted to include as the &lt;a href=&quot;http://www.iana.org/assignments/link-relations/link-relations.xhtml&quot;&gt;IANA Link Relations&lt;/a&gt;. This is not published as any kind of RDF dataset, much less as an RDFS or OWL vocabulary definition. In fact, this has prevented it from being used in different standards work, as the link relation for &lt;code class=&quot;highlighter-rouge&quot;&gt;describes&lt;/code&gt; cannot easily be dereferenced to find It’s definition. Formally, the &lt;code class=&quot;highlighter-rouge&quot;&gt;describes&lt;/code&gt; link relation maps to the &lt;code class=&quot;highlighter-rouge&quot;&gt;http://www.iana.org/assignments/link-relations/describes&lt;/code&gt; URI, but dereferencing this results in an HTTP 404 status. However, this doesn’t need to get in the way of defining an RDFS vocabulary based on this dataset. Thankfully, the link relations are published in other formats, including &lt;a href=&quot;http://www.iana.org/assignments/link-relations/link-relations-1.csv&quot;&gt;csv&lt;/a&gt;. This allows us to construct a &lt;a href=&quot;https://github.com/ruby-rdf/rdf-vocab/blob/develop/etc/iana-metadata.json&quot;&gt;metadata description&lt;/a&gt; of this dataset:&lt;/p&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;{
   &quot;@context&quot;: &quot;http://www.w3.org/ns/csvw&quot;,
@@ -762,7 +773,7 @@ end
   rdf:type rdf:Property .
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;Within the &lt;a href=&quot;http://rdf.rubyforge.org/&quot;&gt;RDF.rb&lt;/a&gt; tool chain, this allows the use of &lt;code class=&quot;highlighter-rouge&quot;&gt;RDF::Vocab::IANA.about&lt;/code&gt; to refer to this property definition. The reasoner knows it’s a property, because it’s type if &lt;code class=&quot;highlighter-rouge&quot;&gt;rdf:Property&lt;/code&gt;. The completely transformed CSV can be found &lt;a href=&quot;https://raw.githubusercontent.com/ruby-rdf/rdf-vocab/develop/etc/iana.ttl&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Within the &lt;a href=&quot;http://rdf.rubyforge.org/&quot;&gt;RDF.rb&lt;/a&gt; tool chain, this allows the use of &lt;code class=&quot;highlighter-rouge&quot;&gt;RDF::Vocab::IANA.about&lt;/code&gt; to refer to this property definition. The reasoner knows It’s a property, because It’s type if &lt;code class=&quot;highlighter-rouge&quot;&gt;rdf:Property&lt;/code&gt;. The completely transformed CSV can be found &lt;a href=&quot;https://raw.githubusercontent.com/ruby-rdf/rdf-vocab/develop/etc/iana.ttl&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;The group has just released new working drafts for &lt;a href=&quot;http://www.w3.org/TR/tabular-data-model/&quot; title=&quot;Model for Tabular Data and Metadata on the Web&quot;&gt;Model for Tabular Data&lt;/a&gt; and the &lt;a href=&quot;http://www.w3.org/TR/tabular-metadata/&quot; title=&quot;Metadata Vocabulary for Tabular Data&quot;&gt;Metadata Format&lt;/a&gt;, along with &lt;a href=&quot;http://w3c.github.io/csvw/csv2rdf/&quot; title=&quot;Generating RDF from Tabular Data on the Web&quot;&gt;CSV2RDF&lt;/a&gt; and &lt;a href=&quot;http://w3c.github.io/csvw/csv2json/&quot; title=&quot;Generating JSON from Tabular Data on the Web&quot;&gt;CSV2JSON&lt;/a&gt;.&lt;/p&gt;
 
@@ -778,7 +789,7 @@ end
 
 &lt;p&gt;A forthcoming blog entry will delve into the basis of a simple implementation, and what it takes to completely conform to the specification.&lt;/p&gt;
 </description>
-        <pubDate>Wed, 15 Apr 2015 20:00:22 -0400</pubDate>
+        <pubDate>Wed, 15 Apr 2015 17:00:22 -0700</pubDate>
         <link>http://greggkellogg.net/%3Fp%3D293</link>
         <guid isPermaLink="true">http://greggkellogg.net/%3Fp%3D293</guid>
         
@@ -923,7 +934,7 @@ end
 
 &lt;p&gt;I’d like to thank David Butler, Judson Lester, Justin Coyne, Slava Kravchenko, and Aymeric Brisse in particular for their active support in maintaining the Ruby RDF eco-system.&lt;/p&gt;
 </description>
-        <pubDate>Fri, 06 Dec 2013 15:59:03 -0500</pubDate>
+        <pubDate>Fri, 06 Dec 2013 12:59:03 -0800</pubDate>
         <link>http://greggkellogg.net/2013/12/release-1-1-0-of-ruby-rdf-libraries/</link>
         <guid isPermaLink="true">http://greggkellogg.net/2013/12/release-1-1-0-of-ruby-rdf-libraries/</guid>
         
@@ -940,7 +951,7 @@ end
 
 &lt;p&gt;&lt;a href=&quot;/galleries/Philippines-2013-09/index.html&quot; jscontroller=&quot;false&quot; rel=&quot;qtposter&quot;&gt;&lt;img alt=&quot;Philippines Photo Gallery&quot; src=&quot;/galleries/Philippines-2013-09/content/images/large/_MG_8582.jpg&quot; style=&quot;width: 535px; height: 311px;&quot; /&gt; &lt;/a&gt;&lt;/p&gt;
 </description>
-        <pubDate>Fri, 27 Sep 2013 12:37:13 -0400</pubDate>
+        <pubDate>Fri, 27 Sep 2013 09:37:13 -0700</pubDate>
         <link>http://greggkellogg.net/2013/09/philippines-september-2013/</link>
         <guid isPermaLink="true">http://greggkellogg.net/2013/09/philippines-september-2013/</guid>
         
@@ -996,7 +1007,7 @@ end
   &lt;li&gt;&lt;a href=&quot;http://rubygems.org/gems/rdf-raptor&quot;&gt;RDF::Raptor&lt;/a&gt; now uses Raptor 2.0, and is fully compatible with the latest version of &lt;a href=&quot;http://librdf.org/raptor/&quot;&gt;Redland/Raptor&lt;/a&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 </description>
-        <pubDate>Sat, 11 May 2013 19:12:21 -0400</pubDate>
+        <pubDate>Sat, 11 May 2013 16:12:21 -0700</pubDate>
         <link>http://greggkellogg.net/2013/05/rdf-rb-and-sparql-gem-updates/</link>
         <guid isPermaLink="true">http://greggkellogg.net/2013/05/rdf-rb-and-sparql-gem-updates/</guid>
         
@@ -1048,13 +1059,13 @@ end
 
 &lt;p&gt;During the same review, I was also introduced to &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; as a mechanism of embedding music metadata within a web page. Since CME is endeavoring to create a standard for enhanced digital media packages, &lt;a href=&quot;http://www.w3.org/TR/html5/&quot;&gt;HTML5&lt;/a&gt; and &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; are natural technologies to utilize.&lt;/p&gt;
 
-&lt;p&gt;My methodology for approaching architectures and specifications is based on parallel prototyping, to validate the details of a design, and sometimes serve as the bases for an implementation. For several years (starting in 2007) I had been using &lt;a href=&quot;http://rubyonrails.org&quot;&gt;Ruby on Rails&lt;/a&gt; and was quite invested in the &lt;a href=&quot;http://www.ruby-lang.org/en/&quot;&gt;Ruby&lt;/a&gt;. My first attempts to integrate &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; into the implementation made use of the &lt;a href=&quot;http://librdf.org/raptor/&quot;&gt;Raptor&lt;/a&gt; parser, which unfortunately was not up-to-date with respect to the &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; 1.0 specification current at the time. Additionally, I found that the Ruby Bindings suffered from memory leaks, and went to look for a native Ruby implementation. This lead to &lt;a href=&quot;http://tommorris.org/&quot;&gt;Tom Morris&lt;/a&gt;‘ &lt;a href=&quot;https://github.com/tommorris/reddy&quot;&gt;Reddy&lt;/a&gt; gem. This was a port of the Python &lt;a href=&quot;http://code.google.com/p/rdflib/&quot;&gt;rdflib&lt;/a&gt; package to Ruby, which was going in the right direction, but had fallen into disuse. I created my own fork, and later released as &lt;a href=&quot;https://github.com/gkellogg/rdf_context&quot;&gt;RdfContext&lt;/a&gt; which had complete implementations for &lt;a href=&quot;http://en.wikipedia.org/wiki/RDF/XML&quot;&gt;RDF/XML&lt;/a&gt;, &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; 1.0, and &lt;a href=&quot;http://en.wikipedia.org/wiki/Notation3&quot;&gt;Notation3&lt;/a&gt; (N3-rdf level).&lt;/p&gt;
+&lt;p&gt;My methodology for approaching architectures and specifications is based on parallel prototyping, to validate the details of a design, and sometimes serve as the bases for an implementation. For several years (starting in 2007) I had been using &lt;a href=&quot;http://rubyonrails.org&quot;&gt;Ruby on Rails&lt;/a&gt; and was quite invested in the &lt;a href=&quot;http://www.ruby-lang.org/en/&quot;&gt;Ruby&lt;/a&gt;. My first attempts to integrate &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; into the implementation made use of the &lt;a href=&quot;http://librdf.org/raptor/&quot;&gt;Raptor&lt;/a&gt; parser, which unfortunately was not up-to-date with respect to the &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; 1.0 specification current at the time. Additionally, I found that the Ruby Bindings suffered from memory leaks, and went to look for a native Ruby implementation. This lead to &lt;a href=&quot;http://tommorris.org/&quot;&gt;Tom Morris&lt;/a&gt;’ &lt;a href=&quot;https://github.com/tommorris/reddy&quot;&gt;Reddy&lt;/a&gt; gem. This was a port of the Python &lt;a href=&quot;http://code.google.com/p/rdflib/&quot;&gt;rdflib&lt;/a&gt; package to Ruby, which was going in the right direction, but had fallen into disuse. I created my own fork, and later released as &lt;a href=&quot;https://github.com/gkellogg/rdf_context&quot;&gt;RdfContext&lt;/a&gt; which had complete implementations for &lt;a href=&quot;http://en.wikipedia.org/wiki/RDF/XML&quot;&gt;RDF/XML&lt;/a&gt;, &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; 1.0, and &lt;a href=&quot;http://en.wikipedia.org/wiki/Notation3&quot;&gt;Notation3&lt;/a&gt; (N3-rdf level).&lt;/p&gt;
 
 &lt;p&gt;In the mean time, &lt;a href=&quot;http://ar.to&quot;&gt;Arto Bendiken&lt;/a&gt; and &lt;a href=&quot;http://bhuga.net&quot;&gt;Ben Lavender&lt;/a&gt; had been working on &lt;a href=&quot;http://ruby-rdf.github.com/rdf&quot;&gt;RDF.rb&lt;/a&gt;, taking a different approach closer to &lt;a href=&quot;http://www.openrdf.org&quot;&gt;Sesame&lt;/a&gt;. The design of &lt;a href=&quot;http://ruby-rdf.github.com/rdf&quot;&gt;RDF.rb&lt;/a&gt; is quite elegant, making effective use of natural Ruby idioms, and taking an approach based heavily on using Ruby module extensions. After a prod by &lt;a href=&quot;http://www.aelius.com/njh/&quot;&gt;Nick Humfrey&lt;/a&gt; who had started a port of my &lt;a href=&quot;http://en.wikipedia.org/wiki/RDF/XML&quot;&gt;RDF/XML&lt;/a&gt; parser, I jumped in and ported the bulk of my RDF parsers and serializers, eventually adding several more, to make the &lt;a href=&quot;http://ruby-rdf.github.com/rdf&quot;&gt;RDF.rb&lt;/a&gt; platform one of the most complete in terms of standards support across all major (and minor) serialization formats. In 2010, I was asked to join the &lt;a href=&quot;http://ruby-rdf.github.com/rdf&quot;&gt;RDF.rb&lt;/a&gt; core development team, and soon became the primary maintainer after Arto and Ben became fully committed with &lt;a href=&quot;http://dydra.com/&quot;&gt;Dydra&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Arto and I finally got together recently to move all of the gems primary repositories to the &lt;a href=&quot;http://ruby-rdf.github.com&quot;&gt;Ruby RDF&lt;/a&gt; organization on GitHub, and release them as 1.0. The next significant release should be 1.1, to coincide with the release of the &lt;a href=&quot;http://www.w3.org/TR/rdf11-concepts/&quot;&gt;RDF 1.1&lt;/a&gt; specs from the W3C.&lt;/p&gt;
 </description>
-        <pubDate>Fri, 25 Jan 2013 15:40:22 -0500</pubDate>
+        <pubDate>Fri, 25 Jan 2013 12:40:22 -0800</pubDate>
         <link>http://greggkellogg.net/2013/01/rdf-rb-1-0-release/</link>
         <guid isPermaLink="true">http://greggkellogg.net/2013/01/rdf-rb-1-0-release/</guid>
         
@@ -1099,7 +1110,7 @@ end
 
 &lt;p&gt;I’ll be speaking more about &lt;a href=&quot;&quot;&gt;JSON-LD&lt;/a&gt; and &lt;a href=&quot;&quot;&gt;MongoDB&lt;/a&gt; at &lt;a href=&quot;http://nosql2012.dataversity.net&quot;&gt;NoSQL Now!&lt;/a&gt; later this week in San Jose. Slides for my talk are available on &lt;a href=&quot;http://www.slideshare.net/gkellogg1/jsonld-and-mongodb&quot;&gt;slideshare&lt;/a&gt;.&lt;/p&gt;
 </description>
-        <pubDate>Tue, 21 Aug 2012 09:50:56 -0400</pubDate>
+        <pubDate>Tue, 21 Aug 2012 06:50:56 -0700</pubDate>
         <link>http://greggkellogg.net/2012/08/json-ld-and-mongodb/</link>
         <guid isPermaLink="true">http://greggkellogg.net/2012/08/json-ld-and-mongodb/</guid>
         
@@ -1118,7 +1129,7 @@ end
 
 &lt;p&gt;&lt;a href=&quot;/galleries/Channel%20Islands%202012-05/&quot;&gt; &lt;img alt=&quot;Hermissenda crassicornis&quot; src=&quot;/galleries/Channel%20Islands%202012-05/content/images/large/Channel_Islands-20120528-85.jpg&quot; style=&quot;width: 530px; height: 309px;&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
 </description>
-        <pubDate>Thu, 31 May 2012 21:35:20 -0400</pubDate>
+        <pubDate>Thu, 31 May 2012 18:35:20 -0700</pubDate>
         <link>http://greggkellogg.net/2012/06/channel-islands-may-2012/</link>
         <guid isPermaLink="true">http://greggkellogg.net/2012/06/channel-islands-may-2012/</guid>
         
@@ -1126,271 +1137,6 @@ end
         <category>Diving</category>
         
         <category>Photography</category>
-        
-      </item>
-    
-      <item>
-        <title>BrowserID versus DDOS</title>
-        <description>&lt;p&gt;&lt;span itemprop=&quot;name&quot; style=&quot;display:none&quot;&gt;&lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; vs DDOS&lt;/span&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;span itemprop=&quot;description&quot; style=&quot;display:none&quot;&gt;How &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; saved the &lt;a href=&quot;http://rdfa.info/test-suite/&quot;&gt;RDFa Test Suite&lt;/a&gt; from a DDOS (Distributed Denial of Service Attack).&lt;/span&gt;&lt;/p&gt;
-
-&lt;p&gt;This article is the third in a three-part series on implementing the [RDFa&lt;/p&gt;
-
-&lt;p&gt;Test Suite](http://rdfa.info/test-suite/). The [first&lt;/p&gt;
-
-&lt;p&gt;article](http://greggkellogg.net/2012/03/18/a-new-rdfa-test-harness)&lt;/p&gt;
-
-&lt;p&gt;discussed the use of &lt;a href=&quot;http://www.sinatrarb.com/&quot;&gt;Sinatra&lt;/a&gt;, &lt;a href=&quot;http://backbonejs.org/&quot;&gt;Backbone.js&lt;/a&gt; and &lt;a href=&quot;http://twitter.github.com/bootstrap/index.html&quot;&gt;Bootstrap.js&lt;/a&gt; in&lt;/p&gt;
-
-&lt;p&gt;creating the test harness. The [second&lt;/p&gt;
-
-&lt;p&gt;article](http://greggkellogg.net/2012/03/20/the-use-of-json-ld-in-the-rdfa-test-harness)&lt;/p&gt;
-
-&lt;p&gt;discussed the use of JSON-LD. In this article, we focus on our use of&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; in responding to a Distributed Denial of Service Attack&lt;/p&gt;
-
-&lt;p&gt;(DDOS).&lt;/p&gt;
-
-&lt;h3 id=&quot;rdfa-test-suite&quot;&gt;RDFa Test Suite&lt;/h3&gt;
-
-&lt;p&gt;Working on the updated &lt;a href=&quot;http://rdfa.info/test-suite/&quot;&gt;RDFa Test Suite&lt;/a&gt; has really been a lot of fun.&lt;/p&gt;
-
-&lt;p&gt;It was a great opportunity to explore new Web application technologies,&lt;/p&gt;
-
-&lt;p&gt;such as &lt;a href=&quot;http://twitter.github.com/bootstrap/index.html&quot;&gt;Bootstrap.js&lt;/a&gt; and &lt;a href=&quot;http://backbonejs.org/&quot;&gt;Backbone.js&lt;/a&gt;. The test suite is a&lt;/p&gt;
-
-&lt;p&gt;single-page web application which uses a &lt;a href=&quot;http://www.sinatrarb.com/&quot;&gt;Sinatra&lt;/a&gt; based service to run&lt;/p&gt;
-
-&lt;p&gt;individual test cases.&lt;/p&gt;
-
-&lt;p&gt;The site was becoming stable, and we were starting to flesh out more test&lt;/p&gt;
-
-&lt;p&gt;cases for odd corner cases, when the site started to not respond. [Manu&lt;/p&gt;
-
-&lt;p&gt;Sporny](http://manu.sporny.org/), who’s company [Digital&lt;/p&gt;
-
-&lt;p&gt;Bazaar](http://digitalbazaar.com/) is kindly donating hosting for the web&lt;/p&gt;
-
-&lt;p&gt;site, noticed that there were a number of Ruby processes that were&lt;/p&gt;
-
-&lt;p&gt;consuming available Ruby workers, and causing new requests to&lt;/p&gt;
-
-&lt;p&gt;block. The service &lt;em&gt;is&lt;/em&gt; fairly resource intensive, as it must invoke an&lt;/p&gt;
-
-&lt;p&gt;external processor and run a &lt;a href=&quot;http://www.w3.org/TR/rdf-sparql-query/&quot;&gt;SPARQL&lt;/a&gt; query over the results for each&lt;/p&gt;
-
-&lt;p&gt;test. It seemed as if the site was being hammered by a large number of&lt;/p&gt;
-
-&lt;p&gt;overzealous search crawlers! Naturally, we put a robots.txt in place,&lt;/p&gt;
-
-&lt;p&gt;expecting that conforming search engines would detect the site’s crawl&lt;/p&gt;
-
-&lt;p&gt;preferences and back off, but that didn’t happen. Upon further examination&lt;/p&gt;
-
-&lt;p&gt;of the server logs, we noted requests were streaming in from all over the&lt;/p&gt;
-
-&lt;p&gt;world! Clearly, we were under attack. (Who might wish ill of the RDFa&lt;/p&gt;
-
-&lt;p&gt;development effort? Who knows, but most likely this was just an anonymous,&lt;/p&gt;
-
-&lt;p&gt;and not specifically malicious attack).&lt;/p&gt;
-
-&lt;p&gt;My first thought was to make use a secret &lt;em&gt;api token&lt;/em&gt;, configured into the&lt;/p&gt;
-
-&lt;p&gt;server and the web app, but that didn’t really do the trick either; it&lt;/p&gt;
-
-&lt;p&gt;seemed that modern day malware actually just executes the JavaScript, so&lt;/p&gt;
-
-&lt;p&gt;it picks up the API key naturally!&lt;/p&gt;
-
-&lt;h3 id=&quot;browserid-to-the-rescue&quot;&gt;BrowserID to the Rescue!&lt;/h3&gt;
-
-&lt;p&gt;Okay, how about authentication? It’s typically a pain, and we were&lt;/p&gt;
-
-&lt;p&gt;reluctant to put up barriers in front of people who might want to test&lt;/p&gt;
-
-&lt;p&gt;their own processors or see how listed processors perform. The two current&lt;/p&gt;
-
-&lt;p&gt;contenders are &lt;a href=&quot;http://www.w3.org/2005/Incubator/webid/wiki/Main_Page&quot;&gt;WebID&lt;/a&gt; and &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://www.w3.org/2005/Incubator/webid/wiki/Main_Page&quot;&gt;WebID&lt;/a&gt; has the laudable goal of combining personally maintained profile&lt;/p&gt;
-
-&lt;p&gt;information with SSL certificates (it was previously known as FOAF+SSL).&lt;/p&gt;
-
-&lt;p&gt;Basically, it’s a mechanism to allow users to use a &lt;em&gt;profile page&lt;/em&gt; as&lt;/p&gt;
-
-&lt;p&gt;their identity. This could come off of their blog, Facebook, Twitter or&lt;/p&gt;
-
-&lt;p&gt;other social networking site. By configuring an SSL certificate into the&lt;/p&gt;
-
-&lt;p&gt;browser and pointing to their profile page, a service can determine that&lt;/p&gt;
-
-&lt;p&gt;the profile page actually belongs to the user. (There’s much more to it,&lt;/p&gt;
-
-&lt;p&gt;you can read more in the [WebID&lt;/p&gt;
-
-&lt;p&gt;Spec](http://www.w3.org/2005/Incubator/webid/spec/)). A key advantage here&lt;/p&gt;
-
-&lt;p&gt;is that the service now has access to all of the self-asserted information&lt;/p&gt;
-
-&lt;p&gt;the user want’s to provide about themselves as defined in their profile&lt;/p&gt;
-
-&lt;p&gt;page, such as &lt;code class=&quot;highlighter-rouge&quot;&gt;foaf:name&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;foaf:knows&lt;/code&gt;, and so forth. The chief downside&lt;/p&gt;
-
-&lt;p&gt;is that the common source of existing user identities in the world haven’t&lt;/p&gt;
-
-&lt;p&gt;bought into this, and there’s a competing solution that offers similar&lt;/p&gt;
-
-&lt;p&gt;benefits.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; is a Mozilla initiative to enable people with e-mail&lt;/p&gt;
-
-&lt;p&gt;addresses to use those e-mails to login to websites, kind of like&lt;/p&gt;
-
-&lt;p&gt;[OpenID][] – only more secure. Basically, as I understand it, a service&lt;/p&gt;
-
-&lt;p&gt;wanting to support this would include the &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; JavaScript client&lt;/p&gt;
-
-&lt;p&gt;code in their application and use a simple &lt;em&gt;Sign In&lt;/em&gt; button that invokes&lt;/p&gt;
-
-&lt;p&gt;this code. That sends a request off the the identity provider (IDP) to&lt;/p&gt;
-
-&lt;p&gt;authenticate the user, which has probably already happened in the past and&lt;/p&gt;
-
-&lt;p&gt;maintained in a cookie. The IDP then sends a response which invokes a&lt;/p&gt;
-
-&lt;p&gt;callback. The client then does a call back to the service to complete the&lt;/p&gt;
-
-&lt;p&gt;login passing the assertion.&lt;/p&gt;
-
-&lt;p&gt;The beauty is, using a tool such as the &lt;a href=&quot;http://rubygems.org/gems/sinatra-browserid&quot;&gt;sinatra-browserid&lt;/a&gt; Ruby gem,&lt;/p&gt;
-
-&lt;p&gt;this becomes dirt simple! Basically, on the API side, put in a call to&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;authorized?&lt;/code&gt; to determine if the user is authorized. If not, either&lt;/p&gt;
-
-&lt;p&gt;direct them to a login screen, or in the case of the &lt;a href=&quot;http://rdfa.info/test-suite/&quot;&gt;RDFa Test Suite&lt;/a&gt;,&lt;/p&gt;
-
-&lt;p&gt;place an informational message telling them why we need them to login, and&lt;/p&gt;
-
-&lt;p&gt;identify the &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; button at the top of the page.&lt;/p&gt;
-
-&lt;p&gt;In the principle entry-point to the test suite on the service side is&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;/test-suite/check-test/:version/:suite/:num&lt;/code&gt;. The only real change to&lt;/p&gt;
-
-&lt;p&gt;this method was to check for authorization before performing the test.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# Run a test
-get '/test-suite/check-test/:version/:suite/:num' do
-  return [403, &quot;Unauthorized access is not allowed&quot;] unless authorized?
-
-  # Get the SPARQL query
-  source = File.open(File.expand_path(&quot;../tests/#{num}.sparql&quot;))
-
-  # Do host-language specific modifications of the SPARQL query.
-  query = SPARQL.parse(source)
-
-  # Invoke the processor and retrieve results, parsed into an RDF graph
-  graph = RDF::Graph.load(params['rdfa-extractor'] + test_path(version, suite, num, format))
-
-  # Run the query
-  result = query.execute(graph)
-
-  # Return results as JSON
-  {:status =&amp;gt; result}.to_json
-end
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;In the banner, we add a little bit of Haml:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;...
-%div.navbar-text.pull-right
-  - if email
-    %p.email
-      Logged in as
-      %span.email
-        = email
-      %a{:href =&amp;gt; '/test-suite/logout'}
-        (logout)
-  - else
-    = render_login_button
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;When the page is returned, the &lt;code class=&quot;highlighter-rouge&quot;&gt;email&lt;/code&gt; variable is set if the user is&lt;/p&gt;
-
-&lt;p&gt;authorized, so they’ll see the email address if they’ve authenticated, and&lt;/p&gt;
-
-&lt;p&gt;a login button otherwise. The &lt;code class=&quot;highlighter-rouge&quot;&gt;render_login_button&lt;/code&gt; has handled entirely&lt;/p&gt;
-
-&lt;p&gt;by &lt;a href=&quot;http://rubygems.org/gems/sinatra-browserid&quot;&gt;sinatra-browserid&lt;/a&gt;; no muss, no fuss!&lt;/p&gt;
-
-&lt;p&gt;The only other thing to do is to not show the test cases in the test&lt;/p&gt;
-
-&lt;p&gt;suite, unless the user has authenticated, which we can tell because&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;$(&quot;span.email&quot;)&lt;/code&gt; won’t be empty. In our application.js, we use this to&lt;/p&gt;
-
-&lt;p&gt;either show the tests, or an explanation:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// If logged in, create primary test collection and view
-if ($(&quot;span.email&quot;).length &amp;gt; 0) {
-  this.testList = new TestCollection([], {version: this.version});
-  this.testList.fetch();
-  this.testListView = new TestListView({model: this.testList});
-} else {
-  this.unauthorizedView = new UnauthorizedView();
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;That’s pretty much all there is too it. The only complication I faced is&lt;/p&gt;
-
-&lt;p&gt;that, when developing with &lt;em&gt;shotgun&lt;/em&gt;, the session ID is changed with each&lt;/p&gt;
-
-&lt;p&gt;invocation, so it wasn’t remembering the login. By fixing the session&lt;/p&gt;
-
-&lt;p&gt;secret this problem went away. Total time from discovery of the problem to&lt;/p&gt;
-
-&lt;p&gt;deployed solution: about 1 hour. Not too bad.&lt;/p&gt;
-
-&lt;p&gt;It’s important to note that the &lt;a href=&quot;http://rdfa.info/test-suite/&quot;&gt;RDFa Test Suite&lt;/a&gt; is stateless, and we&lt;/p&gt;
-
-&lt;p&gt;don’t really need any personal information; we don’t collect information&lt;/p&gt;
-
-&lt;p&gt;anywhere, even in our logs. &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; basically becomes a gate keeper&lt;/p&gt;
-
-&lt;p&gt;to help ward off abuse. It imposes a very low barrier of entry, so it&lt;/p&gt;
-
-&lt;p&gt;doesn’t interfere with people using the site anyway they choose.&lt;/p&gt;
-
-&lt;p&gt;I do miss other user asserted information, such as the user’s name and&lt;/p&gt;
-
-&lt;p&gt;so-forth. &lt;a href=&quot;http://openid.net/&quot;&gt;OpenID&lt;/a&gt;, another single-signon initiative&lt;/p&gt;
-
-&lt;p&gt;that has lost momentum lately, provides a [Simple Registration&lt;/p&gt;
-
-&lt;p&gt;Extension](http://openid.net/specs/openid-simple-registration-extension-1_0.html)&lt;/p&gt;
-
-&lt;p&gt;add-on that allows users to assert simple information such as &lt;code class=&quot;highlighter-rouge&quot;&gt;nickname&lt;/code&gt;,&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;mail&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;fullname&lt;/code&gt; and so forth. IMO, the right way to do this is with&lt;/p&gt;
-
-&lt;p&gt;something like &lt;a href=&quot;http://xmlns.com/foaf/spec/&quot;&gt;FOAF&lt;/a&gt; or the &lt;a href=&quot;http://schema.org/Person&quot;&gt;schema.org&lt;/a&gt; Person class. Perhaps&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; will provide something like this in the future.&lt;/p&gt;
-</description>
-        <pubDate>Fri, 30 Mar 2012 11:58:46 -0400</pubDate>
-        <link>http://greggkellogg.net/2012/03/browserid-versus-ddos/</link>
-        <guid isPermaLink="true">http://greggkellogg.net/2012/03/browserid-versus-ddos/</guid>
-        
-        
-        <category>JavaScript</category>
-        
-        <category>Ruby</category>
-        
-        <category>Semantic Web</category>
         
       </item>
     

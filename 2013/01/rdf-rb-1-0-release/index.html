@@ -125,7 +125,7 @@
 
 <p>During the same review, I was also introduced to <a href="http://en.wikipedia.org/wiki/RDFa">RDFa</a> as a mechanism of embedding music metadata within a web page. Since CME is endeavoring to create a standard for enhanced digital media packages, <a href="http://www.w3.org/TR/html5/">HTML5</a> and <a href="http://en.wikipedia.org/wiki/RDFa">RDFa</a> are natural technologies to utilize.</p>
 
-<p>My methodology for approaching architectures and specifications is based on parallel prototyping, to validate the details of a design, and sometimes serve as the bases for an implementation. For several years (starting in 2007) I had been using <a href="http://rubyonrails.org">Ruby on Rails</a> and was quite invested in the <a href="http://www.ruby-lang.org/en/">Ruby</a>. My first attempts to integrate <a href="http://en.wikipedia.org/wiki/RDFa">RDFa</a> into the implementation made use of the <a href="http://librdf.org/raptor/">Raptor</a> parser, which unfortunately was not up-to-date with respect to the <a href="http://en.wikipedia.org/wiki/RDFa">RDFa</a> 1.0 specification current at the time. Additionally, I found that the Ruby Bindings suffered from memory leaks, and went to look for a native Ruby implementation. This lead to <a href="http://tommorris.org/">Tom Morris</a>‘ <a href="https://github.com/tommorris/reddy">Reddy</a> gem. This was a port of the Python <a href="http://code.google.com/p/rdflib/">rdflib</a> package to Ruby, which was going in the right direction, but had fallen into disuse. I created my own fork, and later released as <a href="https://github.com/gkellogg/rdf_context">RdfContext</a> which had complete implementations for <a href="http://en.wikipedia.org/wiki/RDF/XML">RDF/XML</a>, <a href="http://en.wikipedia.org/wiki/RDFa">RDFa</a> 1.0, and <a href="http://en.wikipedia.org/wiki/Notation3">Notation3</a> (N3-rdf level).</p>
+<p>My methodology for approaching architectures and specifications is based on parallel prototyping, to validate the details of a design, and sometimes serve as the bases for an implementation. For several years (starting in 2007) I had been using <a href="http://rubyonrails.org">Ruby on Rails</a> and was quite invested in the <a href="http://www.ruby-lang.org/en/">Ruby</a>. My first attempts to integrate <a href="http://en.wikipedia.org/wiki/RDFa">RDFa</a> into the implementation made use of the <a href="http://librdf.org/raptor/">Raptor</a> parser, which unfortunately was not up-to-date with respect to the <a href="http://en.wikipedia.org/wiki/RDFa">RDFa</a> 1.0 specification current at the time. Additionally, I found that the Ruby Bindings suffered from memory leaks, and went to look for a native Ruby implementation. This lead to <a href="http://tommorris.org/">Tom Morris</a>’ <a href="https://github.com/tommorris/reddy">Reddy</a> gem. This was a port of the Python <a href="http://code.google.com/p/rdflib/">rdflib</a> package to Ruby, which was going in the right direction, but had fallen into disuse. I created my own fork, and later released as <a href="https://github.com/gkellogg/rdf_context">RdfContext</a> which had complete implementations for <a href="http://en.wikipedia.org/wiki/RDF/XML">RDF/XML</a>, <a href="http://en.wikipedia.org/wiki/RDFa">RDFa</a> 1.0, and <a href="http://en.wikipedia.org/wiki/Notation3">Notation3</a> (N3-rdf level).</p>
 
 <p>In the mean time, <a href="http://ar.to">Arto Bendiken</a> and <a href="http://bhuga.net">Ben Lavender</a> had been working on <a href="http://ruby-rdf.github.com/rdf">RDF.rb</a>, taking a different approach closer to <a href="http://www.openrdf.org">Sesame</a>. The design of <a href="http://ruby-rdf.github.com/rdf">RDF.rb</a> is quite elegant, making effective use of natural Ruby idioms, and taking an approach based heavily on using Ruby module extensions. After a prod by <a href="http://www.aelius.com/njh/">Nick Humfrey</a> who had started a port of my <a href="http://en.wikipedia.org/wiki/RDF/XML">RDF/XML</a> parser, I jumped in and ported the bulk of my RDF parsers and serializers, eventually adding several more, to make the <a href="http://ruby-rdf.github.com/rdf">RDF.rb</a> platform one of the most complete in terms of standards support across all major (and minor) serialization formats. In 2010, I was asked to join the <a href="http://ruby-rdf.github.com/rdf">RDF.rb</a> core development team, and soon became the primary maintainer after Arto and Ben became fully committed with <a href="http://dydra.com/">Dydra</a>.</p>
 
@@ -192,6 +192,10 @@
   <ul>
   
     <li class="post-title-reference">
+      <a href="/2008-10-07-nicks-cove" class="post-title-archive"></a>
+    </li>
+  
+    <li class="post-title-reference">
       <a href="/2015/08/csv-on-the-web-presentation/" class="post-title-archive">CSV on the Web presentation</a>
     </li>
   
@@ -205,10 +209,6 @@
   
     <li class="post-title-reference">
       <a href="/2013/12/release-1-1-0-of-ruby-rdf-libraries/" class="post-title-archive">Release 1.1.0 of Ruby RDF libraries</a>
-    </li>
-  
-    <li class="post-title-reference">
-      <a href="/2013/09/philippines-september-2013/" class="post-title-archive">Philippines September 2013</a>
     </li>
   
   </ul>
@@ -269,6 +269,13 @@
   </h3>
   
   <ul>
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2017/11" class="post-title-archive">November 2017</a>
+      </li>
+    
   
     
       
@@ -470,13 +477,6 @@
       
       <li class="post-title-reference">
         <a href="/2009/01" class="post-title-archive">January 2009</a>
-      </li>
-    
-  
-    
-      
-      <li class="post-title-reference">
-        <a href="/2008/10" class="post-title-archive">October 2008</a>
       </li>
     
   

@@ -90,7 +90,7 @@
 
 <h2 id="test-manifest">Test Manifest</h2>
 
-<p>The RDFa <a href="http://rdfa.info/test-suite/manifest.ttl">test manifest</a> is a <a href="http://www.w3.org/TR/turtle/">Turtle</a> document used to specify the tests that apply to different versions and host languages in <a href="http://rdfa.info/">RDFa</a>. <a href="http://www.w3.org/TR/turtle/">Turtle</a> is a great language for representing information in a reasonably human-understandable way. Most people authoring RDF by hand stick to Turtle, because of it’s ease of use and concise way of expressing Linked Data graphs. For example, to specify a specific test entry, we could write some Turtle as follows:</p>
+<p>The RDFa <a href="http://rdfa.info/test-suite/manifest.ttl">test manifest</a> is a <a href="http://www.w3.org/TR/turtle/">Turtle</a> document used to specify the tests that apply to different versions and host languages in <a href="http://rdfa.info/">RDFa</a>. <a href="http://www.w3.org/TR/turtle/">Turtle</a> is a great language for representing information in a reasonably human-understandable way. Most people authoring RDF by hand stick to Turtle, because of It’s ease of use and concise way of expressing Linked Data graphs. For example, to specify a specific test entry, we could write some Turtle as follows:</p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="n">test</span><span class="o">-</span><span class="n">cases</span><span class="o">/</span><span class="mo">0001</span><span class="o">&gt;</span> <span class="n">a</span> <span class="n">test</span><span class="o">:</span><span class="n">TestCase</span><span class="p">;</span>
    <span class="n">dc</span><span class="o">:</span><span class="n">title</span> <span class="s">"Predicate establishment with @property"</span><span class="p">;</span>
@@ -101,9 +101,9 @@
    <span class="n">test</span><span class="o">:</span><span class="n">informationResourceResults</span> <span class="o">&lt;</span><span class="n">test</span><span class="o">-</span><span class="n">cases</span><span class="o">/</span><span class="mo">0001</span><span class="p">.</span><span class="n">sparql</span><span class="o">&gt;</span> <span class="p">.</span>
 </code></pre></div></div>
 
-<p>Basically, this defines a (relative) URL identifying the test case, gives it a title, describes the relevant RDFa versions and host languages, says it’s required, and shows the files used to provide input and to test the results. The problem is, this is not a convenient form to use programatically. Modern Web applications make use of JSON for representing data, for one reason because JSON can be represented natively in JavaScript, but also because it has a convenient representation in Ruby and other languages.</p>
+<p>Basically, this defines a (relative) URL identifying the test case, gives it a title, describes the relevant RDFa versions and host languages, says It’s required, and shows the files used to provide input and to test the results. The problem is, this is not a convenient form to use programatically. Modern Web applications make use of JSON for representing data, for one reason because JSON can be represented natively in JavaScript, but also because it has a convenient representation in Ruby and other languages.</p>
 
-<p>Let’s look at the equivalent test representation in <a href="http://json-ld.org/">JSON-LD</a>:</p>
+<p>let’s look at the equivalent test representation in <a href="http://json-ld.org/">JSON-LD</a>:</p>
 
 <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span>
   <span class="s">"@context"</span><span class="o">:</span> <span class="s">"http://rdfa.info/contexts/rdfa-test.jsonld"</span><span class="p">,</span>
@@ -228,7 +228,7 @@
 
 <p>The result is a test result for a specific processor with a specific RDFa version and host-language. You can see an example report <a href="http://rdfa.info/earl-reports/rdf.rb-rdfa1.1-html5.html">here</a>.</p>
 
-<p>However, this is not the end of it; to exit the W3C Candidate Recommendation phase, it’s necessary to have at least two interoperable implementations. What is needed, then, is a collated report that combines the output from several different processors into a single report. Because each individual report is an information resource representing a specific RDF graph, we can parse all of these documents into a single graph. But, to generate an HTML result, it would be convienent to have all the data available in a format convenient to use with Ruby <a href="http://haml-lang.com/">Haml</a>.</p>
+<p>However, this is not the end of it; to exit the W3C Candidate Recommendation phase, It’s necessary to have at least two interoperable implementations. What is needed, then, is a collated report that combines the output from several different processors into a single report. Because each individual report is an information resource representing a specific RDF graph, we can parse all of these documents into a single graph. But, to generate an HTML result, it would be convienent to have all the data available in a format convenient to use with Ruby <a href="http://haml-lang.com/">Haml</a>.</p>
 
 <p>This is where <a href="http://json-ld.org/">JSON-LD</a> use in languages like Ruby come to play. Ruby has great libraries for working with JSON, which basically transforms the JSON to a combination of Ruby native Hash, Array, String, Number and Boolean values. A <a href="http://json-ld.org/">JSON-LD</a> representation a test assertion entry looks like the following:</p>
 
@@ -382,7 +382,7 @@
 
 <h2 id="conclusions">Conclusions</h2>
 
-<p><a href="http://json-ld.org/">JSON-LD</a> is the right technology for dealing with RDF and Linked Data in Web applications. It has a convenient representation for working from within various programming languages, such as JavaScript and Ruby. It’s use in implementing that <a href="http://rdfa.info/test-suite/">RDFa Test Suite</a> proves it’s worth as a complementary technology for working with Linked Data on the Web along with <a href="http://rdfa.info/">RDFa</a>.</p>
+<p><a href="http://json-ld.org/">JSON-LD</a> is the right technology for dealing with RDF and Linked Data in Web applications. It has a convenient representation for working from within various programming languages, such as JavaScript and Ruby. It’s use in implementing that <a href="http://rdfa.info/test-suite/">RDFa Test Suite</a> proves It’s worth as a complementary technology for working with Linked Data on the Web along with <a href="http://rdfa.info/">RDFa</a>.</p>
 
 <p>Next up, <a href="http://greggkellogg.net/2012/03/30/browserid-vs-ddos">we talk about the Distributed Denial of Service attack against the test suite</a> and how we solved this very easily and quickly using <a href="https://browserid.org/">BrowserID</a>.</p>
 
@@ -451,6 +451,10 @@
   <ul>
   
     <li class="post-title-reference">
+      <a href="/2008-10-07-nicks-cove" class="post-title-archive"></a>
+    </li>
+  
+    <li class="post-title-reference">
       <a href="/2015/08/csv-on-the-web-presentation/" class="post-title-archive">CSV on the Web presentation</a>
     </li>
   
@@ -464,10 +468,6 @@
   
     <li class="post-title-reference">
       <a href="/2013/12/release-1-1-0-of-ruby-rdf-libraries/" class="post-title-archive">Release 1.1.0 of Ruby RDF libraries</a>
-    </li>
-  
-    <li class="post-title-reference">
-      <a href="/2013/09/philippines-september-2013/" class="post-title-archive">Philippines September 2013</a>
     </li>
   
   </ul>
@@ -528,6 +528,13 @@
   </h3>
   
   <ul>
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2017/11" class="post-title-archive">November 2017</a>
+      </li>
+    
   
     
       
@@ -729,13 +736,6 @@
       
       <li class="post-title-reference">
         <a href="/2009/01" class="post-title-archive">January 2009</a>
-      </li>
-    
-  
-    
-      
-      <li class="post-title-reference">
-        <a href="/2008/10" class="post-title-archive">October 2008</a>
       </li>
     
   
