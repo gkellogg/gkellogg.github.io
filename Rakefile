@@ -56,6 +56,7 @@ task :build do
   cd PROJECT_ROOT do
     sh "bundle exec jekyll build"
   end
+  cp "CNAME", BUILD_DIR
 end
 
 desc "Build and publish to Github User Page"
