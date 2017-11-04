@@ -14,7 +14,7 @@ categories:
   - Ruby
   - Semantic Web
 ---
-As I blogged about [before](http://greggkellogg.net/%3Fp%3D293), I've implemented the [current drafts](http://www.w3.org/blog/data/2015/04/16/csv-on-the-web-seeking-comments-and-implementations/) of [CSV on the Web](http://www.w3.org/2013/csvw/wiki/Main_Page) in the [rdf-tabular gem](http://rubygems.org/gems/rdf-tabular). The gem is is available from [rdf-tabular repo](http://github.com/ruby-rdf/rdf-tabular) and is in the public domain ([Unlicense](http://unlicense.org)) and is freely usable by anyone wishing to get a start on their own implementation. For those wishing to take an incremental approach, this post describes the basic workings of the gem, highlights more advanced cases necessary to pass the [Test Suite](http://w3c.github.io/csvw/tests/) and attempts to provide some insight into the process of implementing the specifications.
+As I blogged about [before](http://greggkellogg.net/2015/04/csv-on-the-web/), I've implemented the [current drafts](http://www.w3.org/blog/data/2015/04/16/csv-on-the-web-seeking-comments-and-implementations/) of [CSV on the Web](http://www.w3.org/2013/csvw/wiki/Main_Page) in the [rdf-tabular gem](http://rubygems.org/gems/rdf-tabular). The gem is is available from [rdf-tabular repo](http://github.com/ruby-rdf/rdf-tabular) and is in the public domain ([Unlicense](http://unlicense.org)) and is freely usable by anyone wishing to get a start on their own implementation. For those wishing to take an incremental approach, this post describes the basic workings of the gem, highlights more advanced cases necessary to pass the [Test Suite](http://w3c.github.io/csvw/tests/) and attempts to provide some insight into the process of implementing the specifications.
 
 ## CSVW – in a nutshell
 
@@ -479,7 +479,7 @@ The first column has **"propertyUrl": "schema:url"**, which turns into the absol
 
 The second column has It's own `aboutUrl` (**"aboutUrl": "#location-{GID}"**), meaning that the _subject_ for triples for this column are different than the _default subject_.
 
-The last three columns are _virtual columns_, as they don&#8217;t correspond to data actually in the CSV; these are used for injecting information into the row. When fully processed, the following RDF is created (again, in minimal mode):
+The last three columns are _virtual columns_, as they don't correspond to data actually in the CSV; these are used for injecting information into the row. When fully processed, the following RDF is created (again, in minimal mode):
 
     @base <http://w3c.github.io/csvw/examples/tree-ops.csv> .
     @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -667,7 +667,7 @@ The only change to `#each_statement` is to consider multiple cell values:
 
 ### Common Properties and Notes
 
-Common Properties and Notes are simply embedded [JSON-LD](http://www.w3.org/TR/json-ld "JSON-LD 1.0") within the metadata file (although limited) to a specific [dialect](http://www.w3.org/TR/tabular-metadata/#json-ld-dialect) to simplify implementations. In Ruby, of course, we have available a full [json-ld gem](http://rubygems.org/gems/json-ld), so turning this into RDF shouldn&#8217;t present any problems.
+Common Properties and Notes are simply embedded [JSON-LD](http://www.w3.org/TR/json-ld "JSON-LD 1.0") within the metadata file (although limited) to a specific [dialect](http://www.w3.org/TR/tabular-metadata/#json-ld-dialect) to simplify implementations. In Ruby, of course, we have available a full [json-ld gem](http://rubygems.org/gems/json-ld), so turning this into RDF shouldn't present any problems.
 
 ## Conclusion
 

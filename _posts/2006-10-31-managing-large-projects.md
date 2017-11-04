@@ -13,7 +13,7 @@ Of paramount concern in managing large development efforts is the need to ensure
 
 #### Communicate with Stakeholders
 
-Identifying who the stakeholders of the system are and involving them intimately in the design process is key to ensuring the successful outcome of any development project. A software system can be coded to the highest standards, completely tested and run quickly and without bugs, but if it doesn&#8217;t actually solve a problem the end users need, it may as well never have been started. Stakeholders include end users, management, system architects, developers and system administrators. They also should include stakeholders in other systems that must interface with the system being designed.
+Identifying who the stakeholders of the system are and involving them intimately in the design process is key to ensuring the successful outcome of any development project. A software system can be coded to the highest standards, completely tested and run quickly and without bugs, but if it doesn't actually solve a problem the end users need, it may as well never have been started. Stakeholders include end users, management, system architects, developers and system administrators. They also should include stakeholders in other systems that must interface with the system being designed.
 
 #### Understand the Problem Domain
 

@@ -5,9 +5,7 @@ date: 2015-04-16T00:00:22+00:00
 author: gregg
 layout: post
 guid: http://greggkellogg.net/?p=293
-permalink: '/%3Fp%3D293'
-custom_permalink:
-  - '%3Fp%3D293'
+permalink: /2015/04/csv-on-the-web/
 categories:
   - Ruby
   - Semantic Web
