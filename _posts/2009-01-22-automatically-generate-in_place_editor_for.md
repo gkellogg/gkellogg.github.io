@@ -9,7 +9,7 @@ permalink: /2009/01/automatically-generate-in_place_editor_for/
 categories:
   - Ruby
 ---
-Recently, I was creating some in\_place\_editors for a polymorphic controller I&#8217;m working on. Although the problems not particular to polymorphic controllers, I didn&#8217;t want to embed too much model information within the controller. I came up with a way to use `meathod_missing` to define the `in_place_editor_for` on demand:
+Recently, I was creating some in\_place\_editors for a polymorphic controller I'm working on. Although the problems not particular to polymorphic controllers, I didn't want to embed too much model information within the controller. I came up with a way to use `meathod_missing` to define the `in_place_editor_for` on demand:
 
     class ResourcesController << ApplicationController
       def method_missing(method_id, *args)

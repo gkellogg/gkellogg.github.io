@@ -10,7 +10,7 @@ categories:
   - Ruby
   - Semantic Web
 ---
-I&#8217;ve just release version 0.1.0 of the RDF::Microdata gem ([rubygems](http://rubygems.org/gems/rdf-microdatea), [github](https://github.com/gkellogg/rdf-microdata)) for the [RDF.rb](http://github.com/bendiken/rdf) suite. This version contains only a reader (parser). Writing is not supported at this point.
+I've just release version 0.1.0 of the RDF::Microdata gem ([rubygems](http://rubygems.org/gems/rdf-microdatea), [github](https://github.com/gkellogg/rdf-microdata)) for the [RDF.rb](http://github.com/bendiken/rdf) suite. This version contains only a reader (parser). Writing is not supported at this point.
 
 Use it pretty much like any other RDF.rb reader:
 

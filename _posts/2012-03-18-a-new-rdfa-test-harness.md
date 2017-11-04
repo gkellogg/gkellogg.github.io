@@ -19,13 +19,13 @@ Recently, [RDFa](http://rdfa.info/) entered the Candidate Recommendation phase f
   
 [RDFa Core 1.1](http://www.w3.org/TR/rdfa-core/), [RDFa 1.1 Lite](http://www.w3.org/TR/rdfa-lite/), and [XHTML+RDFa 1.1](http://www.w3.org/TR/xhtml-rdfa/) as W3C Standards.
   
-I&#8217;ve been using RDFa for a couple of years, originally as part of the [Connected Media Experience](http://connectedmediaexperience.org/),
+I've been using RDFa for a couple of years, originally as part of the [Connected Media Experience](http://connectedmediaexperience.org/),
   
 and lately because
   
-I&#8217;ve become passionate about the Semantic Web. For the last 10 months, or so, this has extended to my becoming an Invited Expert
+I've become passionate about the Semantic Web. For the last 10 months, or so, this has extended to my becoming an Invited Expert
   
-in the W3C, where I&#8217;ve worked on RDFa, [HTML microdata](http://www.w3.org/TR/microdata-rdf/) and [JSON-LD](http://json-ld.org/).
+in the W3C, where I've worked on RDFa, [HTML microdata](http://www.w3.org/TR/microdata-rdf/) and [JSON-LD](http://json-ld.org/).
 
 This is an introductory blog post on the creation of a new [RDFa Test Suite](http://rdfa.info/test-suite/). Here we discuss the use of
   
@@ -64,7 +64,7 @@ A basic RDFa test is a small amount of markup intended to test a single feature.
     </html>
     
 
-In this example, we&#8217;re testing that the `@about` attribute sets the _subject_, `@property` sets the _property_ and the
+In this example, we're testing that the `@about` attribute sets the _subject_, `@property` sets the _property_ and the
   
 text content sets the _object_ of a single RDF statement. Rendered as Turtle, it would look like the following:
 
@@ -206,13 +206,13 @@ the test of the next.
 
 ## Styling the User Interface
 
-I&#8217;m no designer, but I like a good looking and efficient user interface. Fortunately, the people at Twitter do too,
+I'm no designer, but I like a good looking and efficient user interface. Fortunately, the people at Twitter do too,
   
-and they released [Bootstrap.js](http://twitter.github.com/bootstrap/index.html) as a means of tackling common problems. I won&#8217;t go into detail here, but check out
+and they released [Bootstrap.js](http://twitter.github.com/bootstrap/index.html) as a means of tackling common problems. I won't go into detail here, but check out
   
 their [example page](http://twitter.github.com/bootstrap/examples.html) to get an idea of the things you can do with Bootstrap.
   
-What I immediately noticed about it is that I didn&#8217;t really need to worry about layout. Note that you can even run
+What I immediately noticed about it is that I didn't really need to worry about layout. Note that you can even run
   
 the Test Suite from an iPhone!
 
@@ -247,4 +247,4 @@ Better to have the tests defined in a format more appropriate for use within an 
   
 peek at the JSON-LD version of the RDFa test suite manifest, look [here](http://rdfa.info/test-suite/manifest.json).
   
-More on using JSON-LD, and why it&#8217;s such a good match for RDFa in the [next post](http://greggkellogg.net/2012/03/20/the-use-of-json-ld-in-the-rdfa-test-harness).
+More on using JSON-LD, and why It's such a good match for RDFa in the [next post](http://greggkellogg.net/2012/03/20/the-use-of-json-ld-in-the-rdfa-test-harness).

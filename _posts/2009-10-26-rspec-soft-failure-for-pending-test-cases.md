@@ -9,7 +9,7 @@ permalink: /2009/10/rspec-soft-failure-for-pending-test-cases/
 categories:
   - Ruby
 ---
-Recently, I&#8217;ve been playing with RSpec to run [RDFa test cases](http://github.com/msporny/rdfa-test-suite). The suite has accepted and unreviewed test cases. My general way of testing is to parse the suite, and run each test through a generated spec as follows:
+Recently, I've been playing with RSpec to run [RDFa test cases](http://github.com/msporny/rdfa-test-suite). The suite has accepted and unreviewed test cases. My general way of testing is to parse the suite, and run each test through a generated spec as follows:
 
     test_cases.each do |tc|
       specify "test #{tc.name}" do

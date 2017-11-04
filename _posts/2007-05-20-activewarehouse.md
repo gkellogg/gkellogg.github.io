@@ -9,7 +9,7 @@ permalink: /2007/05/activewarehouse/
 categories:
   - Ruby
 ---
-Related to the interesting talk at a recent NBRug meeting on Ruport, I&#8217;ve been looking at doing data warehousing in Ruby. Fortunately, [Anthony Eden](http://anthonyeden.com/) has beaten me to the punch with [ActiveWarehouse](http://activewarehouse.rubyforge.org/). For those unfamiliar with Data Warehousing, the concepts are basically to create a series of _facts_ that are indexed buy multiple _dimensions_.
+Related to the interesting talk at a recent NBRug meeting on Ruport, I've been looking at doing data warehousing in Ruby. Fortunately, [Anthony Eden](http://anthonyeden.com/) has beaten me to the punch with [ActiveWarehouse](http://activewarehouse.rubyforge.org/). For those unfamiliar with Data Warehousing, the concepts are basically to create a series of _facts_ that are indexed buy multiple _dimensions_.
 
   * A _fact_ is typically an integer (e.g., sales amount) with data relating to the fact expressed in _dimensions_. (Note that in some cases, you can have a _Factless Fact_ table where the information is entirely in the dimensions).
   * _Dimensions_ provide different types of data relating to the fact (e.g., date & time of entry, user, product, location, etc.), so a _fact_ table has a column for each _dimension_ with a column for the fact scalar value itself.

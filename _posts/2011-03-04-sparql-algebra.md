@@ -10,7 +10,7 @@ categories:
   - Ruby
   - Semantic Web
 ---
-For those intrepid enough, I&#8217;ve pushed version 0.0.2 of [sparql-algebra](https://github.com/gkellogg/sparql-algebra). It relies on unreleased changes to RDF.rb and sxp-ruby, so you need to use bundler with the included Gemfile.
+For those intrepid enough, I've pushed version 0.0.2 of [sparql-algebra](https://github.com/gkellogg/sparql-algebra). It relies on unreleased changes to RDF.rb and sxp-ruby, so you need to use bundler with the included Gemfile.
 
 SPARQL Algebra implements the s-expression-based SPARQL algebra described in [SPARQL 1.1](http://www.w3.org/TR/rdf-sparql-query/#sparqlAlgebra) and [Jena](http://openjena.org/wiki/SSE). Remaining work needed for &#95;describe&#95; operator and query optimizations. This is the base for translation from SPARQL Grammar [4], which requires just a bit more work to be fully compliant. Both of these, along with support for an HTTP endpoint and solution serializer, will be sufficient to implement a complete SPARQL solution in pure Ruby.
 
@@ -34,7 +34,7 @@ which is equivalent to the following SSE:
            (bgp (triple ?x foaf:name ?name)))))
     
 
-There are outstanding pull requests to RDF.rb and sxp-ruby that are required to release it to RubyGems, but you&#8217;re encouraged to play with it and send feedback!
+There are outstanding pull requests to RDF.rb and sxp-ruby that are required to release it to RubyGems, but you're encouraged to play with it and send feedback!
 
 Thanks to Arto and Ben for the initial work they did on this, and other enabling projects, as well as creating an excellent executable test suite!
 

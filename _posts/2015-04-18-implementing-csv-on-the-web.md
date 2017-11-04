@@ -3,9 +3,6 @@ id: 303
 title: Implementing CSV on the Web
 date: 2015-04-18T20:14:54+00:00
 author: gregg
-excerpt: |
-  As I blogged about [before](http://greggkellogg.net/%3Fp%3D293), I've implemented the [current drafts](http://www.w3.org/blog/data/2015/04/16/csv-on-the-web-seeking-comments-and-implementations/) of [CSV on the Web][] in the [rdf-tabular gem][]. The gem is is available from [rdf-tabular repo][] and is in the public domain ([Unlicense](http://unlicense.org)) and is freely usable by anyone wishing to get a start on their own implementation. For those wishing to take an incremental approach, this post describes the basic workings of the gems, highlights more advanced cases necessary to pass the [Test Suite][] and attempts to provide some insight into the process of implementing the specifications.
-  <a href="<?php echo get_permalink(); ?>"> Read More...</a>
 layout: post
 guid: http://greggkellogg.net/?p=303
 permalink: /2015/04/implementing-csv-on-the-web/
@@ -17,11 +14,11 @@ categories:
   - Ruby
   - Semantic Web
 ---
-As I blogged about [before](http://greggkellogg.net/%3Fp%3D293), I&#8217;ve implemented the [current drafts](http://www.w3.org/blog/data/2015/04/16/csv-on-the-web-seeking-comments-and-implementations/) of [CSV on the Web](http://www.w3.org/2013/csvw/wiki/Main_Page) in the [rdf-tabular gem](http://rubygems.org/gems/rdf-tabular). The gem is is available from [rdf-tabular repo](http://github.com/ruby-rdf/rdf-tabular) and is in the public domain ([Unlicense](http://unlicense.org)) and is freely usable by anyone wishing to get a start on their own implementation. For those wishing to take an incremental approach, this post describes the basic workings of the gem, highlights more advanced cases necessary to pass the [Test Suite](http://w3c.github.io/csvw/tests/) and attempts to provide some insight into the process of implementing the specifications.
+As I blogged about [before](http://greggkellogg.net/%3Fp%3D293), I've implemented the [current drafts](http://www.w3.org/blog/data/2015/04/16/csv-on-the-web-seeking-comments-and-implementations/) of [CSV on the Web](http://www.w3.org/2013/csvw/wiki/Main_Page) in the [rdf-tabular gem](http://rubygems.org/gems/rdf-tabular). The gem is is available from [rdf-tabular repo](http://github.com/ruby-rdf/rdf-tabular) and is in the public domain ([Unlicense](http://unlicense.org)) and is freely usable by anyone wishing to get a start on their own implementation. For those wishing to take an incremental approach, this post describes the basic workings of the gem, highlights more advanced cases necessary to pass the [Test Suite](http://w3c.github.io/csvw/tests/) and attempts to provide some insight into the process of implementing the specifications.
 
 ## CSVW – in a nutshell
 
-The basic purpose of the CSVW specifications is to do an informed process of CSVs into an _annotated data model_, and use this model as the basis of creating RDF or JSON. At a minimum, this means assuming that the first row of a CSV is a _header row_ containing _titles_ for cells in that CSV, and that each row constitutes a record with properties based on the _column titles_ with values from each cell. We&#8217;ll use the canonical example of the [tree-ops](http://w3c.github.io/csvw/tests/tree-ops.csv) example from the [Model for Tabular Data](http://www.w3.org/TR/tabular-data-model/ "Model for Tabular Data and Metadata on the Web")
+The basic purpose of the CSVW specifications is to do an informed process of CSVs into an _annotated data model_, and use this model as the basis of creating RDF or JSON. At a minimum, this means assuming that the first row of a CSV is a _header row_ containing _titles_ for cells in that CSV, and that each row constitutes a record with properties based on the _column titles_ with values from each cell. We'll use the canonical example of the [tree-ops](http://w3c.github.io/csvw/tests/tree-ops.csv) example from the [Model for Tabular Data](http://www.w3.org/TR/tabular-data-model/ "Model for Tabular Data and Metadata on the Web")
 
     GID,On Street,Species,Trim Cycle,Inventory Date
     1,ADDISON AV,Celtis australis,Large Tree Routine Prune,10/18/2010
@@ -49,9 +46,9 @@ This example has a header row and two data rows. The simple transformation of th
     ] .
     
 
-This is minimally useful, but we can use this as a walk-through of how the [rdf-tabular gem]() creates this.
+This is minimally useful, but we can use this as a walk-through of how the [rdf-tabular gem](http://rubygems.org/gems/rdf-tabular) creates this.
 
-The first step is to retrieve the document from it&#8217;s URL: `http://w3c.github.io/csvw/tests/tree-ops.csv`. We then can look for metadata associated with the file to inform the creation of the _annotated table_; this information might come from by the user specifying to location of metadata separately, from an HTTP Link header, by looking at `http://w3c.github.io/csvw/tests/tree-ops.csv-metadata.json` for file-specific metadata, or at `http://w3c.github.io/csvw/tests/metadata.json` for directory-specific metadata. In this case, there is none, so we constructed _embedded metatata_ from just the _header row_. The process for locating metadata is described in [Creating Annotated Tables](http://www.w3.org/TR/tabular-data-model/#creating-annotated-tables), and creating embedded metadata is described in [Parsing Tabular Data](http://www.w3.org/TR/tabular-data-model/#parsing). Basically, we&#8217;re looking to create a _table description_ with a _schema_ describing each _column_ resulting in the following:
+The first step is to retrieve the document from It's URL: `http://w3c.github.io/csvw/tests/tree-ops.csv`. We then can look for metadata associated with the file to inform the creation of the _annotated table_; this information might come from by the user specifying to location of metadata separately, from an HTTP Link header, by looking at `http://w3c.github.io/csvw/tests/tree-ops.csv-metadata.json` for file-specific metadata, or at `http://w3c.github.io/csvw/tests/metadata.json` for directory-specific metadata. In this case, there is none, so we constructed _embedded metatata_ from just the _header row_. The process for locating metadata is described in [Creating Annotated Tables](http://www.w3.org/TR/tabular-data-model/#creating-annotated-tables), and creating embedded metadata is described in [Parsing Tabular Data](http://www.w3.org/TR/tabular-data-model/#parsing). Basically, we're looking to create a _table description_ with a _schema_ describing each _column_ resulting in the following:
 
     {
       "@context": "http://www.w3.org/ns/csvw",
@@ -131,7 +128,7 @@ By following the rules in the [Metadata Format](http://www.w3.org/TR/tabular-met
 
 Here we gather some metadata based on the row and column numbers (logical and actual, which are the same here) and create a default for the _column name_ from _titles_. Also, note that _titles_ is expanded to a [natural language property](http://w3c.github.io/csvw/metadata/#dfn-natural-language-property), which is basically a [JSON-LD Language Map](http://www.w3.org/TR/json-ld/#language-maps) where `und` is used when there is no language. The _column name_ is percent encoded so that it can be used in a [URI template](https://tools.ietf.org/html/rfc6570).
 
-Note that the `rows` and `cells` values are empty, as we haven&#8217;t actually processed any rows from the input yet.
+Note that the `rows` and `cells` values are empty, as we haven't actually processed any rows from the input yet.
 
 The [rdf-tabular gem](http://rubygems.org/gems/rdf-tabular) implements the [RDF::Reader](http://www.rubydoc.info/github/ruby-rdf/rdf/RDF/Reader) pattern, which takes care of much of the process of opening the file and getting useful metadata. In the case of the [rdf-tabular gem](http://rubygems.org/gems/rdf-tabular), this includes the steps described in [Creating Annotated Tables](http://www.w3.org/TR/tabular-data-model/#creating-annotated-tables) which involves recursive invocations of the reader, but nominally, it yields a _reader instance_ which implements the [RDF::Enumerable](http://www.rubydoc.info/github/ruby-rdf/rdf/RDF/Enumerable) pattern. In particular, the reader implements an `#each` method to yield each RDF Statement (triple); this is where the work actually happens. A call looks like the following:
 
@@ -142,7 +139,7 @@ The [rdf-tabular gem](http://rubygems.org/gems/rdf-tabular) implements the [RDF:
     end
     
 
-Basically, the job of the reader is to create the _abstract tabular data model_ and use it to read each row of the table(s) described in the model and use that to generate RDF triples (it can also be used to generate JSON output without going the RDF, but that&#8217;s another story).
+Basically, the job of the reader is to create the _abstract tabular data model_ and use it to read each row of the table(s) described in the model and use that to generate RDF triples (it can also be used to generate JSON output without going the RDF, but that's another story).
 
 The [rdf-tabular gem](http://rubygems.org/gems/rdf-tabular) implements `RDF::Tabular::Metadata`, with subclasses for the different kinds of metadata we need. This provides the `#each_row` method, which given an input file yields each row. For the Ruby implementation, we use the [CSV library](http://docs.ruby-lang.org/en/2.1.0/CSV.html) and use dialect information to set parsing defaults. The gist of the implementation looks like the following:
 
@@ -180,7 +177,7 @@ A `Row` then abstracts information for each table row and provides the cells for
     end
     
 
-There&#8217;s more to this in the actual implementation, of course, but this handles a simple value.
+There's more to this in the actual implementation, of course, but this handles a simple value.
 
 Now we can implement `RDF::Tabular::Reader#each_statement`:
 
@@ -195,11 +192,11 @@ Now we can implement `RDF::Tabular::Reader#each_statement`:
     end
     
 
-That&#8217;s pretty much the basis of a Ruby implementation. There&#8217;s more work to do in `#each_statement`, as it&#8217;s initially invoked with a _TableGroup_, which recursively invokes it again for each _Table_, which then calls again for the actual CSV, but that&#8217;s all setup. There&#8217;s also work in `RDF::Tabular::Reader#initialize` to find the metadata, ensure that it is compatible with the actual tables, and so forth.
+That's pretty much the basis of a Ruby implementation. There's more work to do in `#each_statement`, as It's initially invoked with a _TableGroup_, which recursively invokes it again for each _Table_, which then calls again for the actual CSV, but that's all setup. There's also work in `RDF::Tabular::Reader#initialize` to find the metadata, ensure that it is compatible with the actual tables, and so forth.
 
 ## Fleshing out with more details
 
-So, this implements a basic reader interface from a CSV using the _abstract tabular data model_, but the output&#8217;s not too interesting. What if we want to make the data richer:
+So, this implements a basic reader interface from a CSV using the _abstract tabular data model_, but the output's not too interesting. What if we want to make the data richer:
 
   * Give unique identifiers (_subjects_) to the cells in a row
   * Use _subjects_ for different cells
@@ -211,7 +208,7 @@ For that we need to define a Metadata file.
 
 ### Defining Metadata
 
-A Metadata file is a [JSON-LD](http://www.w3.org/TR/json-ld "JSON-LD 1.0") document (really, it has the structure of a JSON-LD document, it is parsed as JSON) which allows us to define _properties_ on metadata _declarations_ which directly relate to the _abstract tabular data model_. For example, let&#8217;s look at the metadata description for the [tree-ops](http://w3c.github.io/csvw/tests/test011/tree-ops.csv) example: [tree-ops.csv-metadata.json](http://w3c.github.io/csvw/tests/test011/tree-ops.csv-metadata.json):
+A Metadata file is a [JSON-LD](http://www.w3.org/TR/json-ld "JSON-LD 1.0") document (really, it has the structure of a JSON-LD document, it is parsed as JSON) which allows us to define _properties_ on metadata _declarations_ which directly relate to the _abstract tabular data model_. For example, let's look at the metadata description for the [tree-ops](http://w3c.github.io/csvw/tests/test011/tree-ops.csv) example: [tree-ops.csv-metadata.json](http://w3c.github.io/csvw/tests/test011/tree-ops.csv-metadata.json):
 
     {
       "@context": ["http://www.w3.org/ns/csvw", {"@language": "en"}],
@@ -275,7 +272,7 @@ Here we have a couple of different things going on. Note the following:
     }
     
 
-The _prefixed name_ properties are _common properties_, basically just JSON-LD that&#8217;s inserted into the model to define _annotations_ on the model. In this case, their defined on a _Table_, so they annotate that model. As it is JSON-LD, the string values take the `@langauge` defined in the context. CSVW uses a [dialect of JSON-LD](http://www.w3.org/TR/tabular-metadata/#json-ld-dialect) which places some restrictions on what can go here. Basically, nothing more can go into the `@context` besides `@language` and `@base`; it also must use `http://www.w3.org/ns/csvw` and only the terms and prefixes defined within that context can be used along with absolute IRIs.
+The _prefixed name_ properties are _common properties_, basically just JSON-LD that's inserted into the model to define _annotations_ on the model. In this case, their defined on a _Table_, so they annotate that model. As it is JSON-LD, the string values take the `@langauge` defined in the context. CSVW uses a [dialect of JSON-LD](http://www.w3.org/TR/tabular-metadata/#json-ld-dialect) which places some restrictions on what can go here. Basically, nothing more can go into the `@context` besides `@language` and `@base`; it also must use `http://www.w3.org/ns/csvw` and only the terms and prefixes defined within that context can be used along with absolute IRIs.
 
 <pre>{
   "@context": ["http://www.w3.org/ns/csvw", {"@language": "en"}],
@@ -315,9 +312,9 @@ The _prefixed name_ properties are _common properties_, basically just JSON-LD t
 }
 </pre>
 
-The `tableSchema` property tells us that this is a _Table description_; we could also have added a `"@type": "Table"` property to make this explicit, but it&#8217;s not necessary. Metadata always starts with either a _Table description_ or a _TableGroup description_.
+The `tableSchema` property tells us that this is a _Table description_; we could also have added a `"@type": "Table"` property to make this explicit, but It's not necessary. Metadata always starts with either a _Table description_ or a _TableGroup description_.
 
-We define an explicit _name_ property for the first column. If we didn&#8217;t, it would take the first value from _titles_. The _column_ has a _common property_, which is presently not used in the transformation, but exists in the _annotated tabular data model_. It also declares the data type to be `string`, which is a synonym for `xsd:string`, and a value is `required`, meaning that it is considered an error if a cell value has an empty string (or one matching that defined using the `null` annotation). Note that `datatype` is an _inherited property_, meaning that it could have been defined on the _Table_, _Schema_ or _Column_ and would be in scope for all cells based on the inheritance model.
+We define an explicit _name_ property for the first column. If we didn't, it would take the first value from _titles_. The _column_ has a _common property_, which is presently not used in the transformation, but exists in the _annotated tabular data model_. It also declares the data type to be `string`, which is a synonym for `xsd:string`, and a value is `required`, meaning that it is considered an error if a cell value has an empty string (or one matching that defined using the `null` annotation). Note that `datatype` is an _inherited property_, meaning that it could have been defined on the _Table_, _Schema_ or _Column_ and would be in scope for all cells based on the inheritance model.
 
 The last column uses a complex datatype: It is based on `xsd:date` and uses a `format` string to match string values and map them onto the datatype. This allows a date of the form 4/17/2015 to be interpreted as `"2015-04-17"^^xsd:date` by using _date field symbols_ as defined in [UAX35](http://www.unicode.org/reports/tr35/tr35-31/tr35.html).
 
@@ -471,16 +468,16 @@ In the [tree-ops-virtual.json](http://w3c.github.io/csvw/examples/tree-ops-virtu
 
 This introduces several new concepts:
 
-  * The _Schema_ has an `aboutUrl` property: **&#8220;#gid-{GID}&#8221;**. This is a [URI Template](https://tools.ietf.org/html/rfc6570), where _GID_ acts as a variable, taking the _cell value_ of the cell in the _GID_ column to construct a URI. In this case it constructs values such as `<http://w3c.github.io/csvw/examples/tree-ops.csv#gid-1>`. This is because the _Table_ `url` is `tree-ops.csv`, which is a URL relative to the location of the metadata file. In the first row, the value of the `GID` column is `1`, so that is substituted to create **&#8220;#gid-1&#8221;**, then resolved against `url`. This `aboutUrl` then defines the default subject for all cells within that row.
+  * The _Schema_ has an `aboutUrl` property: **"#gid-{GID}"**. This is a [URI Template](https://tools.ietf.org/html/rfc6570), where _GID_ acts as a variable, taking the _cell value_ of the cell in the _GID_ column to construct a URI. In this case it constructs values such as `<http://w3c.github.io/csvw/examples/tree-ops.csv#gid-1>`. This is because the _Table_ `url` is `tree-ops.csv`, which is a URL relative to the location of the metadata file. In the first row, the value of the `GID` column is `1`, so that is substituted to create **"#gid-1"**, then resolved against `url`. This `aboutUrl` then defines the default subject for all cells within that row.
 
-The first column has **&#8220;propertyUrl&#8221;: &#8220;schema:url&#8221;**, which turns into the absolute URL `http://schema.org/url`, and is used as the _predicate_ for that cell. As the column as a `valueUrl` (**&#8220;valueUrl&#8221;: &#8220;#gid-{GID}&#8221;**), that is expanded and used as the object for that cell. Thus, the first cell of the first row would result in the following triple:
+The first column has **"propertyUrl": "schema:url"**, which turns into the absolute URL `http://schema.org/url`, and is used as the _predicate_ for that cell. As the column as a `valueUrl` (**"valueUrl": "#gid-{GID}"**), that is expanded and used as the object for that cell. Thus, the first cell of the first row would result in the following triple:
 
     <#gid-1> schema:url <#gid-1> .
     
 
 (relative to the URL file location).
 
-The second column has it&#8217;s own `aboutUrl` (**&#8220;aboutUrl&#8221;: &#8220;#location-{GID}&#8221;**), meaning that the _subject_ for triples for this column are different than the _default subject_.
+The second column has It's own `aboutUrl` (**"aboutUrl": "#location-{GID}"**), meaning that the _subject_ for triples for this column are different than the _default subject_.
 
 The last three columns are _virtual columns_, as they don&#8217;t correspond to data actually in the CSV; these are used for injecting information into the row. When fully processed, the following RDF is created (again, in minimal mode):
 
@@ -579,7 +576,7 @@ Here the only difference is that we use `cell.aboutUrl`, `cell.propertyUrl`, and
 
 Microsyntaxes are common in CSVs, and there are many different kind. A microsyntax is some convention for formatting information within a cell. CSVW supports delimited values within a cell, so that a list of elements can be provided, allowing a single cell to contain multiple values.
 
-For example the [tree-ops-ext.csv](http://w3c.github.io/csvw/examples/tree-ops-ext.csv) example allows for multiple comments on a record using &#8220;;&#8221; as a separator:
+For example the [tree-ops-ext.csv](http://w3c.github.io/csvw/examples/tree-ops-ext.csv) example allows for multiple comments on a record using ";" as a separator:
 
     GID,On Street,Species,Trim Cycle,Diameter at Breast Ht,Inventory Date,Comments,Protected,KML
     1,ADDISON AV,Celtis australis,Large Tree Routine Prune,11,10/18/2010,,,"<Point><coordinates>-122.156485,37.440963</coordinates></Point>"

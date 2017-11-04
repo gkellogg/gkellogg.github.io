@@ -18,7 +18,7 @@ The following are links to photo albums on my site:
   * [Channel Islands July 2007](/galleries/Channel%20Islands%202010-07/index.html). 
   * [Above the Bay Area](/galleries/Above%20the%20Bay%20Area/index.html). 
   * [Channel Islands July 2008](/galleries/Channel%20Islands%202008-07/index.html)
-  * [Nick&#8217;s Cove 2008](/galleries/Nick's%20Cove/index.html)
+  * [Nick's Cove 2008](/galleries/Nick's%20Cove/index.html)
   * [Wakatobi 2008](/galleries/Wakatobi%202008/index.html),  [people](/galleries/Wakatobi%20People/index.html), and  [slide show](http://www.youtube.com/watch?v=hKPmnpv7tq0) 
   * [Monterey & Pt. Lobos](/galleries/Monterey%20January%202009/index.html) 
   * [Socorro picks](/galleries/Socorro%20Picks/index.html), as well as [many others](/galleries/Socorro%202010-04/index.html)

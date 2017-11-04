@@ -33,7 +33,7 @@ On the 1.1 branch:
 
 ## SPARQL
 
-The [SPARQL](http://rubygems.org/gems/sparql) gem is not based on the SPARQL 1.1 grammar, and now includes some features from SPARQL 1.1, including all functions and builtins and variable bindings. Look for new features to be added incrementally; once a critical mass is reached, I&#8217;ll update the gem version to 1.1 to reflect that this is essentially a 1.1 compatible version of SPARQL. Eventually this will include SPARQL Update and Federated Queries as well.
+The [SPARQL](http://rubygems.org/gems/sparql) gem is not based on the SPARQL 1.1 grammar, and now includes some features from SPARQL 1.1, including all functions and builtins and variable bindings. Look for new features to be added incrementally; once a critical mass is reached, I'll update the gem version to 1.1 to reflect that this is essentially a 1.1 compatible version of SPARQL. Eventually this will include SPARQL Update and Federated Queries as well.
 
 ## Other gems
 

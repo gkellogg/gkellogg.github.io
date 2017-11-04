@@ -9,7 +9,7 @@ permalink: /2009/08/restful-action-caching/
 categories:
   - Ruby
 ---
-Caching actions without layout can be complicated when multiple request formats are used. In particular, an HTML response may use a dynamic layout, in which case you want to use the `:layout => false` option. However, other formats (such as XML) don&#8217;t use a layout, but the `:layout => false` option to &#95;caches&#95;action_ does not properly cache the body in this case. To solve the problem, create two caches action statements:
+Caching actions without layout can be complicated when multiple request formats are used. In particular, an HTML response may use a dynamic layout, in which case you want to use the `:layout => false` option. However, other formats (such as XML) don't use a layout, but the `:layout => false` option to &#95;caches&#95;action_ does not properly cache the body in this case. To solve the problem, create two caches action statements:
 
     caches_action :show,
                   :if => lambda { |c| c.request.format == :html },

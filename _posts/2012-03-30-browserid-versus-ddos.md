@@ -49,7 +49,7 @@ The site was becoming stable, and we were starting to flesh out more test
   
 cases for odd corner cases, when the site started to not respond. [Manu
   
-Sporny](http://manu.sporny.org/), who&#8217;s company [Digital
+Sporny](http://manu.sporny.org/), who's company [Digital
   
 Bazaar](http://digitalbazaar.com/) is kindly donating hosting for the web
   
@@ -65,9 +65,9 @@ test. It seemed as if the site was being hammered by a large number of
   
 overzealous search crawlers! Naturally, we put a robots.txt in place,
   
-expecting that conforming search engines would detect the site&#8217;s crawl
+expecting that conforming search engines would detect the site's crawl
   
-preferences and back off, but that didn&#8217;t happen. Upon further examination
+preferences and back off, but that didn't happen. Upon further examination
   
 of the server logs, we noted requests were streaming in from all over the
   
@@ -79,7 +79,7 @@ and not specifically malicious attack).
 
 My first thought was to make use a secret _api token_, configured into the
   
-server and the web app, but that didn&#8217;t really do the trick either; it
+server and the web app, but that didn't really do the trick either; it
   
 seemed that modern day malware actually just executes the JavaScript, so
   
@@ -87,7 +87,7 @@ it picks up the API key naturally!
 
 ### BrowserID to the Rescue!
 
-Okay, how about authentication? It&#8217;s typically a pain, and we were
+Okay, how about authentication? It's typically a pain, and we were
   
 reluctant to put up barriers in front of people who might want to test
   
@@ -99,7 +99,7 @@ contenders are [WebID](http://www.w3.org/2005/Incubator/webid/wiki/Main_Page) an
   
 information with SSL certificates (it was previously known as FOAF+SSL).
   
-Basically, it&#8217;s a mechanism to allow users to use a _profile page_ as
+Basically, It's a mechanism to allow users to use a _profile page_ as
   
 their identity. This could come off of their blog, Facebook, Twitter or
   
@@ -107,7 +107,7 @@ other social networking site. By configuring an SSL certificate into the
   
 browser and pointing to their profile page, a service can determine that
   
-the profile page actually belongs to the user. (There&#8217;s much more to it,
+the profile page actually belongs to the user. (There's much more to it,
   
 you can read more in the [WebID
   
@@ -115,13 +115,13 @@ Spec](http://www.w3.org/2005/Incubator/webid/spec/)). A key advantage here
   
 is that the service now has access to all of the self-asserted information
   
-the user want&#8217;s to provide about themselves as defined in their profile
+the user want's to provide about themselves as defined in their profile
   
 page, such as `foaf:name`, `foaf:knows`, and so forth. The chief downside
   
-is that the common source of existing user identities in the world haven&#8217;t
+is that the common source of existing user identities in the world haven't
   
-bought into this, and there&#8217;s a competing solution that offers similar
+bought into this, and there's a competing solution that offers similar
   
 benefits.
 
@@ -201,7 +201,7 @@ In the banner, we add a little bit of Haml:
 
 When the page is returned, the `email` variable is set if the user is
   
-authorized, so they&#8217;ll see the email address if they&#8217;ve authenticated, and
+authorized, so they'll see the email address if they've authenticated, and
   
 a login button otherwise. The `render_login_button` has handled entirely
   
@@ -211,7 +211,7 @@ The only other thing to do is to not show the test cases in the test
   
 suite, unless the user has authenticated, which we can tell because
   
-`$("span.email")` won&#8217;t be empty. In our application.js, we use this to
+`$("span.email")` won't be empty. In our application.js, we use this to
   
 either show the tests, or an explanation:
 
@@ -225,27 +225,27 @@ either show the tests, or an explanation:
     }
     
 
-That&#8217;s pretty much all there is too it. The only complication I faced is
+That's pretty much all there is too it. The only complication I faced is
   
 that, when developing with _shotgun_, the session ID is changed with each
   
-invocation, so it wasn&#8217;t remembering the login. By fixing the session
+invocation, so it wasn't remembering the login. By fixing the session
   
 secret this problem went away. Total time from discovery of the problem to
   
 deployed solution: about 1 hour. Not too bad.
 
-It&#8217;s important to note that the [RDFa Test Suite](http://rdfa.info/test-suite/) is stateless, and we
+It's important to note that the [RDFa Test Suite](http://rdfa.info/test-suite/) is stateless, and we
   
-don&#8217;t really need any personal information; we don&#8217;t collect information
+don't really need any personal information; we don't collect information
   
 anywhere, even in our logs. [BrowserID](https://browserid.org/) basically becomes a gate keeper
   
 to help ward off abuse. It imposes a very low barrier of entry, so it
   
-doesn&#8217;t interfere with people using the site anyway they choose.
+doesn't interfere with people using the site anyway they choose.
 
-I do miss other user asserted information, such as the user&#8217;s name and
+I do miss other user asserted information, such as the user's name and
   
 so-forth. [OpenID](http://openid.net/), another single-signon initiative
   

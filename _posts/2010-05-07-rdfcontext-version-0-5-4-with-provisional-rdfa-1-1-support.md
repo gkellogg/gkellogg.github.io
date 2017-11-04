@@ -12,7 +12,7 @@ categories:
 ---
 I just released version 0.5.4 of RdfContext to [GitHub](http://github.com/gkellogg/rdf_context) and [GemCutter](http://gemcutter.org/gems/rdf_context). This version is notable for including support for  [RDFa 1.1](http://www.w3.org/TR/2010/WD-rdfa-core-20100422/) parsing. This is still based on an Working Draft, so it will likely change in the future.
 
-RDFa 1.1 includes support for profiles, vocabularies and terms. And supports using URIs or CURIEs or terms anywhere that&#8217;s legal within an HTML document. Right now, only the [XHTML+RDFa](http://www.w3.org/TR/2010/WD-xhtml-rdfa-20100422/) profile is supported.
+RDFa 1.1 includes support for profiles, vocabularies and terms. And supports using URIs or CURIEs or terms anywhere that's legal within an HTML document. Right now, only the [XHTML+RDFa](http://www.w3.org/TR/2010/WD-xhtml-rdfa-20100422/) profile is supported.
 
 ### Default term URI using @vocab.
 
@@ -98,7 +98,7 @@ The following is the change log for this version of RdfContext. Note that one ch
   * Fix URIRef#short\_name (and consequently #base and #namespace) to not extract a non-hierarchical path as a short\_name 
   * Namespace no longer uses URIRef, but just acts on strings. 
   * Namespace#new does not take an optional &#95;fragment&#95; argument any longer. 
-  * Added Namespace#to_s to output &#8220;prefix: uri&#8221; format 
+  * Added Namespace#to_s to output "prefix: uri" format 
   * Graph#qname first trys generating using bound namespaces, then adds well-known namespaces. 
   * URIRef#to\_qname and #to\_namespace No longer generates an exception. Each take either a Hash or an Array of namespaces and tries them from longest to shortest. 
   * Improved Turtle and XML serializers in use of namespaces. 

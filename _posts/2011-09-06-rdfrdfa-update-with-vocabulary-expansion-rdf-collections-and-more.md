@@ -10,7 +10,7 @@ categories:
   - Ruby
   - Semantic Web
 ---
-I&#8217;ve updated [RDF::RDFa](http://rubygems.org/gems/rdf-rdfa) with updates from recent changes to RDF Core:
+I've updated [RDF::RDFa](http://rubygems.org/gems/rdf-rdfa) with updates from recent changes to RDF Core:
 
   * Deprecate explicit use of @profile
   * Add rdfa:hasVocabulary when encountering @vocab

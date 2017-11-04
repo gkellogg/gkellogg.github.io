@@ -253,7 +253,7 @@ Given HTML’s strong support for lists (e.g., `ol`, `ul`, `dl`, …), it is ama
     </blockquote>
     
     <p>
-      This is rather misleading. As pointed out by your source, this is largely attributable to sites wanting to integrate with three particular big sites: Yahoo!, Google and Facebook. The Yahoo! bit (SearchMonkey) has already been discontinued. Google and Facebook don&#8217;t actually implement RDFa processing as specified even though they use syntax that looks like RDFa. This makes it appear that something standards-based is going on even though for all practical purposes, what&#8217;s happening is that sites are using Google&#8217;s service-specific markup and Facebook&#8217;s service-specific markup to be ingested by Google-written code or Facebook-written code&#8211;not by serendipitous Semantic Web agents that implement RDFa as specced.
+      This is rather misleading. As pointed out by your source, this is largely attributable to sites wanting to integrate with three particular big sites: Yahoo!, Google and Facebook. The Yahoo! bit (SearchMonkey) has already been discontinued. Google and Facebook don't actually implement RDFa processing as specified even though they use syntax that looks like RDFa. This makes it appear that something standards-based is going on even though for all practical purposes, what's happening is that sites are using Google's service-specific markup and Facebook's service-specific markup to be ingested by Google-written code or Facebook-written code&#8211;not by serendipitous Semantic Web agents that implement RDFa as specced.
     </p>
     
     <hr />
@@ -288,7 +288,7 @@ Given HTML’s strong support for lists (e.g., `ol`, `ul`, `dl`, …), it is ama
     </p>
     
     <p>
-      Many advocats of RDFa don&#8217;t realize that the textbook-style of teaching RDFa, closely entangled with visible content, add a lot of unnecessary complexity.
+      Many advocats of RDFa don't realize that the textbook-style of teaching RDFa, closely entangled with visible content, add a lot of unnecessary complexity.
     </p>
     
     <p>
@@ -307,7 +307,7 @@ Given HTML’s strong support for lists (e.g., `ol`, `ul`, `dl`, …), it is ama
     </p>
     
     <p>
-      Just on one minor technical point: surely the problem with querying for membership of RDF lists, rather than sequences, is addressed by path expressions in SPARQL 1.1? I.e., it&#8217;s not a representational problem, but a problem of the richness of the query language.
+      Just on one minor technical point: surely the problem with querying for membership of RDF lists, rather than sequences, is addressed by path expressions in SPARQL 1.1? I.e., It's not a representational problem, but a problem of the richness of the query language.
     </p>
     
     <p>
@@ -322,7 +322,7 @@ Given HTML’s strong support for lists (e.g., `ol`, `ul`, `dl`, …), it is ama
     </h4>
     
     <p>
-      @david, as I note, the majors are concerned about the quality of information. Linkedbrainz doesn&#8217;t really address the quality issue, at least as far as the labels are concerned.
+      @david, as I note, the majors are concerned about the quality of information. Linkedbrainz doesn't really address the quality issue, at least as far as the labels are concerned.
     </p>
     
     <p>
@@ -348,7 +348,7 @@ Given HTML’s strong support for lists (e.g., `ol`, `ul`, `dl`, …), it is ama
     </h4>
     
     <p>
-      @mhepp couldn&#8217;t agree more. Note my own RDF-RDFa serializer: <a href="http://rdf.greggkellogg.net/distiller" rel="nofollow">http://rdf.greggkellogg.net/distiller</a>. Anything beyond insertion of pre-formatted snippets requires algorithmic HTML+RDFa serialization. Thus the importance of being able to act on such markup using CSS and/or jQuery. As long as HTML is hand-crafted, the use of markup such as RDFa will have limited impact; it&#8217;s just too difficult to get it right.
+      @mhepp couldn't agree more. Note my own RDF-RDFa serializer: <a href="http://rdf.greggkellogg.net/distiller" rel="nofollow">http://rdf.greggkellogg.net/distiller</a>. Anything beyond insertion of pre-formatted snippets requires algorithmic HTML+RDFa serialization. Thus the importance of being able to act on such markup using CSS and/or jQuery. As long as HTML is hand-crafted, the use of markup such as RDFa will have limited impact; It's just too difficult to get it right.
     </p>
     
     <hr />
@@ -396,13 +396,13 @@ Given HTML’s strong support for lists (e.g., `ol`, `ul`, `dl`, …), it is ama
       
       <li>
         <p>
-          Every Data Object&#8217;s Representation was accessible from an Address (e.g. an HTTP URL).
+          Every Data Object's Representation was accessible from an Address (e.g. an HTTP URL).
         </p>
       </li>
     </ol>
     
     <p>
-      Now based on the above, go look at any form of structured data produced by any of these music companies or broader Web 2.0 plays, and tell me if you don&#8217;t see the very pattern outlined above modulo:
+      Now based on the above, go look at any form of structured data produced by any of these music companies or broader Web 2.0 plays, and tell me if you don't see the very pattern outlined above modulo:
     </p>
     
     <ol>
@@ -426,7 +426,7 @@ Given HTML’s strong support for lists (e.g., `ol`, `ul`, `dl`, …), it is ama
     </ol>
     
     <p>
-      The most important thing we need at this juncture is structured data that&#8217;s accessible via Web Addresses.
+      The most important thing we need at this juncture is structured data that's accessible via Web Addresses.
     </p>
     
     <p>

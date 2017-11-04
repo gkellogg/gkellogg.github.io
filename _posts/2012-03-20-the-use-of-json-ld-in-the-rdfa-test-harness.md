@@ -15,7 +15,7 @@ This article is the second in a three-part series on implementing the [RDFa Test
 
 ## Test Manifest
 
-The RDFa [test manifest](http://rdfa.info/test-suite/manifest.ttl) is a [Turtle](http://www.w3.org/TR/turtle/) document used to specify the tests that apply to different versions and host languages in [RDFa](http://rdfa.info/). [Turtle](http://www.w3.org/TR/turtle/) is a great language for representing information in a reasonably human-understandable way. Most people authoring RDF by hand stick to Turtle, because of it&#8217;s ease of use and concise way of expressing Linked Data graphs. For example, to specify a specific test entry, we could write some Turtle as follows:
+The RDFa [test manifest](http://rdfa.info/test-suite/manifest.ttl) is a [Turtle](http://www.w3.org/TR/turtle/) document used to specify the tests that apply to different versions and host languages in [RDFa](http://rdfa.info/). [Turtle](http://www.w3.org/TR/turtle/) is a great language for representing information in a reasonably human-understandable way. Most people authoring RDF by hand stick to Turtle, because of It's ease of use and concise way of expressing Linked Data graphs. For example, to specify a specific test entry, we could write some Turtle as follows:
 
     <test-cases/0001> a test:TestCase;
        dc:title "Predicate establishment with @property";
@@ -26,9 +26,9 @@ The RDFa [test manifest](http://rdfa.info/test-suite/manifest.ttl) is a [Turtle]
        test:informationResourceResults <test-cases/0001.sparql> .
     
 
-Basically, this defines a (relative) URL identifying the test case, gives it a title, describes the relevant RDFa versions and host languages, says it&#8217;s required, and shows the files used to provide input and to test the results. The problem is, this is not a convenient form to use programatically. Modern Web applications make use of JSON for representing data, for one reason because JSON can be represented natively in JavaScript, but also because it has a convenient representation in Ruby and other languages.
+Basically, this defines a (relative) URL identifying the test case, gives it a title, describes the relevant RDFa versions and host languages, says It's required, and shows the files used to provide input and to test the results. The problem is, this is not a convenient form to use programatically. Modern Web applications make use of JSON for representing data, for one reason because JSON can be represented natively in JavaScript, but also because it has a convenient representation in Ruby and other languages.
 
-Let&#8217;s look at the equivalent test representation in [JSON-LD](http://json-ld.org/):
+let's look at the equivalent test representation in [JSON-LD](http://json-ld.org/):
 
     {
       "@context": "http://rdfa.info/contexts/rdfa-test.jsonld",
@@ -78,9 +78,9 @@ Other than the encapsulating elements, this looks pretty similar to the Turtle r
     }
     
 
-The context does exactly that: it provides a context for interpreting JSON data. Note the definition of `hostLanguages`: this indicates that `hostLanguages` is a _term_ definition, meaning that the term is replaced with the `@id` value, in this case `rdfatest:hostLanguage`, the same as used in Turtle. Both of these expand to an equivalent IRI <http://rdfa.info/vocabs/rdfa-test#hostLanguage>. In RDF, and in Linked Data in general, everything is described as a resource, either an IRI, a Literal or a Blank Node (basically a variable representing something we don&#8217;t know or don&#8217;t want to identify). The `"@container": "@set"` bit just says to expect that the value of `hostLanguages` will always be an array, to make processing more convenient.
+The context does exactly that: it provides a context for interpreting JSON data. Note the definition of `hostLanguages`: this indicates that `hostLanguages` is a _term_ definition, meaning that the term is replaced with the `@id` value, in this case `rdfatest:hostLanguage`, the same as used in Turtle. Both of these expand to an equivalent IRI <http://rdfa.info/vocabs/rdfa-test#hostLanguage>. In RDF, and in Linked Data in general, everything is described as a resource, either an IRI, a Literal or a Blank Node (basically a variable representing something we don't know or don't want to identify). The `"@container": "@set"` bit just says to expect that the value of `hostLanguages` will always be an array, to make processing more convenient.
 
-Because we use _terms_ in JSON Object _key_ positions, this means that access from JavaScript can be quite convenient. Taking a look at the test suite Test model description, we can download the Manifest with an Ajax request and access elements using &#8216;.&#8217; notation, such as the following:
+Because we use _terms_ in JSON Object _key_ positions, this means that access from JavaScript can be quite convenient. Taking a look at the test suite Test model description, we can download the Manifest with an Ajax request and access elements using &#8216;.' notation, such as the following:
 
     var filteredTests = _.filter(this.loadedData, function(data) {
       return _.include(data.versions, version) &&
@@ -153,7 +153,7 @@ The _Earl view_ uses this template to generate a report for an individual test e
 
 The result is a test result for a specific processor with a specific RDFa version and host-language. You can see an example report [here](http://rdfa.info/earl-reports/rdf.rb-rdfa1.1-html5.html).
 
-However, this is not the end of it; to exit the W3C Candidate Recommendation phase, it&#8217;s necessary to have at least two interoperable implementations. What is needed, then, is a collated report that combines the output from several different processors into a single report. Because each individual report is an information resource representing a specific RDF graph, we can parse all of these documents into a single graph. But, to generate an HTML result, it would be convienent to have all the data available in a format convenient to use with Ruby [Haml](http://haml-lang.com/).
+However, this is not the end of it; to exit the W3C Candidate Recommendation phase, It's necessary to have at least two interoperable implementations. What is needed, then, is a collated report that combines the output from several different processors into a single report. Because each individual report is an information resource representing a specific RDF graph, we can parse all of these documents into a single graph. But, to generate an HTML result, it would be convienent to have all the data available in a format convenient to use with Ruby [Haml](http://haml-lang.com/).
 
 This is where [JSON-LD](http://json-ld.org/) use in languages like Ruby come to play. Ruby has great libraries for working with JSON, which basically transforms the JSON to a combination of Ruby native Hash, Array, String, Number and Boolean values. A [JSON-LD](http://json-ld.org/) representation a test assertion entry looks like the following:
 
@@ -172,7 +172,7 @@ This is where [JSON-LD](http://json-ld.org/) use in languages like Ruby come to 
 
 Transforming this to Ruby gives essentially the exact same representation, so we can iterate over this using Ruby [Haml](http://haml-lang.com/). The natural thing to do is see how we can represent EARL test results through a hierarchical test structure.
 
-As it happens, the EARL representation is not actually ideal. Each assertion is listed with a subject that indicates the specifics of the processor, test, version and host language. It indicates that it is asserted by the test suite, the test being run, the processor being tested, and the result of this test. However, I&#8217;d like to show the results in a tabular form, with the test suite at the top, followed by sections for each version and host language, and a table with a row for each generic test and a column for each processor. A typical result looks like the following:
+As it happens, the EARL representation is not actually ideal. Each assertion is listed with a subject that indicates the specifics of the processor, test, version and host language. It indicates that it is asserted by the test suite, the test being run, the processor being tested, and the result of this test. However, I'd like to show the results in a tabular form, with the test suite at the top, followed by sections for each version and host language, and a table with a row for each generic test and a column for each processor. A typical result looks like the following:
 
 <table class="report" style="background-color: #EEE;">
   <tr>
@@ -246,7 +246,7 @@ As it happens, the EARL representation is not actually ideal. Each assertion is 
   </tr>
 </table>
 
-To take advantage of [JSON-LD](http://json-ld.org/) chaining, we really want a data structure that we can easily iterate on. By adding some extra markup to the report, we can do this using [JSON-LD](http://json-ld.org/) _Framing_, basically a query language for [JSON-LD](http://json-ld.org/) that allows us to change the data into a format we want to use. The frame document allows us to specify how we&#8217;d like our output. An abbreviated example is the following:
+To take advantage of [JSON-LD](http://json-ld.org/) chaining, we really want a data structure that we can easily iterate on. By adding some extra markup to the report, we can do this using [JSON-LD](http://json-ld.org/) _Framing_, basically a query language for [JSON-LD](http://json-ld.org/) that allows us to change the data into a format we want to use. The frame document allows us to specify how we'd like our output. An abbreviated example is the following:
 
     {
       "@context": "http://rdfa.info/contexts/rdfa-earl.jsonld",
@@ -301,12 +301,12 @@ This says show items of type `earl:Software` with a property (associated with th
     }
     
 
-We&#8217;ve basically wrapped each individual test case in a structure that inverts the information contained within the test case. Now we can use this within a [Haml](http://haml-lang.com/) template to create the HTML we&#8217;re interested in.
+We've basically wrapped each individual test case in a structure that inverts the information contained within the test case. Now we can use this within a [Haml](http://haml-lang.com/) template to create the HTML we're interested in.
 
 To see the complete [EARL](http://www.w3.org/TR/EARL10-Schema/) report, look [here](http://rdfa.info/earl-reports/).
 
 ## Conclusions
 
-[JSON-LD](http://json-ld.org/) is the right technology for dealing with RDF and Linked Data in Web applications. It has a convenient representation for working from within various programming languages, such as JavaScript and Ruby. It&#8217;s use in implementing that [RDFa Test Suite](http://rdfa.info/test-suite/) proves it&#8217;s worth as a complementary technology for working with Linked Data on the Web along with [RDFa](http://rdfa.info/).
+[JSON-LD](http://json-ld.org/) is the right technology for dealing with RDF and Linked Data in Web applications. It has a convenient representation for working from within various programming languages, such as JavaScript and Ruby. It's use in implementing that [RDFa Test Suite](http://rdfa.info/test-suite/) proves It's worth as a complementary technology for working with Linked Data on the Web along with [RDFa](http://rdfa.info/).
 
 Next up, [we talk about the Distributed Denial of Service attack against the test suite](http://greggkellogg.net/2012/03/30/browserid-vs-ddos) and how we solved this very easily and quickly using [BrowserID](https://browserid.org/).

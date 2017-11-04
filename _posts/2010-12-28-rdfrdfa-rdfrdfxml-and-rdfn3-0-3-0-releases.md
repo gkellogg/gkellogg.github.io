@@ -19,7 +19,7 @@ The Nokogiri-based reader suite for the RDF.rb environment. This version offers 
 
 **[RDF::N3](https://rubygems.org/gems/rdf-n3)**
 
-  * New parser based on Tim-BL&#8217;s Predictive Parser supports quoted graphs and variables.
+  * New parser based on Tim-BL's Predictive Parser supports quoted graphs and variables.
   * Stream-based reader can process an indefinite length input file, vs. the older Treetop-based reader that was a two-pass parser.
   * Substantial performance improvement over previous version, running at about x statements/second on an iMac.
   * From History:
@@ -30,13 +30,13 @@ The Nokogiri-based reader suite for the RDF.rb environment. This version offers 
           * In Writer 
               * Use only `:prefixes` for creating _QNames_.
               * Add `:standard_prefixes` and `:default_namespace` options.
-              * Use &#8220;&#8221;&#8221; for multi-line quotes, or anything including escaped characters
+              * Use """ for multi-line quotes, or anything including escaped characters
           * In Reader 
               * URI canonicalization and validation.
               * Added `:canonicalize`, and `:intern` options.
               * Added `#prefixes` method returning a hash of prefix definitions.
               * Change `:strict` option to `:validate`.
-              * Add check to ensure that predicates are not literals, it&#8217;s not legal in any RDF variant.
+              * Add check to ensure that predicates are not literals, It's not legal in any RDF variant.
       * RSpec 2 compatibility
 
 **[RDF::RDFXML](https://rubygems.org/gems/rdf-rdfxml)**

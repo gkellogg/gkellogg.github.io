@@ -10,7 +10,7 @@ categories:
   - Ruby
   - Semantic Web
 ---
-I&#8217;m happy to announce release 1.1.0 of the Ruby RDF suite, this includes support for RDF 1.1 Concepts and syntaxes, including RDF Literal changes, N-Triples, N-Quads, TriG and JSON-LD. Additionally, the SPARQL gem has been updated to support RDF 1.1 differences (mainly differences in plain literals vs those with xsd:string datatypes and the fact that language-tagged literals now have the rdf:langString datatype).
+I'm happy to announce release 1.1.0 of the Ruby RDF suite, this includes support for RDF 1.1 Concepts and syntaxes, including RDF Literal changes, N-Triples, N-Quads, TriG and JSON-LD. Additionally, the SPARQL gem has been updated to support RDF 1.1 differences (mainly differences in plain literals vs those with xsd:string datatypes and the fact that language-tagged literals now have the rdf:langString datatype).
 
 There are some incompatibilities with previous releases described below:
 
@@ -19,13 +19,13 @@ There are some incompatibilities with previous releases described below:
   * RDF.rb: <https://github.com/ruby-rdf/rdf>
     
       * Works on versions of Ruby >= 1.9.2 (1.8.* support now dropped), this includes JRuby and Rubinius 2.1+ (true for all gems)
-      * Support for all RDF 1.1 concepts (other than skolumization, if anyone&#8217;s really interested in this, we could add support in a future release),
-      * Native implementation of RDF::URI (aka RDF::IRI) without using Addressable::URI; this is actually a big performance win, as URI&#8217;s typically don&#8217;t need to be parsed now,
+      * Support for all RDF 1.1 concepts (other than skolumization, if anyone's really interested in this, we could add support in a future release),
+      * Native implementation of RDF::URI (aka RDF::IRI) without using Addressable::URI; this is actually a big performance win, as URI's typically don't need to be parsed now,
       * RDF::Graph cannot take a context (name) unless it is a projection of a named graph from an RDF:: Repository (aka RDF::Dataset),
       * Support for 1.1 versions of N-Triples and N-Quads
       * Support for changes to Literal semantics, meaning that all literals have a datatype. #plain? and #simple? accessors still exist, which have expected results.
       * RDF::Query#execute now accepts a block and returns RDF::Query::Solutions. This allows enumerable.query(query) to be have like query.execute(enumerable) and either return an enumerable of yield each solution.
-      * RDF::Queryable#query returns a concrete Enumerator extending RDF::Queryable and RDF::Enumerable or RD::Query::Solutions; this improves performance when accessing enumerator methods as they&#8217;re not extended dynamically (see issue #123: &#8220;Performance and Kernel#extend&#8221;)
+      * RDF::Queryable#query returns a concrete Enumerator extending RDF::Queryable and RDF::Enumerable or RD::Query::Solutions; this improves performance when accessing enumerator methods as they're not extended dynamically (see issue #123: "Performance and Kernel#extend")
       * RDF::Util::File.open_file (used for Mutable.load, among others) no honors 303 and Location: headers to maintain the source identifier and try to manage all input data as UTF.
       * RDF::StrictVocabulary is now added as a sub-class of RDF::Vocabulary; most built-in vocabularies are now strict, meaning that an attempt to access a term not defined in the vocabulary will raise an error. Many more vocabuarlies added including iCal, Media Annotations, Facebook OpenGraph, PROV, SKOS-XL, Data Vocabulary, VCard, VOID, Power-S, XHV and schema.org.
       * New vocabulary definitions have been added for ICal, Media Annotations (MA), Facebook OpenGraph (OG), PROV, SKOS-XL (SKOSXL), Data Vocabulary (V), VCard, VOID, Powder-S (WDRS), and XHV.
@@ -93,4 +93,4 @@ This includes the following individual gems:
 
 All versions of this are running on my distiller: <http://rdf.greggkellogg.net/>. Any comments or issues found prior to release are appreciated.
 
-I&#8217;d like to thank David Butler, Judson Lester, Justin Coyne, Slava Kravchenko, and Aymeric Brisse in particular for their active support in maintaining the Ruby RDF eco-system.
+I'd like to thank David Butler, Judson Lester, Justin Coyne, Slava Kravchenko, and Aymeric Brisse in particular for their active support in maintaining the Ruby RDF eco-system.

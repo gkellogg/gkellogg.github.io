@@ -9,7 +9,7 @@ permalink: /2011/12/ruby-and-the-semantic-web/
 categories:
   - Uncategorized
 ---
-This evening, I gave a talk on using Ruby [RDF.rb](http://rubygems.org/gems/rdf) and assorted gems at the [Lotico San Francisco Semantic Meetup](http://www.meetup.com/The-San-Francisco-Semantic-Web-Meetup/events/36879012/?a=cr1p_grp&rv=cr1). I&#8217;ve uploaded slides to [Slide Share](http://www.slideshare.net/gkellogg1/ruby-semweb-20111206).
+This evening, I gave a talk on using Ruby [RDF.rb](http://rubygems.org/gems/rdf) and assorted gems at the [Lotico San Francisco Semantic Meetup](http://www.meetup.com/The-San-Francisco-Semantic-Web-Meetup/events/36879012/?a=cr1p_grp&rv=cr1). I've uploaded slides to [Slide Share](http://www.slideshare.net/gkellogg1/ruby-semweb-20111206).
 
 I also showed a simple demo using the GitHub API to create FOAF and DOAP records for accounts and repositories, and to do some simple navigation. The demo is running at <http://greggkellogg.net/github-lod>, and source is (of course) available on [GitHub](http://github.com/gkellogg/github-lod).
 
