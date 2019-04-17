@@ -3,19 +3,19 @@
   <channel>
     <title>Gregg Kellogg</title>
     <description>Gregg's Personal Blog</description>
-    <link>http://greggkellogg.net/</link>
-    <atom:link href="http://greggkellogg.net/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 04 Nov 2017 12:28:31 -0700</pubDate>
-    <lastBuildDate>Sat, 04 Nov 2017 12:28:31 -0700</lastBuildDate>
-    <generator>Jekyll v3.6.2</generator>
+    <link>https://greggkellogg.net/</link>
+    <atom:link href="https://greggkellogg.net/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Wed, 17 Apr 2019 11:25:09 -0700</pubDate>
+    <lastBuildDate>Wed, 17 Apr 2019 11:25:09 -0700</lastBuildDate>
+    <generator>Jekyll v3.7.4</generator>
     
       <item>
         <title>CSV on the Web presentation</title>
         <description>&lt;p&gt;I presented &lt;a href=&quot;http://www.w3.org/2013/csvw/wiki/Main_Page&quot;&gt;CSV on the Web&lt;/a&gt; at the &lt;a href=&quot;http://smartdata2015.dataversity.net&quot;&gt;Smart Data Conference&lt;/a&gt; in San Jose. The slides are on &lt;a href=&quot;http://www.slideshare.net/gkellogg1/tabular-data-on-the-web&quot;&gt;SlideShare&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Thu, 20 Aug 2015 10:10:48 -0700</pubDate>
-        <link>http://greggkellogg.net/2015/08/csv-on-the-web-presentation/</link>
-        <guid isPermaLink="true">http://greggkellogg.net/2015/08/csv-on-the-web-presentation/</guid>
+        <link>https://greggkellogg.net/2015/08/csv-on-the-web-presentation/</link>
+        <guid isPermaLink="true">https://greggkellogg.net/2015/08/csv-on-the-web-presentation/</guid>
         
         
         <category>Semantic Web</category>
@@ -24,7 +24,7 @@
     
       <item>
         <title>Implementing CSV on the Web</title>
-        <description>&lt;p&gt;As I blogged about &lt;a href=&quot;http://greggkellogg.net/2015/04/csv-on-the-web/&quot;&gt;before&lt;/a&gt;, I’ve implemented the &lt;a href=&quot;http://www.w3.org/blog/data/2015/04/16/csv-on-the-web-seeking-comments-and-implementations/&quot;&gt;current drafts&lt;/a&gt; of &lt;a href=&quot;http://www.w3.org/2013/csvw/wiki/Main_Page&quot;&gt;CSV on the Web&lt;/a&gt; in the &lt;a href=&quot;http://rubygems.org/gems/rdf-tabular&quot;&gt;rdf-tabular gem&lt;/a&gt;. The gem is is available from &lt;a href=&quot;http://github.com/ruby-rdf/rdf-tabular&quot;&gt;rdf-tabular repo&lt;/a&gt; and is in the public domain (&lt;a href=&quot;http://unlicense.org&quot;&gt;Unlicense&lt;/a&gt;) and is freely usable by anyone wishing to get a start on their own implementation. For those wishing to take an incremental approach, this post describes the basic workings of the gem, highlights more advanced cases necessary to pass the &lt;a href=&quot;http://w3c.github.io/csvw/tests/&quot;&gt;Test Suite&lt;/a&gt; and attempts to provide some insight into the process of implementing the specifications.&lt;/p&gt;
+        <description>&lt;p&gt;As I blogged about &lt;a href=&quot;https://greggkellogg.net/2015/04/csv-on-the-web/&quot;&gt;before&lt;/a&gt;, I’ve implemented the &lt;a href=&quot;http://www.w3.org/blog/data/2015/04/16/csv-on-the-web-seeking-comments-and-implementations/&quot;&gt;current drafts&lt;/a&gt; of &lt;a href=&quot;http://www.w3.org/2013/csvw/wiki/Main_Page&quot;&gt;CSV on the Web&lt;/a&gt; in the &lt;a href=&quot;http://rubygems.org/gems/rdf-tabular&quot;&gt;rdf-tabular gem&lt;/a&gt;. The gem is is available from &lt;a href=&quot;http://github.com/ruby-rdf/rdf-tabular&quot;&gt;rdf-tabular repo&lt;/a&gt; and is in the public domain (&lt;a href=&quot;http://unlicense.org&quot;&gt;Unlicense&lt;/a&gt;) and is freely usable by anyone wishing to get a start on their own implementation. For those wishing to take an incremental approach, this post describes the basic workings of the gem, highlights more advanced cases necessary to pass the &lt;a href=&quot;http://w3c.github.io/csvw/tests/&quot;&gt;Test Suite&lt;/a&gt; and attempts to provide some insight into the process of implementing the specifications.&lt;/p&gt;
 
 &lt;h2 id=&quot;csvw--in-a-nutshell&quot;&gt;CSVW – in a nutshell&lt;/h2&gt;
 
@@ -692,8 +692,8 @@ end
 &lt;p&gt;This post has been updated to reflect the fact the metadata merging has been removed from CSVW, simplifying an implementation even further.&lt;/p&gt;
 </description>
         <pubDate>Sat, 18 Apr 2015 13:14:54 -0700</pubDate>
-        <link>http://greggkellogg.net/2015/04/implementing-csv-on-the-web/</link>
-        <guid isPermaLink="true">http://greggkellogg.net/2015/04/implementing-csv-on-the-web/</guid>
+        <link>https://greggkellogg.net/2015/04/implementing-csv-on-the-web/</link>
+        <guid isPermaLink="true">https://greggkellogg.net/2015/04/implementing-csv-on-the-web/</guid>
         
         
         <category>Ruby</category>
@@ -779,8 +779,8 @@ end
 &lt;p&gt;A forthcoming blog entry will delve into the basis of a simple implementation, and what it takes to completely conform to the specification.&lt;/p&gt;
 </description>
         <pubDate>Wed, 15 Apr 2015 17:00:22 -0700</pubDate>
-        <link>http://greggkellogg.net/2015/04/csv-on-the-web/</link>
-        <guid isPermaLink="true">http://greggkellogg.net/2015/04/csv-on-the-web/</guid>
+        <link>https://greggkellogg.net/2015/04/csv-on-the-web/</link>
+        <guid isPermaLink="true">https://greggkellogg.net/2015/04/csv-on-the-web/</guid>
         
         <category>CSV</category>
         
@@ -924,8 +924,8 @@ end
 &lt;p&gt;I’d like to thank David Butler, Judson Lester, Justin Coyne, Slava Kravchenko, and Aymeric Brisse in particular for their active support in maintaining the Ruby RDF eco-system.&lt;/p&gt;
 </description>
         <pubDate>Fri, 06 Dec 2013 12:59:03 -0800</pubDate>
-        <link>http://greggkellogg.net/2013/12/release-1-1-0-of-ruby-rdf-libraries/</link>
-        <guid isPermaLink="true">http://greggkellogg.net/2013/12/release-1-1-0-of-ruby-rdf-libraries/</guid>
+        <link>https://greggkellogg.net/2013/12/release-1-1-0-of-ruby-rdf-libraries/</link>
+        <guid isPermaLink="true">https://greggkellogg.net/2013/12/release-1-1-0-of-ruby-rdf-libraries/</guid>
         
         
         <category>Ruby</category>
@@ -941,8 +941,8 @@ end
 &lt;p&gt;&lt;a href=&quot;/galleries/Philippines-2013-09/index.html&quot; jscontroller=&quot;false&quot; rel=&quot;qtposter&quot;&gt;&lt;img alt=&quot;Philippines Photo Gallery&quot; src=&quot;/galleries/Philippines-2013-09/content/images/large/_MG_8582.jpg&quot; style=&quot;width: 535px; height: 311px;&quot; /&gt; &lt;/a&gt;&lt;/p&gt;
 </description>
         <pubDate>Fri, 27 Sep 2013 09:37:13 -0700</pubDate>
-        <link>http://greggkellogg.net/2013/09/philippines-september-2013/</link>
-        <guid isPermaLink="true">http://greggkellogg.net/2013/09/philippines-september-2013/</guid>
+        <link>https://greggkellogg.net/2013/09/philippines-september-2013/</link>
+        <guid isPermaLink="true">https://greggkellogg.net/2013/09/philippines-september-2013/</guid>
         
         
         <category>Diving</category>
@@ -997,8 +997,8 @@ end
 &lt;/ul&gt;
 </description>
         <pubDate>Sat, 11 May 2013 16:12:21 -0700</pubDate>
-        <link>http://greggkellogg.net/2013/05/rdf-rb-and-sparql-gem-updates/</link>
-        <guid isPermaLink="true">http://greggkellogg.net/2013/05/rdf-rb-and-sparql-gem-updates/</guid>
+        <link>https://greggkellogg.net/2013/05/rdf-rb-and-sparql-gem-updates/</link>
+        <guid isPermaLink="true">https://greggkellogg.net/2013/05/rdf-rb-and-sparql-gem-updates/</guid>
         
         
         <category>Ruby</category>
@@ -1044,7 +1044,7 @@ end
 
 &lt;h2 id=&quot;background&quot;&gt;Background&lt;/h2&gt;
 
-&lt;p&gt;I first became involved with RDF when working on the &lt;a href=&quot;http://connectedmediaexperience.org&quot;&gt;Connected Media Experience&lt;/a&gt; (CME) design (see &lt;a href=&quot;http://greggkellogg.net/2011/05/07/cme-and-the-semantic-web&quot;&gt;blog entry&lt;/a&gt;). Having designed a proprietary metadata standard for &lt;a href=&quot;http://www.gracenote.com&quot;&gt;Gracenote&lt;/a&gt; and &lt;a href=&quot;http://www.wmg.com&quot;&gt;Warner Music Group&lt;/a&gt; (later for CME), through review with &lt;a href=&quot;http://gonze.com/blog/&quot;&gt;Lucas Gonze&lt;/a&gt;, I was introduced to the &lt;a href=&quot;http://musicontology.com&quot;&gt;Music Ontology&lt;/a&gt;, which had done an extremely thorough modeling of the music domain. This caused significant debate in the CME community, which lead to an updated design based on RDF, and many of the ideas from the &lt;a href=&quot;http://musicontology.com&quot;&gt;Music Ontology&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I first became involved with RDF when working on the &lt;a href=&quot;http://connectedmediaexperience.org&quot;&gt;Connected Media Experience&lt;/a&gt; (CME) design (see &lt;a href=&quot;https://greggkellogg.net/2011/05/07/cme-and-the-semantic-web&quot;&gt;blog entry&lt;/a&gt;). Having designed a proprietary metadata standard for &lt;a href=&quot;http://www.gracenote.com&quot;&gt;Gracenote&lt;/a&gt; and &lt;a href=&quot;http://www.wmg.com&quot;&gt;Warner Music Group&lt;/a&gt; (later for CME), through review with &lt;a href=&quot;http://gonze.com/blog/&quot;&gt;Lucas Gonze&lt;/a&gt;, I was introduced to the &lt;a href=&quot;http://musicontology.com&quot;&gt;Music Ontology&lt;/a&gt;, which had done an extremely thorough modeling of the music domain. This caused significant debate in the CME community, which lead to an updated design based on RDF, and many of the ideas from the &lt;a href=&quot;http://musicontology.com&quot;&gt;Music Ontology&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;During the same review, I was also introduced to &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; as a mechanism of embedding music metadata within a web page. Since CME is endeavoring to create a standard for enhanced digital media packages, &lt;a href=&quot;http://www.w3.org/TR/html5/&quot;&gt;HTML5&lt;/a&gt; and &lt;a href=&quot;http://en.wikipedia.org/wiki/RDFa&quot;&gt;RDFa&lt;/a&gt; are natural technologies to utilize.&lt;/p&gt;
 
@@ -1055,8 +1055,8 @@ end
 &lt;p&gt;Arto and I finally got together recently to move all of the gems primary repositories to the &lt;a href=&quot;http://ruby-rdf.github.com&quot;&gt;Ruby RDF&lt;/a&gt; organization on GitHub, and release them as 1.0. The next significant release should be 1.1, to coincide with the release of the &lt;a href=&quot;http://www.w3.org/TR/rdf11-concepts/&quot;&gt;RDF 1.1&lt;/a&gt; specs from the W3C.&lt;/p&gt;
 </description>
         <pubDate>Fri, 25 Jan 2013 12:40:22 -0800</pubDate>
-        <link>http://greggkellogg.net/2013/01/rdf-rb-1-0-release/</link>
-        <guid isPermaLink="true">http://greggkellogg.net/2013/01/rdf-rb-1-0-release/</guid>
+        <link>https://greggkellogg.net/2013/01/rdf-rb-1-0-release/</link>
+        <guid isPermaLink="true">https://greggkellogg.net/2013/01/rdf-rb-1-0-release/</guid>
         
         
         <category>Ruby</category>
@@ -1100,8 +1100,8 @@ end
 &lt;p&gt;I’ll be speaking more about &lt;a href=&quot;&quot;&gt;JSON-LD&lt;/a&gt; and &lt;a href=&quot;&quot;&gt;MongoDB&lt;/a&gt; at &lt;a href=&quot;http://nosql2012.dataversity.net&quot;&gt;NoSQL Now!&lt;/a&gt; later this week in San Jose. Slides for my talk are available on &lt;a href=&quot;http://www.slideshare.net/gkellogg1/jsonld-and-mongodb&quot;&gt;slideshare&lt;/a&gt;.&lt;/p&gt;
 </description>
         <pubDate>Tue, 21 Aug 2012 06:50:56 -0700</pubDate>
-        <link>http://greggkellogg.net/2012/08/json-ld-and-mongodb/</link>
-        <guid isPermaLink="true">http://greggkellogg.net/2012/08/json-ld-and-mongodb/</guid>
+        <link>https://greggkellogg.net/2012/08/json-ld-and-mongodb/</link>
+        <guid isPermaLink="true">https://greggkellogg.net/2012/08/json-ld-and-mongodb/</guid>
         
         
         <category>JavaScript</category>
@@ -1119,8 +1119,8 @@ end
 &lt;p&gt;&lt;a href=&quot;/galleries/Channel%20Islands%202012-05/&quot;&gt; &lt;img alt=&quot;Hermissenda crassicornis&quot; src=&quot;/galleries/Channel%20Islands%202012-05/content/images/large/Channel_Islands-20120528-85.jpg&quot; style=&quot;width: 530px; height: 309px;&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
 </description>
         <pubDate>Thu, 31 May 2012 18:35:20 -0700</pubDate>
-        <link>http://greggkellogg.net/2012/06/channel-islands-may-2012/</link>
-        <guid isPermaLink="true">http://greggkellogg.net/2012/06/channel-islands-may-2012/</guid>
+        <link>https://greggkellogg.net/2012/06/channel-islands-may-2012/</link>
+        <guid isPermaLink="true">https://greggkellogg.net/2012/06/channel-islands-may-2012/</guid>
         
         
         <category>Diving</category>
@@ -1139,13 +1139,13 @@ end
 
 &lt;p&gt;Test Suite](http://rdfa.info/test-suite/). The [first&lt;/p&gt;
 
-&lt;p&gt;article](http://greggkellogg.net/2012/03/18/a-new-rdfa-test-harness)&lt;/p&gt;
+&lt;p&gt;article](https://greggkellogg.net/2012/03/18/a-new-rdfa-test-harness)&lt;/p&gt;
 
 &lt;p&gt;discussed the use of &lt;a href=&quot;http://www.sinatrarb.com/&quot;&gt;Sinatra&lt;/a&gt;, &lt;a href=&quot;http://backbonejs.org/&quot;&gt;Backbone.js&lt;/a&gt; and &lt;a href=&quot;http://twitter.github.com/bootstrap/index.html&quot;&gt;Bootstrap.js&lt;/a&gt; in&lt;/p&gt;
 
 &lt;p&gt;creating the test harness. The [second&lt;/p&gt;
 
-&lt;p&gt;article](http://greggkellogg.net/2012/03/20/the-use-of-json-ld-in-the-rdfa-test-harness)&lt;/p&gt;
+&lt;p&gt;article](https://greggkellogg.net/2012/03/20/the-use-of-json-ld-in-the-rdfa-test-harness)&lt;/p&gt;
 
 &lt;p&gt;discussed the use of JSON-LD. In this article, we focus on our use of&lt;/p&gt;
 
@@ -1382,8 +1382,8 @@ if ($(&quot;span.email&quot;).length &amp;gt; 0) {
 &lt;p&gt;&lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; will provide something like this in the future.&lt;/p&gt;
 </description>
         <pubDate>Fri, 30 Mar 2012 08:58:46 -0700</pubDate>
-        <link>http://greggkellogg.net/2012/03/browserid-versus-ddos/</link>
-        <guid isPermaLink="true">http://greggkellogg.net/2012/03/browserid-versus-ddos/</guid>
+        <link>https://greggkellogg.net/2012/03/browserid-versus-ddos/</link>
+        <guid isPermaLink="true">https://greggkellogg.net/2012/03/browserid-versus-ddos/</guid>
         
         
         <category>JavaScript</category>
