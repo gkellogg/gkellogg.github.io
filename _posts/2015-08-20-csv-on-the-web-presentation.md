@@ -5,7 +5,7 @@ title: CSV on the Web presentation
 date: 2015-08-20T17:10:48+00:00
 author: gregg
 layout: post
-guid: http://greggkellogg.net/?p=313
+guid: https://greggkellogg.net/?p=313
 permalink: /2015/08/csv-on-the-web-presentation/
 categories:
   - Semantic Web

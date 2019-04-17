@@ -13,9 +13,9 @@ Gregg is a primary force behind all three formats used for encoding [schema.org]
   * JSON-LD (as one of three editors of the [JSON-LD](http://www.w3.org/TR/json-ld) specifications), and
   * RDFa (as a primary contributor to [RDFa 1.1](http://www.w3.org/TR/rdfa-syntax/) specifications).
 
-<div about="http://greggkellogg.net/foaf" prefix="doap: http://usefulinc.com/ns/doap#" vocab="http://schema.org/" typeof="foaf:PersonalProfileDocument">
-  <link rel="foaf:maker" href="http://greggkellogg.net/foaf#me"/>
-<div about="http://greggkellogg.net/foaf#me" id="me" typeof="foaf:Person">
+<div about="https://greggkellogg.net/foaf" prefix="doap: http://usefulinc.com/ns/doap#" vocab="http://schema.org/" typeof="foaf:PersonalProfileDocument">
+  <link rel="foaf:maker" href="https://greggkellogg.net/foaf#me"/>
+<div about="https://greggkellogg.net/foaf#me" id="me" typeof="foaf:Person">
   <p></p>
   <img alt="Gregg" rel="foaf:depiction" resource="http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8.png" src="http://www.gravatar.com/avatar/42f948adff3afaa52249d963117af7c8.png" />
   <p>Gregg has been a software executive and entrepreneur since 1997. He started three companies in Marin County, including <em rel="foaf:pastProject" typeof=""><span property="foaf:name">Cafex Corporation</span></em>, <em rel="foaf:pastProject" typeof=""><span property="foaf:name">Xippix Inc.</span></em>, and <a href="http://www.siterra.com/" rel="foaf:pastProject">Siterra Corporation</a>. Gregg&#39;s skills as an engineering manager and software architect helped propel these companies to success in the fast moving Internet environment.</p>
@@ -85,9 +85,9 @@ Gregg is a primary force behind all three formats used for encoding [schema.org]
   <section>
     <h2>Links</h2>
     <ul>
-      <li><a href="http://greggkellogg.net/" rel="foaf:homepage">Home Page</a></li>
+      <li><a href="https://greggkellogg.net/" rel="foaf:homepage">Home Page</a></li>
       <li><a href="http://rdf.kellogg-assoc.com/" rel="foaf:currentProject">RDF distiller and SPARQL endpoint</a></li>
-      <li><a href="http://greggkellogg.net/photography" rel="foaf:interest">Photography</a></li>
+      <li><a href="https://greggkellogg.net/photography" rel="foaf:interest">Photography</a></li>
       <li rel="doap:repository doap:homepage"><span about="http://github.com/gkellogg" typeof="doap:GitRepository"><a href="http://github.com/gkellogg">Git Home Page</a></span></li>
     </ul>
   </section>
@@ -100,7 +100,7 @@ Gregg is a primary force behind all three formats used for encoding [schema.org]
       <li><a rel="foaf:knows" href="http://www.ivan-herman.net/foaf.rdf" typeof="foaf:Person"><span property="foaf:name">Ivan Herman</span></a></li>
     </ul>
     <p class="note">
-      This document describes <span rel="foaf:primaryTopic" resource="http://greggkellogg.net/foaf#me">Gregg</span>, and is encoded with <acronym title="Friend of a Friend">FOAF</acronym> information encoded using HTML+RDFa 1.1.
+      This document describes <span rel="foaf:primaryTopic" resource="https://greggkellogg.net/foaf#me">Gregg</span>, and is encoded with <acronym title="Friend of a Friend">FOAF</acronym> information encoded using HTML+RDFa 1.1.
       <span>This information also available in alternate formats: <a href="/foaf.rdf" rel="owl:sameAs">RDF&#47;XML</a> <a href="/foaf.ttl" rel="owl:sameAs">Turtle</a></span>.
       <span>This document describes the same person as <a href="http://foaf.me/gkellogg#me" rel="owl:sameAs">http:&#47;&#47;foaf.me&#47;gkellogg#me</a>.</span>
     </p>

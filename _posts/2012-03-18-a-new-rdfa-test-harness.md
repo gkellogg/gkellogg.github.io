@@ -31,7 +31,7 @@ This is an introductory blog post on the creation of a new [RDFa Test Suite](htt
   
 [Sinatra](http://www.sinatrarb.com/), [Backbone.js](http://backbonejs.org/) and [Bootstrap.js](http://twitter.github.com/bootstrap/index.html) to run the test suite. Later will come articles on the usefulness
   
-of JSON-LD as a means of driving a test harness, [generating test reports](http://greggkellogg.net/2012/03/20/the-use-of-json-ld-in-the-rdfa-test-harness),
+of JSON-LD as a means of driving a test harness, [generating test reports](https://greggkellogg.net/2012/03/20/the-use-of-json-ld-in-the-rdfa-test-harness),
   
 and the use of [BrowserID](https://browserid.org/) to deal with [Distributed
   
@@ -247,4 +247,4 @@ Better to have the tests defined in a format more appropriate for use within an 
   
 peek at the JSON-LD version of the RDFa test suite manifest, look [here](http://rdfa.info/test-suite/manifest.json).
   
-More on using JSON-LD, and why It's such a good match for RDFa in the [next post](http://greggkellogg.net/2012/03/20/the-use-of-json-ld-in-the-rdfa-test-harness).
+More on using JSON-LD, and why It's such a good match for RDFa in the [next post](https://greggkellogg.net/2012/03/20/the-use-of-json-ld-in-the-rdfa-test-harness).

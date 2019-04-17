@@ -45,7 +45,7 @@ Another common mistake is format such as the following:
       <p>
         Name: <span property="name">Gregg Kellogg</span></p>
       <p>
-        Knows: <a href="http://greggkellogg.net/#me" rel="knows">Myself</a></p>
+        Knows: <a href="https://greggkellogg.net/#me" rel="knows">Myself</a></p>
     </div>
     
 
@@ -56,7 +56,7 @@ Placing `@rel` and `@about` or `@typeof` on the same element indicates that the 
         <p>
           Name: <span property="name">Gregg Kellogg</span></p>
         <p>
-          Knows: <a href="http://greggkellogg.net/#me" rel="knows">Myself</a>
+          Knows: <a href="https://greggkellogg.net/#me" rel="knows">Myself</a>
         </p>
       </div>
     </div>

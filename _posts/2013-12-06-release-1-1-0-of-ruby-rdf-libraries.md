@@ -4,7 +4,7 @@ title: Release 1.1.0 of Ruby RDF libraries
 date: 2013-12-06T20:59:03+00:00
 author: gregg
 layout: post
-guid: http://greggkellogg.net/?p=245
+guid: https://greggkellogg.net/?p=245
 permalink: /2013/12/release-1-1-0-of-ruby-rdf-libraries/
 categories:
   - Ruby

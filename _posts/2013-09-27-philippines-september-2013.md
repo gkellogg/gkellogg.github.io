@@ -4,7 +4,7 @@ title: Philippines September 2013
 date: 2013-09-27T16:37:13+00:00
 author: gregg
 layout: post
-guid: http://greggkellogg.net/?p=184
+guid: https://greggkellogg.net/?p=184
 permalink: /2013/09/philippines-september-2013/
 image: /wp-content/uploads/2013/09/Philippines-20130922-56-reduced-624x415.jpg
 categories:

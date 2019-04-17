@@ -4,7 +4,7 @@ title: Implementing CSV on the Web
 date: 2015-04-18T20:14:54+00:00
 author: gregg
 layout: post
-guid: http://greggkellogg.net/?p=303
+guid: https://greggkellogg.net/?p=303
 permalink: /2015/04/implementing-csv-on-the-web/
 dsq_thread_id:
   - "5689823482"
@@ -14,7 +14,7 @@ categories:
   - Ruby
   - Semantic Web
 ---
-As I blogged about [before](http://greggkellogg.net/2015/04/csv-on-the-web/), I've implemented the [current drafts](http://www.w3.org/blog/data/2015/04/16/csv-on-the-web-seeking-comments-and-implementations/) of [CSV on the Web](http://www.w3.org/2013/csvw/wiki/Main_Page) in the [rdf-tabular gem](http://rubygems.org/gems/rdf-tabular). The gem is is available from [rdf-tabular repo](http://github.com/ruby-rdf/rdf-tabular) and is in the public domain ([Unlicense](http://unlicense.org)) and is freely usable by anyone wishing to get a start on their own implementation. For those wishing to take an incremental approach, this post describes the basic workings of the gem, highlights more advanced cases necessary to pass the [Test Suite](http://w3c.github.io/csvw/tests/) and attempts to provide some insight into the process of implementing the specifications.
+As I blogged about [before](https://greggkellogg.net/2015/04/csv-on-the-web/), I've implemented the [current drafts](http://www.w3.org/blog/data/2015/04/16/csv-on-the-web-seeking-comments-and-implementations/) of [CSV on the Web](http://www.w3.org/2013/csvw/wiki/Main_Page) in the [rdf-tabular gem](http://rubygems.org/gems/rdf-tabular). The gem is is available from [rdf-tabular repo](http://github.com/ruby-rdf/rdf-tabular) and is in the public domain ([Unlicense](http://unlicense.org)) and is freely usable by anyone wishing to get a start on their own implementation. For those wishing to take an incremental approach, this post describes the basic workings of the gem, highlights more advanced cases necessary to pass the [Test Suite](http://w3c.github.io/csvw/tests/) and attempts to provide some insight into the process of implementing the specifications.
 
 ## CSVW – in a nutshell
 

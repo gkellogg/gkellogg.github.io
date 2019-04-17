@@ -17,7 +17,7 @@ title: Gregg Kellogg
 email: gregg@greggkellogg.net
 description: "Gregg's Personal Blog"
 baseurl: "" # the subpath of your site, e.g. /blog
-url: http://greggkellogg.net
+url: https://greggkellogg.net
 twitter_username: gkellogg
 github_username:  gkellogg
 permalink: :title

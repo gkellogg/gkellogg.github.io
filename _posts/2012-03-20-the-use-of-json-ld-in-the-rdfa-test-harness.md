@@ -11,7 +11,7 @@ categories:
   - Ruby
   - Semantic Web
 ---
-This article is the second in a three-part series on implementing the [RDFa Test Suite](http://rdfa.info/test-suite/). The [first article](http://greggkellogg.net/2012/03/18/a-new-rdfa-test-harness) discussed the use of [Sinatra](http://www.sinatrarb.com/), [Backbone.js](http://backbonejs.org/) and [Bootstrap.js](http://twitter.github.com/bootstrap/index.html) in creating the test harness. In this article, we focus on [JSON-LD](http://json-ld.org/), a Linked Data technology that complements [RDFa](http://rdfa.info/) is creating modern Web applications.
+This article is the second in a three-part series on implementing the [RDFa Test Suite](http://rdfa.info/test-suite/). The [first article](https://greggkellogg.net/2012/03/18/a-new-rdfa-test-harness) discussed the use of [Sinatra](http://www.sinatrarb.com/), [Backbone.js](http://backbonejs.org/) and [Bootstrap.js](http://twitter.github.com/bootstrap/index.html) in creating the test harness. In this article, we focus on [JSON-LD](http://json-ld.org/), a Linked Data technology that complements [RDFa](http://rdfa.info/) is creating modern Web applications.
 
 ## Test Manifest
 
@@ -309,4 +309,4 @@ To see the complete [EARL](http://www.w3.org/TR/EARL10-Schema/) report, look [he
 
 [JSON-LD](http://json-ld.org/) is the right technology for dealing with RDF and Linked Data in Web applications. It has a convenient representation for working from within various programming languages, such as JavaScript and Ruby. It's use in implementing that [RDFa Test Suite](http://rdfa.info/test-suite/) proves It's worth as a complementary technology for working with Linked Data on the Web along with [RDFa](http://rdfa.info/).
 
-Next up, [we talk about the Distributed Denial of Service attack against the test suite](http://greggkellogg.net/2012/03/30/browserid-vs-ddos) and how we solved this very easily and quickly using [BrowserID](https://browserid.org/).
+Next up, [we talk about the Distributed Denial of Service attack against the test suite](https://greggkellogg.net/2012/03/30/browserid-vs-ddos) and how we solved this very easily and quickly using [BrowserID](https://browserid.org/).

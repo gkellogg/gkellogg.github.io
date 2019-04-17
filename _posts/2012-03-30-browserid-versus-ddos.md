@@ -19,13 +19,13 @@ This article is the third in a three-part series on implementing the [RDFa
   
 Test Suite](http://rdfa.info/test-suite/). The [first
   
-article](http://greggkellogg.net/2012/03/18/a-new-rdfa-test-harness)
+article](https://greggkellogg.net/2012/03/18/a-new-rdfa-test-harness)
   
 discussed the use of [Sinatra](http://www.sinatrarb.com/), [Backbone.js](http://backbonejs.org/) and [Bootstrap.js](http://twitter.github.com/bootstrap/index.html) in
   
 creating the test harness. The [second
   
-article](http://greggkellogg.net/2012/03/20/the-use-of-json-ld-in-the-rdfa-test-harness)
+article](https://greggkellogg.net/2012/03/20/the-use-of-json-ld-in-the-rdfa-test-harness)
   
 discussed the use of JSON-LD. In this article, we focus on our use of
   

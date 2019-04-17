@@ -178,13 +178,13 @@ Given HTML’s strong support for lists (e.g., `ol`, `ul`, `dl`, …), it is ama
 
 <div class="meta">
   <p>
-    <small>Published on <span class="typo_date date gmttimestamp-1304731260" title="Sat, 07 May 2011 01:21:00 GMT">Sat, 07 May 2011 01:21:00 GMT</span> under <a href="http://greggkellogg.net/category/media" rel="tag">Media</a>, <a href="http://greggkellogg.net/category/rdf" rel="tag">Semantic Web</a>. </small>
+    <small>Published on <span class="typo_date date gmttimestamp-1304731260" title="Sat, 07 May 2011 01:21:00 GMT">Sat, 07 May 2011 01:21:00 GMT</span> under <a href="https://greggkellogg.net/category/media" rel="tag">Media</a>, <a href="https://greggkellogg.net/category/rdf" rel="tag">Semantic Web</a>. </small>
   </p>
 </div>
 
 ## If you liked this article you can [add me to Twitter](http://twitter.com/@gkellogg) {#twitter}
 
-### [12 comments](http://greggkellogg.net/2011/05/07/cme-and-the-semantic-web)  <a href="#commentform" ref="nofollow">»</a>
+### [12 comments](https://greggkellogg.net/2011/05/07/cme-and-the-semantic-web)  <a href="#commentform" ref="nofollow">»</a>
   
  {#commentaires.feedback}
 

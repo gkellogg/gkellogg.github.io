@@ -5,11 +5,11 @@ date: 2013-09-25T13:52:42+00:00
 author: gregg
 layout: page
 ---
-<div about='http://greggkellogg.net/foaf#me' typeof='foaf:Person'>
-  <link href="http://greggkellogg.net/" rel="foaf:homepage" />
+<div about='https://greggkellogg.net/foaf#me' typeof='foaf:Person'>
+  <link href="https://greggkellogg.net/" rel="foaf:homepage" />
   
   <p>
-    I work on Semantic Web Standards and create [Open Source][1] projects. More FOAF information is available at <a href="http://greggkellogg.net/foaf">http://greggkellogg.net/foaf</a>.
+    I work on Semantic Web Standards and create [Open Source][1] projects. More FOAF information is available at <a href="https://greggkellogg.net/foaf">https://greggkellogg.net/foaf</a>.
   </p>
   
   <p>

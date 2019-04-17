@@ -4,7 +4,7 @@ title: CSV on the Web
 date: 2015-04-16T00:00:22+00:00
 author: gregg
 layout: post
-guid: http://greggkellogg.net/?p=293
+guid: https://greggkellogg.net/?p=293
 permalink: /2015/04/csv-on-the-web/
 categories:
   - Ruby
