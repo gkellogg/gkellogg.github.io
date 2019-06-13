@@ -7,7 +7,8 @@ layout: post
 guid: http://wp.greggkellogg.railsplayground.net/wordpress/?p=154
 permalink: /2011/12/ruby-and-the-semantic-web/
 categories:
-  - Uncategorized
+  - Semantic Web
+  - Ruby
 ---
 This evening, I gave a talk on using Ruby [RDF.rb](http://rubygems.org/gems/rdf) and assorted gems at the [Lotico San Francisco Semantic Meetup](http://www.meetup.com/The-San-Francisco-Semantic-Web-Meetup/events/36879012/?a=cr1p_grp&rv=cr1). I've uploaded slides to [Slide Share](http://www.slideshare.net/gkellogg1/ruby-semweb-20111206).
 
