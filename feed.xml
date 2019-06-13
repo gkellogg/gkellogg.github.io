@@ -5,9 +5,29 @@
     <description>Gregg's Personal Blog</description>
     <link>https://greggkellogg.net/</link>
     <atom:link href="https://greggkellogg.net/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 17 Apr 2019 11:25:09 -0700</pubDate>
-    <lastBuildDate>Wed, 17 Apr 2019 11:25:09 -0700</lastBuildDate>
-    <generator>Jekyll v3.7.4</generator>
+    <pubDate>Thu, 13 Jun 2019 16:14:20 -0700</pubDate>
+    <lastBuildDate>Thu, 13 Jun 2019 16:14:20 -0700</lastBuildDate>
+    <generator>Jekyll v3.8.5</generator>
+    
+      <item>
+        <title>Saint Lucia June 2019</title>
+        <description>&lt;p&gt;It was great to be back diving at &lt;a href=&quot;https://ansechastanet.com&quot;&gt;Anse Chastenet&lt;/a&gt; in &lt;a href=&quot;https://en.wikipedia.org/wiki/Saint_Lucia&quot;&gt;Saint Lucia&lt;/a&gt; after a long hiatus from diving. The resort is wonderful and the reefs are in great shape. First real chance to use my Olympus OMD-5.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;/galleries/Saint-Lucia-2019-06/index.html&quot; jscontroller=&quot;false&quot; rel=&quot;qtposter&quot;&gt;
+  Gallery&lt;br /&gt;
+  &lt;img alt=&quot;Saint Lucia Photo Gallery&quot; src=&quot;/galleries/Saint-Lucia-2019-06/content/images/large/saint-lucia-22.jpg&quot; /&gt;
+&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Sat, 01 Jun 2019 00:00:00 -0700</pubDate>
+        <link>https://greggkellogg.net/2019/06/saint-lucia-june-2019/</link>
+        <guid isPermaLink="true">https://greggkellogg.net/2019/06/saint-lucia-june-2019/</guid>
+        
+        
+        <category>Diving</category>
+        
+        <category>Photography</category>
+        
+      </item>
     
       <item>
         <title>CSV on the Web presentation</title>
@@ -1126,271 +1146,6 @@ end
         <category>Diving</category>
         
         <category>Photography</category>
-        
-      </item>
-    
-      <item>
-        <title>BrowserID versus DDOS</title>
-        <description>&lt;p&gt;&lt;span itemprop=&quot;name&quot; style=&quot;display:none&quot;&gt;&lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; vs DDOS&lt;/span&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;span itemprop=&quot;description&quot; style=&quot;display:none&quot;&gt;How &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; saved the &lt;a href=&quot;http://rdfa.info/test-suite/&quot;&gt;RDFa Test Suite&lt;/a&gt; from a DDOS (Distributed Denial of Service Attack).&lt;/span&gt;&lt;/p&gt;
-
-&lt;p&gt;This article is the third in a three-part series on implementing the [RDFa&lt;/p&gt;
-
-&lt;p&gt;Test Suite](http://rdfa.info/test-suite/). The [first&lt;/p&gt;
-
-&lt;p&gt;article](https://greggkellogg.net/2012/03/18/a-new-rdfa-test-harness)&lt;/p&gt;
-
-&lt;p&gt;discussed the use of &lt;a href=&quot;http://www.sinatrarb.com/&quot;&gt;Sinatra&lt;/a&gt;, &lt;a href=&quot;http://backbonejs.org/&quot;&gt;Backbone.js&lt;/a&gt; and &lt;a href=&quot;http://twitter.github.com/bootstrap/index.html&quot;&gt;Bootstrap.js&lt;/a&gt; in&lt;/p&gt;
-
-&lt;p&gt;creating the test harness. The [second&lt;/p&gt;
-
-&lt;p&gt;article](https://greggkellogg.net/2012/03/20/the-use-of-json-ld-in-the-rdfa-test-harness)&lt;/p&gt;
-
-&lt;p&gt;discussed the use of JSON-LD. In this article, we focus on our use of&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; in responding to a Distributed Denial of Service Attack&lt;/p&gt;
-
-&lt;p&gt;(DDOS).&lt;/p&gt;
-
-&lt;h3 id=&quot;rdfa-test-suite&quot;&gt;RDFa Test Suite&lt;/h3&gt;
-
-&lt;p&gt;Working on the updated &lt;a href=&quot;http://rdfa.info/test-suite/&quot;&gt;RDFa Test Suite&lt;/a&gt; has really been a lot of fun.&lt;/p&gt;
-
-&lt;p&gt;It was a great opportunity to explore new Web application technologies,&lt;/p&gt;
-
-&lt;p&gt;such as &lt;a href=&quot;http://twitter.github.com/bootstrap/index.html&quot;&gt;Bootstrap.js&lt;/a&gt; and &lt;a href=&quot;http://backbonejs.org/&quot;&gt;Backbone.js&lt;/a&gt;. The test suite is a&lt;/p&gt;
-
-&lt;p&gt;single-page web application which uses a &lt;a href=&quot;http://www.sinatrarb.com/&quot;&gt;Sinatra&lt;/a&gt; based service to run&lt;/p&gt;
-
-&lt;p&gt;individual test cases.&lt;/p&gt;
-
-&lt;p&gt;The site was becoming stable, and we were starting to flesh out more test&lt;/p&gt;
-
-&lt;p&gt;cases for odd corner cases, when the site started to not respond. [Manu&lt;/p&gt;
-
-&lt;p&gt;Sporny](http://manu.sporny.org/), who’s company [Digital&lt;/p&gt;
-
-&lt;p&gt;Bazaar](http://digitalbazaar.com/) is kindly donating hosting for the web&lt;/p&gt;
-
-&lt;p&gt;site, noticed that there were a number of Ruby processes that were&lt;/p&gt;
-
-&lt;p&gt;consuming available Ruby workers, and causing new requests to&lt;/p&gt;
-
-&lt;p&gt;block. The service &lt;em&gt;is&lt;/em&gt; fairly resource intensive, as it must invoke an&lt;/p&gt;
-
-&lt;p&gt;external processor and run a &lt;a href=&quot;http://www.w3.org/TR/rdf-sparql-query/&quot;&gt;SPARQL&lt;/a&gt; query over the results for each&lt;/p&gt;
-
-&lt;p&gt;test. It seemed as if the site was being hammered by a large number of&lt;/p&gt;
-
-&lt;p&gt;overzealous search crawlers! Naturally, we put a robots.txt in place,&lt;/p&gt;
-
-&lt;p&gt;expecting that conforming search engines would detect the site’s crawl&lt;/p&gt;
-
-&lt;p&gt;preferences and back off, but that didn’t happen. Upon further examination&lt;/p&gt;
-
-&lt;p&gt;of the server logs, we noted requests were streaming in from all over the&lt;/p&gt;
-
-&lt;p&gt;world! Clearly, we were under attack. (Who might wish ill of the RDFa&lt;/p&gt;
-
-&lt;p&gt;development effort? Who knows, but most likely this was just an anonymous,&lt;/p&gt;
-
-&lt;p&gt;and not specifically malicious attack).&lt;/p&gt;
-
-&lt;p&gt;My first thought was to make use a secret &lt;em&gt;api token&lt;/em&gt;, configured into the&lt;/p&gt;
-
-&lt;p&gt;server and the web app, but that didn’t really do the trick either; it&lt;/p&gt;
-
-&lt;p&gt;seemed that modern day malware actually just executes the JavaScript, so&lt;/p&gt;
-
-&lt;p&gt;it picks up the API key naturally!&lt;/p&gt;
-
-&lt;h3 id=&quot;browserid-to-the-rescue&quot;&gt;BrowserID to the Rescue!&lt;/h3&gt;
-
-&lt;p&gt;Okay, how about authentication? It’s typically a pain, and we were&lt;/p&gt;
-
-&lt;p&gt;reluctant to put up barriers in front of people who might want to test&lt;/p&gt;
-
-&lt;p&gt;their own processors or see how listed processors perform. The two current&lt;/p&gt;
-
-&lt;p&gt;contenders are &lt;a href=&quot;http://www.w3.org/2005/Incubator/webid/wiki/Main_Page&quot;&gt;WebID&lt;/a&gt; and &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://www.w3.org/2005/Incubator/webid/wiki/Main_Page&quot;&gt;WebID&lt;/a&gt; has the laudable goal of combining personally maintained profile&lt;/p&gt;
-
-&lt;p&gt;information with SSL certificates (it was previously known as FOAF+SSL).&lt;/p&gt;
-
-&lt;p&gt;Basically, It’s a mechanism to allow users to use a &lt;em&gt;profile page&lt;/em&gt; as&lt;/p&gt;
-
-&lt;p&gt;their identity. This could come off of their blog, Facebook, Twitter or&lt;/p&gt;
-
-&lt;p&gt;other social networking site. By configuring an SSL certificate into the&lt;/p&gt;
-
-&lt;p&gt;browser and pointing to their profile page, a service can determine that&lt;/p&gt;
-
-&lt;p&gt;the profile page actually belongs to the user. (There’s much more to it,&lt;/p&gt;
-
-&lt;p&gt;you can read more in the [WebID&lt;/p&gt;
-
-&lt;p&gt;Spec](http://www.w3.org/2005/Incubator/webid/spec/)). A key advantage here&lt;/p&gt;
-
-&lt;p&gt;is that the service now has access to all of the self-asserted information&lt;/p&gt;
-
-&lt;p&gt;the user want’s to provide about themselves as defined in their profile&lt;/p&gt;
-
-&lt;p&gt;page, such as &lt;code class=&quot;highlighter-rouge&quot;&gt;foaf:name&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;foaf:knows&lt;/code&gt;, and so forth. The chief downside&lt;/p&gt;
-
-&lt;p&gt;is that the common source of existing user identities in the world haven’t&lt;/p&gt;
-
-&lt;p&gt;bought into this, and there’s a competing solution that offers similar&lt;/p&gt;
-
-&lt;p&gt;benefits.&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; is a Mozilla initiative to enable people with e-mail&lt;/p&gt;
-
-&lt;p&gt;addresses to use those e-mails to login to websites, kind of like&lt;/p&gt;
-
-&lt;p&gt;[OpenID][] – only more secure. Basically, as I understand it, a service&lt;/p&gt;
-
-&lt;p&gt;wanting to support this would include the &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; JavaScript client&lt;/p&gt;
-
-&lt;p&gt;code in their application and use a simple &lt;em&gt;Sign In&lt;/em&gt; button that invokes&lt;/p&gt;
-
-&lt;p&gt;this code. That sends a request off the the identity provider (IDP) to&lt;/p&gt;
-
-&lt;p&gt;authenticate the user, which has probably already happened in the past and&lt;/p&gt;
-
-&lt;p&gt;maintained in a cookie. The IDP then sends a response which invokes a&lt;/p&gt;
-
-&lt;p&gt;callback. The client then does a call back to the service to complete the&lt;/p&gt;
-
-&lt;p&gt;login passing the assertion.&lt;/p&gt;
-
-&lt;p&gt;The beauty is, using a tool such as the &lt;a href=&quot;http://rubygems.org/gems/sinatra-browserid&quot;&gt;sinatra-browserid&lt;/a&gt; Ruby gem,&lt;/p&gt;
-
-&lt;p&gt;this becomes dirt simple! Basically, on the API side, put in a call to&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;authorized?&lt;/code&gt; to determine if the user is authorized. If not, either&lt;/p&gt;
-
-&lt;p&gt;direct them to a login screen, or in the case of the &lt;a href=&quot;http://rdfa.info/test-suite/&quot;&gt;RDFa Test Suite&lt;/a&gt;,&lt;/p&gt;
-
-&lt;p&gt;place an informational message telling them why we need them to login, and&lt;/p&gt;
-
-&lt;p&gt;identify the &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; button at the top of the page.&lt;/p&gt;
-
-&lt;p&gt;In the principle entry-point to the test suite on the service side is&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;/test-suite/check-test/:version/:suite/:num&lt;/code&gt;. The only real change to&lt;/p&gt;
-
-&lt;p&gt;this method was to check for authorization before performing the test.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# Run a test
-get '/test-suite/check-test/:version/:suite/:num' do
-  return [403, &quot;Unauthorized access is not allowed&quot;] unless authorized?
-
-  # Get the SPARQL query
-  source = File.open(File.expand_path(&quot;../tests/#{num}.sparql&quot;))
-
-  # Do host-language specific modifications of the SPARQL query.
-  query = SPARQL.parse(source)
-
-  # Invoke the processor and retrieve results, parsed into an RDF graph
-  graph = RDF::Graph.load(params['rdfa-extractor'] + test_path(version, suite, num, format))
-
-  # Run the query
-  result = query.execute(graph)
-
-  # Return results as JSON
-  {:status =&amp;gt; result}.to_json
-end
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;In the banner, we add a little bit of Haml:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;...
-%div.navbar-text.pull-right
-  - if email
-    %p.email
-      Logged in as
-      %span.email
-        = email
-      %a{:href =&amp;gt; '/test-suite/logout'}
-        (logout)
-  - else
-    = render_login_button
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;When the page is returned, the &lt;code class=&quot;highlighter-rouge&quot;&gt;email&lt;/code&gt; variable is set if the user is&lt;/p&gt;
-
-&lt;p&gt;authorized, so they’ll see the email address if they’ve authenticated, and&lt;/p&gt;
-
-&lt;p&gt;a login button otherwise. The &lt;code class=&quot;highlighter-rouge&quot;&gt;render_login_button&lt;/code&gt; has handled entirely&lt;/p&gt;
-
-&lt;p&gt;by &lt;a href=&quot;http://rubygems.org/gems/sinatra-browserid&quot;&gt;sinatra-browserid&lt;/a&gt;; no muss, no fuss!&lt;/p&gt;
-
-&lt;p&gt;The only other thing to do is to not show the test cases in the test&lt;/p&gt;
-
-&lt;p&gt;suite, unless the user has authenticated, which we can tell because&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;$(&quot;span.email&quot;)&lt;/code&gt; won’t be empty. In our application.js, we use this to&lt;/p&gt;
-
-&lt;p&gt;either show the tests, or an explanation:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// If logged in, create primary test collection and view
-if ($(&quot;span.email&quot;).length &amp;gt; 0) {
-  this.testList = new TestCollection([], {version: this.version});
-  this.testList.fetch();
-  this.testListView = new TestListView({model: this.testList});
-} else {
-  this.unauthorizedView = new UnauthorizedView();
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;That’s pretty much all there is too it. The only complication I faced is&lt;/p&gt;
-
-&lt;p&gt;that, when developing with &lt;em&gt;shotgun&lt;/em&gt;, the session ID is changed with each&lt;/p&gt;
-
-&lt;p&gt;invocation, so it wasn’t remembering the login. By fixing the session&lt;/p&gt;
-
-&lt;p&gt;secret this problem went away. Total time from discovery of the problem to&lt;/p&gt;
-
-&lt;p&gt;deployed solution: about 1 hour. Not too bad.&lt;/p&gt;
-
-&lt;p&gt;It’s important to note that the &lt;a href=&quot;http://rdfa.info/test-suite/&quot;&gt;RDFa Test Suite&lt;/a&gt; is stateless, and we&lt;/p&gt;
-
-&lt;p&gt;don’t really need any personal information; we don’t collect information&lt;/p&gt;
-
-&lt;p&gt;anywhere, even in our logs. &lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; basically becomes a gate keeper&lt;/p&gt;
-
-&lt;p&gt;to help ward off abuse. It imposes a very low barrier of entry, so it&lt;/p&gt;
-
-&lt;p&gt;doesn’t interfere with people using the site anyway they choose.&lt;/p&gt;
-
-&lt;p&gt;I do miss other user asserted information, such as the user’s name and&lt;/p&gt;
-
-&lt;p&gt;so-forth. &lt;a href=&quot;http://openid.net/&quot;&gt;OpenID&lt;/a&gt;, another single-signon initiative&lt;/p&gt;
-
-&lt;p&gt;that has lost momentum lately, provides a [Simple Registration&lt;/p&gt;
-
-&lt;p&gt;Extension](http://openid.net/specs/openid-simple-registration-extension-1_0.html)&lt;/p&gt;
-
-&lt;p&gt;add-on that allows users to assert simple information such as &lt;code class=&quot;highlighter-rouge&quot;&gt;nickname&lt;/code&gt;,&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;mail&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;fullname&lt;/code&gt; and so forth. IMO, the right way to do this is with&lt;/p&gt;
-
-&lt;p&gt;something like &lt;a href=&quot;http://xmlns.com/foaf/spec/&quot;&gt;FOAF&lt;/a&gt; or the &lt;a href=&quot;http://schema.org/Person&quot;&gt;schema.org&lt;/a&gt; Person class. Perhaps&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://browserid.org/&quot;&gt;BrowserID&lt;/a&gt; will provide something like this in the future.&lt;/p&gt;
-</description>
-        <pubDate>Fri, 30 Mar 2012 08:58:46 -0700</pubDate>
-        <link>https://greggkellogg.net/2012/03/browserid-versus-ddos/</link>
-        <guid isPermaLink="true">https://greggkellogg.net/2012/03/browserid-versus-ddos/</guid>
-        
-        
-        <category>JavaScript</category>
-        
-        <category>Ruby</category>
-        
-        <category>Semantic Web</category>
         
       </item>
     
