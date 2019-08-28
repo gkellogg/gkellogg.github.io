@@ -32,5 +32,6 @@ The following are links to photo albums on my site:
   * [Yellowstone/Jackson Hole July 2013](/galleries/Yellowstone%202013-07/index.html)
   * [Philippines 2013](/galleries/Philippines-2013-09/index.html)
   * [Saint Lucia 2019](https://lightroom.adobe.com/gallery/7b25cc9c355b4a5dbc0e0e2c81bdd444/albums/296b71578b064011912583f6f7f6df84/assets)
+  * [Channel Islands August 2019](https://lightroom.adobe.com/gallery/7b25cc9c355b4a5dbc0e0e2c81bdd444/albums/6b8fe76038684f56b1251602dd6eea1f/assets)
 
 Gregg Kellogg
