@@ -29,9 +29,9 @@ The following are links to photo albums on my site:
   * [Sea of Cortez September 2011](/galleries/Sea%20of%20Cortez%202011-09/index.html). 
   * [Palau 2012](/galleries/Palau%202012-01/index.html)
   * [Channel Islands May 2012](/galleries/Channel%20Islands%202012-05/index.html)
-  * [Yellowstone/Jackson Hole July 2013](/galleries/Yellowstone%202013-07/index.html)
-  * [Philippines 2013](/galleries/Philippines-2013-09/index.html)
-  * [Saint Lucia 2019](https://lightroom.adobe.com/gallery/7b25cc9c355b4a5dbc0e0e2c81bdd444/albums/296b71578b064011912583f6f7f6df84/assets)
-  * [Channel Islands August 2019](https://lightroom.adobe.com/gallery/7b25cc9c355b4a5dbc0e0e2c81bdd444/albums/6b8fe76038684f56b1251602dd6eea1f/assets)
+  * [Yellowstone/Jackson Hole July 2013](https://lightroom.adobe.com/gallery/7b25cc9c355b4a5dbc0e0e2c81bdd444/albums/10100213cb9f4ce4a164f65c6d4c28d7/assets)
+  * [Philippines 2013](https://lightroom.adobe.com/gallery/7b25cc9c355b4a5dbc0e0e2c81bdd444/albums/33183a6765534ef68446718b9f2e1d66/assets)
+  * [Saint Lucia 2019](https://lightroom.adobe.com/gallery/7b25cc9c355b4a5dbc0e0e2c81bdd444/albums/fdb9b965729c40aea5a985bafe808c23/assets)
+  * [Channel Islands August 2019](https://lightroom.adobe.com/gallery/7b25cc9c355b4a5dbc0e0e2c81bdd444/albums/0d333bc2db4e4f888d863e7cb9c4aaf5/assets)
 
 Gregg Kellogg
