@@ -9,8 +9,8 @@ gem "jekyll-bootstrap-sass", "~> 0.1"
 
 # If you have any plugins, put them here!
 group :jekyll_plugins do
-  gem "github-pages"
-  gem "jekyll-feed", "~> 0.9"
-  gem "jekyll-archives", "~> 2.1"
+  gem "github-pages", "~> 226"
+  gem "jekyll-feed", "~> 0.15"
+  gem "jekyll-archives", "~> 2.2"
   gem "jekyll-paginate", "~> 1.1"
 end
