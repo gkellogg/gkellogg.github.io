@@ -10,7 +10,7 @@ categories:
   - Ruby
   - Semantic Web
 ---
-I've just released version 0.0.2 of the Ruby [sparql gem](http://rubygems.org/gems/sparql). This version is based on earlier work by Pius and Arto and incorporates from [SPARQL Grammar](http://github.com/gkellogg/sparql-grammar) and [SPARQL Algebra](http://github.com/gkellogg/sparql-algebra). Further documentation is available [here](http://rdoc.info/github/gkellogg/sparql/master/frames).
+I've just released version 0.0.2 of the Ruby [sparql gem](http://rubygems.org/gems/sparql). This version is based on earlier work by Pius and Arto and incorporates from [SPARQL Grammar](http://github.com/gkellogg/sparql-grammar) and [SPARQL Algebra](http://github.com/gkellogg/sparql-algebra). Further documentation is available [here](https://ruby-rdf.github.io/sparql).
 
 This gem integrates with \[RDF.rb\]\[\] and uses \[rdf-xsd\]\[\] to provide additional literal semantics.
 
