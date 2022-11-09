@@ -8,14 +8,16 @@ source "https://rubygems.org"
 #
 # This will help ensure the proper Jekyll version is running.
 # Happy Jekylling!
-gem "jekyll"
+gem "jekyll", '~> 3.8'
 
 # This is the default theme for new Jekyll sites. You may change this to anything you like.
 gem "minima"
 
 # If you have any plugins, put them here!
 group :jekyll_plugins do
+  gem "jekyll-github"
   gem "jekyll-feed"
   gem "jekyll-archives"
   gem "jekyll-paginate"
+  gem "kramdown-parser-gfm"
 end
