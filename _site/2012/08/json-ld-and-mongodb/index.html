@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link href='//fonts.googleapis.com/css?family=Montserrat:700,400' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Merriweather:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="canonical" href="https://greggkellogg.net/2012/08/json-ld-and-mongodb/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>JSON-LD and MongoDB | Gregg Kellogg</title>
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <!-- Additions to <head> tags go here. -->
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = "https://greggkellogg.net";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "greggkellogg-1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        
+        s.src = 'https://greggkellogg-1.disqus.com/embed.js';
+        
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+
+  </head>
+  <body>
+  
+    <nav class="navbar navbar-default navbar-static-top">
+  
+      <div class="container">
+        <div class="navbar-header">
+          <div class="navbar-toggle-wrapper visible-xs">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".js-navbar-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <a href="/" class="navbar-brand">Gregg Kellogg</a>
+        </div>
+        <div class="collapse navbar-collapse js-navbar-collapse">
+          <ul class="navbar-nav nav" data-purplecoat="shiori" data-purplecoat-label="nav.html">
+            <li><a href="/archive">Archive</a></li>
+<li class="dropdown">
+  <a href="/foaf" aria-haspopup="true" aria-expanded="false">About <span class="caret"></span></a>
+  <ul class="dropdown-menu">
+    <li><a href="/cv">Gregg's CV</a></li>
+    <li><a href="/contact-information">Contact Information</a></li>
+  </ul>
+ </li>
+<li><a href="/services">Services</a></li>
+<li><a href="/photography">Gregg's Photography</a></li>
+<li><a href="http://rdf.greggkellogg.net">RDF Distiller</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right" data-purplecoat="shiori" data-purplecoat-label="nav-right.html">
+            
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      <div class="row">
+        
+          <div class="col-sm-8">
+            <div class="post-header">
+  <h1 class="post-title-main">JSON-LD and MongoDB</h1>
+  <!-- Feel free to remove this div. Uses purplecoat: http://ellekasai.github.io/purplecoat.js -->
+<div data-purplecoat="shiori" data-purplecoat-label="post-header.html">
+<p class="text-muted">21 Aug 2012</p>
+</div>
+</div>
+<div class="post-content">
+  <p>For the last several months, I’ve been engaged in an interesting project with <a href="http://wikia.com">Wikia</a>. Wikia hosts hundreds of thousands of special-interest wikis for things as varied as <a href="http://pikamon.wikia.com/wiki/Pokemon_Wiki">pokemon</a>, <a href="http://prepaidwithdata.wikia.com/wiki/Prepaid_SIM_with_data">best cellphone rate comparisons</a>, <a href="http://lost.wikia.com/wiki/Main_Page">TV shows</a> and <a href="http://callofduty.wikia.com/wiki/Main_Page">Video Games</a>.</p>
+
+<p>For those of you not aware of Wikia, it is an outgrowth of the <a href="http://www.mediawiki.org">MediaWiki</a> and was founded by <a href="http://en.wikipedia.org/wiki/Jimmy_Wales">Jimmy Wales</a> as a for-profit means of using the MediaWiki platform for exactly such interests.</p>
+
+<p>Recently <a href="http://www.wikimedia.de/wiki/Hauptseite">MediaWiki Deutschland</a> started work on <a href="http://meta.wikimedia.org/wiki/Wikidata">WikiData</a>, an effort to use Semantic Web principles to create a factual knowledge base that can be used within Wikis (typically to replace Infobox information, which can vary between different language versions). This is a somewhat different direction than <a href="http://semantic-mediawiki.org">Semantic Media Wiki</a>, which is more about using Wiki markup to express semantic relationships within a Wiki. As it happens <a href="http://json-ld.org/">JSON-LD</a> is being considered as the data representation model for <a href="">WikiData</a>.</p>
+
+<h3 id="linked-data-at-wikia">Linked Data at Wikia</h3>
+
+<p>As it turns out, Wikia has been quite interested in leveraging these tools. I did mention that Wikia is a for-profit company; one way they do this is through in-page advertising, but the amount of knowledge curated by the hundreds of thousands of communities is staggering. Unfortunately, native Wiki markup just isn’t that semantic. However, much of the information represented is factual (at least within the world-view of the wiki community).</p>
+
+<p>To that end, I’ve been working on an experiment using <a href="">JSON-LD</a> and <a href="http://www.mongodb.org">MongoDB</a> to power a parallel structured data representation of much of the information contained in a wiki. The idea is to add a minimal amount of markup (hopefully) to the Wiki text and templates so that information can be represented in the generated HTML using <a href="http://w3.org/TR/rdfa-core/">RDFa</a>. This allows the content of the Wiki to be mirrored in a <a href="">MongoDB</a>-based service using <a href="">JSON-LD</a>. Once the data has been freed from the context of the limited Wiki markup, it can now be re-purposed outside of the Wiki itself.</p>
+
+<h3 id="knowledge-modeling-and-data-representation">Knowledge modeling and data representation</h3>
+
+<p>Why use <a href="">RDFa</a> and not <a href="http://www.w3.org/TR/microdata/">Microdata</a>? The primary driver is the need to use multiple vocabularies to represent information. In my opinion, any new vocabulary needs to take into consideration <a href="http://schema.org/">schema.org</a>; <a href="http://www.w3.org/TR/microdata/">microdata</a> works great with <a href="">schema.org</a>, and can generate <a href="">RDF</a> (see <a href="http://www.w3.org/TR/microdata-rdf/">Microdata to RDF</a>) as long as you’re constrained to a single vocabulary, don’t need to keep typed data, and don’t need to capture actual HTML markup. Unfortunately, any serious application beyond simple Search Engine Optimization (SEO) <em>does</em> need to use these features. In our case, much of the interesting data to capture are fragments of the Wiki pages themselves. Moreover, the content of any Wiki, much less one that has as much special meaning as, say, a Video Game, needs to describe relationships that are not natively part of the <a href="">schema.org</a> vocabulary. Schema does provide an <a href="http://schema.org/docs/extension.html">extension mechanism</a> partly for this purpose, and recently the ability to tag subjects with an <a href="http://semanticweb.com/schema-org-adds-additional-type-property_b30861">additional type</a>, not part of the primary vocabulary (presumably <a href="">schema.org</a>) was introduced. But, once the decision is made to use multiple vocabularies, RDFa has better mechanisms in place anyway.</p>
+
+<p>At Wikia, we define a vocabulary as an extension to <a href="">schema.org</a>, that is, the classes defined within that vocabulary are sub-classes of <a href="">schema.org</a> classes, although typically the properties are <em>not</em> sub-properties of <a href="">schema.org</a> properties (we may revisit this). For example, a <code class="language-plaintext highlighter-rouge">wikia:VideoGame</code> is a sub-class of <code class="language-plaintext highlighter-rouge">schema:CreativeWork</code>, and a <code class="language-plaintext highlighter-rouge">wikia:WikiText</code> is a sub-class of <code class="language-plaintext highlighter-rouge">schema:WebPageElement</code>. There are additional class and property definitions to describe the structural detail common to Video Games in describing characters, levels, weapons, and so forth. An <a href="">RDFa</a> description will assert both the native class (e.g., <code class="language-plaintext highlighter-rouge">wikia:VideoGame</code>) and the <a href="">schema.org</a> extension class (e.g. <code class="language-plaintext highlighter-rouge">schema:CreativeWork/VideoGame</code>). This allows search engines to make sense of the structured data, without the need to understand an externally defined vocabulary.</p>
+
+<p>However, for Wikia’s purposes, and that of people wanting to work with in the Wikia structured-data echo-system, having a vocabulary that models the information contained within Wikia Wikis can be of great benefit. Key to this is knowning how much to model with classes and properties, and how much to leave to things such as naming conventions and keywords. In fact, there are likely cases where more per-wiki modeling is required, and we are continuing to explore ways in which we can further extend the vocabularies, without imposing a large burden on ontology development, and to keep the data reasonably generically useful.</p>
+
+<h3 id="linked-data-api">Linked Data API</h3>
+
+<p>Although RDFa structured in HTML can be quite useful as an API itself, modern Single Page Applications are better served through RESTful interfaces with a JSON representation. <a href="">JSON-LD</a> was developed as a means of expressing Linked Data in JSON. It is fully compatible with <a href="">RDF</a>. Indeed, many of the concepts used in <a href="">RDFa</a> can be seen in <a href="">JSON-LD</a> – Compact IRIs, language- and datatyped-values, globally identified properties, and the basic graph data model of <a href="">RDF</a>.</p>
+
+<p>Furthermore, a <a href="">JSON-LD</a>-based service allows resource descriptions, that may be spread across multiple HTML pages, to be consolidated into individual <em>subject definitions</em>. By storing these <em>subject definitions</em> in a JSON-friendly datastore such as <a href="">MongoDB</a>, the full power of a scaleable document store becomes available to the data otherwise spread out across numerous Wiki pages. But, the fact that the <a href="">JSON-LD</a> can be fully generated from the <a href="">RDFa</a> contained in the generated Wiki pages, ensures that the data will remain synchronized.</p>
+
+<p>In the future, with the growth and adoption of systems such as <a href="">WikiData</a>, we can expect to see much of the factual information currently expressed as Wiki markup moved to outside services. The needs of the Wiki communities remain paramount, as they are at the heart of the data explosion we’ve seen in the hundreds of thousands of Wikis hosted at Wikia and elsewhere, not to mention WikiPedia and related MediaWiki projects.</p>
+
+<p>As the communities become more comfortable with using knowledge stores, such as <a href="">WikiData</a> and Wikia’s linked data platform, we should see a further explosion in the amount of structured information available on the web in general. The real future, then, relies not only in the efforts of communities to curate their information, but in the ability to use the principles of the Semantic Web and Linked Data to infer connections based on distributed information.</p>
+
+<p>I’ll be speaking more about <a href="">JSON-LD</a> and <a href="">MongoDB</a> at <a href="http://nosql2012.dataversity.net">NoSQL Now!</a> later this week in San Jose. Slides for my talk are available on <a href="http://www.slideshare.net/gkellogg1/jsonld-and-mongodb">slideshare</a>.</p>
+
+</div>
+<div class="post-footer">
+  <!-- Feel free to remove this div. Uses purplecoat: http://ellekasai.github.io/purplecoat.js -->
+<div data-purplecoat="shiori" data-purplecoat-label="post-footer.html">
+  <p>
+    Posted in
+    
+      <a href="/categories/javascript">JavaScript</a>
+    
+      <a href="/categories/ruby">Ruby</a>
+    
+      <a href="/categories/semantic-web">Semantic Web</a>
+    
+  </p>
+  <div id="disqus_thread"></div>
+  <script id="dsq-count-scr" src="//greggkellogg-1.disqus.com/count.js" async></script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <span class="text-muted"> &middot; </span>
+            <a href="/archive">View Archive (67)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2012/06/channel-islands-may-2012/">Channel Islands May 2012</a></h2>
+          <p>Just back from a great trip to Santa Cruz Island over Memorial day. Did some teaching, and had just about two dives to do some Underwater Macro Photography. I recently purchased a Canon 100 mm USM, which I got to check out. Water was pretty murky, but being able to get just inches away from the subjects does wonders. While shooting one of the Nudi’s a Harbor Seal started tugging on my fins, and came right around in front; that’s when I wished I had had a wide angle lens too. Check out the <a href="/galleries/Channel%20Islands%202012-05/">photo gallery</a>.</p>
+
+        </div>
+      
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Newer
+            
+          </h3>
+          <h2 class="post-title-link"><a href="/2013/01/rdf-rb-1-0-release/">RDF.rb 1.0 Release</a></h2>
+          <p>I’m happy to announce the 1.0 release of <a href="https://ruby-rdf.github.io/rdf">RDF.rb</a> and related Ruby gems. This release has been a long time coming, and the library has actually been quite stable for some time.</p>
+
+        </div>
+      
+    </div>
+  
+
+
+          </div>
+          <div class="col-sm-4">
+            <!-- Feel free to remove this div. Uses purplecoat: http://ellekasai.github.io/purplecoat.js -->
+<div data-purplecoat="shiori" data-purplecoat-label="sidebar.html">
+  <h3 class="section-header">
+    Recent Posts
+  </h3>
+  <ul>
+  
+    <li class="post-title-reference">
+      <a href="/2022/06/Roatan/" class="post-title-archive">Roatan June 2022</a>
+    </li>
+  
+    <li class="post-title-reference">
+      <a href="/2021/06/Roatan/" class="post-title-archive">Roatan June 2021</a>
+    </li>
+  
+    <li class="post-title-reference">
+      <a href="/2019/08/channel-islands-august-2019/" class="post-title-archive">Channel Islands August 2019</a>
+    </li>
+  
+    <li class="post-title-reference">
+      <a href="/2019/06/saint-lucia-june-2019/" class="post-title-archive">Saint Lucia June 2019</a>
+    </li>
+  
+    <li class="post-title-reference">
+      <a href="/2015/08/csv-on-the-web-presentation/" class="post-title-archive">CSV on the Web presentation</a>
+    </li>
+  
+  </ul>
+</div>
+
+<div data-purplecoat="shiori" data-purplecoat-label="sidebar.html">
+  <h3 class="section-header">
+    Categories
+  </h3>
+  <ul>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/design" class="post-title-archive">Design</a>
+    </li>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/diving" class="post-title-archive">Diving</a>
+    </li>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/photography" class="post-title-archive">Photography</a>
+    </li>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/ruby" class="post-title-archive">Ruby</a>
+    </li>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/semantic-web" class="post-title-archive">Semantic Web</a>
+    </li>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/media" class="post-title-archive">Media</a>
+    </li>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/javascript" class="post-title-archive">JavaScript</a>
+    </li>
+  
+  </ul>
+</div>
+
+<div data-purplecoat="shiori" data-purplecoat-label="sidebar.html">
+  <h3 class="section-header">
+    Archives
+  </h3>
+  
+  <ul>
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2022/06" class="post-title-archive">June 2022</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2021/06" class="post-title-archive">June 2021</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2019/06" class="post-title-archive">June 2019</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2015/08" class="post-title-archive">August 2015</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2015/04" class="post-title-archive">April 2015</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2013/12" class="post-title-archive">December 2013</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2013/09" class="post-title-archive">September 2013</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2013/05" class="post-title-archive">May 2013</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2013/01" class="post-title-archive">January 2013</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2012/08" class="post-title-archive">August 2012</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2012/05" class="post-title-archive">May 2012</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2012/03" class="post-title-archive">March 2012</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2012/02" class="post-title-archive">February 2012</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2012/01" class="post-title-archive">January 2012</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/12" class="post-title-archive">December 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/10" class="post-title-archive">October 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/09" class="post-title-archive">September 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/08" class="post-title-archive">August 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/06" class="post-title-archive">June 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/05" class="post-title-archive">May 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/03" class="post-title-archive">March 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/12" class="post-title-archive">December 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/09" class="post-title-archive">September 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/07" class="post-title-archive">July 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/05" class="post-title-archive">May 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/04" class="post-title-archive">April 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/02" class="post-title-archive">February 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/01" class="post-title-archive">January 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2009/10" class="post-title-archive">October 2009</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2009/09" class="post-title-archive">September 2009</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2009/08" class="post-title-archive">August 2009</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2009/01" class="post-title-archive">January 2009</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2008/10" class="post-title-archive">October 2008</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2008/09" class="post-title-archive">September 2008</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2008/07" class="post-title-archive">July 2008</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2008/05" class="post-title-archive">May 2008</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2007/10" class="post-title-archive">October 2007</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2007/07" class="post-title-archive">July 2007</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2007/06" class="post-title-archive">June 2007</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2007/05" class="post-title-archive">May 2007</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2007/01" class="post-title-archive">January 2007</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2006/11" class="post-title-archive">November 2006</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2006/10" class="post-title-archive">October 2006</a>
+      </li>
+    
+  
+  </ul>
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <!-- Feel free to remove this div. Uses purplecoat: http://ellekasai.github.io/purplecoat.js -->
+<footer class="site-footer" data-purplecoat="shiori" data-purplecoat-label="footer.html">
+  <div class="footer-col-wrapper">
+    <div class="footer-col footer-col-1">
+      <ul class="contact-list">
+        <li>
+          
+            Gregg Kellogg
+          
+          </li>
+          
+          <li><a href="mailto:gregg@greggkellogg.net">gregg@greggkellogg.net</a></li>
+          
+      </ul>
+    </div>
+
+    <div class="footer-col footer-col-2">
+      
+      <ul id="social-media" class="social-media-list">
+        
+        
+          
+          
+            <li><a rel="me" href="https://www.twitter.com/gkellogg" title="Twitter">
+              
+                <i class="fa fa-twitter-square"></i>
+              
+              gkellogg
+            </a></li>
+          
+        
+          
+          
+            <li><a rel="me" href="https://github.com/gkellogg" title="GitHub">
+              
+                <i class="fa fa-github-square"></i>
+              
+              gkellogg
+            </a></li>
+          
+        
+          
+          
+            <li><a rel="me" href="https://mastodon.social/@gkellogg" title="Mastodon">
+              
+              <!-- Needs newer version of fontawesome -->
+                M
+              
+              gkellogg
+            </a></li>
+          
+        
+      </ul>
+      
+    </div>
+
+    <div class="footer-col footer-col-3">
+      <ul class="contact-list">
+        <li>Gregg&#39;s Personal Blog</li>
+        <li>
+          &copy;2022.
+          Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+          <a href="https://github.com/ellekasai/shiori">Shiori Theme</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+      </div>
+    </div>
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="/javascripts/purplecoat-min.js"></script>
+    <!-- Place your <script> tags here. -->
+
+<!-- Example: Twitter -->
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+  </body>
+</html>
