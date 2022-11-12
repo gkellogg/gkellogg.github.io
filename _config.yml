@@ -33,6 +33,8 @@ plugins:
   - jekyll-feed
   - jekyll-archives
 exclude:
+  - .sass-cache/
+  - .jekyll-cache/
   - README.md
   - CNAME
   - Gemfile
