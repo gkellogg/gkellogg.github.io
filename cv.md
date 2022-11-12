@@ -13,10 +13,17 @@ Gregg is currently active in the popular _Ruby_ and _<span class="caps">RDF</spa
 
 Contributions to RDF include:
 
-  * Championing and specifying major new changes to [RDFa Core 1.1](http://www.w3.org/TR/rdfa-core/),
-  * Editing the [JSON-LD](http://json-ld.org/) [Syntax](http://json-ld.org/spec/latest/json-ld-syntax/) and [API](http://json-ld.org/spec/latest/json-ld-api/) documents,
-  * Reconciling [HTML5 microdata](http://www.w3.org/TR/microdata/) with RDF and publishing the [Microdata to RDF W3C Note](http://www.w3.org/TR/microdata-rdf/),
-  * Implementing virtually all RDF serialization formats along with a fully compliant SPARQL 1.0 processor.
+  * Championing and specifying major new changes to [RDFa Core 1.1](https://www.w3.org/TR/rdfa-core/),
+  * Editing the following specifications:
+    * [JSON-LD](https://json-ld.org/)
+      [Syntax](https://www.w3.org/TR/json-ld/),
+      [API](https://www.w3.org/TR/json-ld-api) documents, and
+      [Framing](https://www.w3.org/TR/json-ld-framing/).
+    * [CSV on the Web](https://www.w3.org/2013/csvw/wiki/Main_Page) [Data Model](https://www.w3.org/TR/tabular-data-model/) and [Metadata](https://www.w3.org/TR/tabular-metadata/).
+    * [RDF Dataset Canonicalization](https://www.w3.org/TR/rdf-canon/).
+    * [YAML-LD](https://json-ld.github.io/yaml-ld/spec).
+  * Reconciling [HTML5 microdata](https://www.w3.org/TR/microdata/) with RDF and publishing the [Microdata to RDF W3C Note](https://www.w3.org/TR/microdata-rdf/),
+  * Implementing virtually all RDF serialization formats along with a fully compliant SPARQL 1.1 processor.
 
 Prior to starting Cafex, in 1997, Gregg was a systems architect and software manager in several notable Silicon Valley ventures, including Next Computer, Eo Inc., and MicroUnity Systems Engineering. There he specialized in designing cutting edge operating systems development, including PenPoint, Mach and Unix.
 
@@ -25,12 +32,12 @@ Prior to starting Cafex, in 1997, Gregg was a systems architect and software man
 10/2004 &ndash; Present: **Principal**, Kellogg Associates, San Rafael, CA
 
   * Independent consulting firm specializing in Internet Application Architecture focused on media applications.
-  * Active member in <a href="http://www.w3.org/" target="_blank">World Wide Web Consortium</a> standards working groups (<a href="http://www.w3.org/2011/rdf-wg/wiki/Main_Page" target="_blank">RDF</a>, <a href="http://www.w3.org/2010/02/rdfa/" target="_blank">RDFa</a> and <a href="http://www.w3.org/community/json-ld/" target="_blank">JSON-LD</a>).
-  * Invited speaker at <a href="http://www.w3.org/2010/11/web-and-tv/" target="_blank">W3C Web+TV Workshop</a> and <a href="http://www.aes.org/events/130/workshops/?ID=2639" target="_blank">AES Music and the Semantic Web Workshop</a>.
+  * Active member in <a href="https://www.w3.org/" target="_blank">World Wide Web Consortium</a> standards working groups (<a href="https://www.w3.org/2011/rdf-wg/wiki/Main_Page" target="_blank">RDF</a>, <a href="https://www.w3.org/2010/02/rdfa/" target="_blank">RDFa</a> and <a href="https://www.w3.org/community/json-ld/" target="_blank">JSON-LD</a>).
+  * Invited speaker at <a href="https://www.w3.org/2010/11/web-and-tv/" target="_blank">W3C Web+TV Workshop</a> and <a href="https://www.aes.org/events/130/workshops/?ID=2639" target="_blank">AES Music and the Semantic Web Workshop</a>.
   * Principal architect of next-generation music delivery and enhancement products for the music industry using RDF, OAuth and resource discovery.
   * Music information projects for Universal Music Group.
-  * Designed and developed multiple online music environments for major consumer electronics manufacturers in association with [Gracenote](http://gracenote.com) using using Flex and Rails.
-  * Designed and developed the [ChaCha Underground](http://underground.chacha.com) using Rails.
+  * Designed and developed multiple online music environments for major consumer electronics manufacturers in association with [Gracenote](https://gracenote.com) using using Flex and Rails.
+  * Designed and developed the [ChaCha Underground](https://underground.chacha.com) using Rails.
   * Performed enterprise audit, developed and implemented design and documentation standards for Macy&rsquo;s West Advertising.
 
 6/2012 &ndash; present&nbsp;<string>Linked Data Consultant, Advisory Board member, Wikia Inc, San Francisco, CA</string>
@@ -39,7 +46,7 @@ Prior to starting Cafex, in 1997, Gregg was a systems architect and software man
 
 8/2007 &ndash; 3/2011:&nbsp;**Architect/Technical Work Group Chair**, Connected Media Experience
 
-  * Architected and prototyped various iterations of CMX (The&nbsp;[Connected Media Experience](http://connectedmediaexperience.com)).
+  * Architected and prototyped various iterations of CMX (The&nbsp;[Connected Media Experience](https://connectedmediaexperience.com)).
   * Technical Work Group Chair for 1.0 standards work.
 
 2/2001 &ndash; 9/2004: **Founder, Chief Technology Officer** Siterra Corporation, Novato, CA
@@ -97,17 +104,17 @@ Prior to starting Cafex, in 1997, Gregg was a systems architect and software man
 ## Open Source Projects
 
   * Ruby RDF Projects:</p> 
-      * RDF.rb (<http://github.org/ruby-rdf/rdf>) &ndash; Co-author of an alternate RDF platform for Ruby.
-      * JSON::LD (<http://github.org/ruby-rdf/json-ld>) &ndash; JSON-LD (Linked Data) parser/serializer for RDF.rb.
-      * RDF::Microdata (<http://github.org/ruby-rdf/rdf-microdata>) &ndash; HTML5 Microdata parser for RDF.rb.
-      * RDF::N3 (<http://github.org/ruby-rdf/rdf-n3>) &ndash; Notation-3 parser/serializer for RDF.rb.
-      * RDF::RDFa (<http://github.org/ruby-rdf/rdf-rdfa>) &ndash; RDFa 1.1 parser/serializer for RDF.rb.
-      * RDF::RDFXML (<http://github.org/ruby-rdf/rdf-rdfxml>) &ndash; Authored RDF/XML parser/serializer for RDF.rb.
-      * RDF::Turtle (<http://github.org/ruby-rdf/rdf-turtle>) &ndash; Turtle parser/serializer for RDF.rb.
-      * RDF::TriG (<http://github.org/ruby-rdf/rdf-trig>) &ndash; TriG parser/serializer for RDF.rb.
-      * SPARQL (<http://github.org/ruby-rdf/sparql>) &ndash; SPARQL 1.0/1.1 parser and execution environment for RDF.rb.
-      * EBNF (<http://github.org/gkellogg/ebnf>) &ndash; W3C Extended BNF parser and LL(1() parser generator.
-  * EagerFinderSql (<http://rubyforge.org/projects/eagerfindersql>) &ndash; A mixin for Rails ActiveRecord to support complex custom SQL with AR eager loading.
+      * RDF.rb (<https://github.com/ruby-rdf/rdf>) &ndash; Co-author of the main RDF platform for Ruby.
+      * JSON::LD (<https://github.com/ruby-rdf/json-ld>) &ndash; JSON-LD (Linked Data) parser/serializer for RDF.rb.
+      * RDF::Microdata (<https://github.com/ruby-rdf/rdf-microdata>) &ndash; HTML5 Microdata parser for RDF.rb.
+      * RDF::N3 (<https://github.com/ruby-rdf/rdf-n3>) &ndash; Notation-3 parser/serializer for RDF.rb.
+      * RDF::RDFa (<https://github.com/ruby-rdf/rdf-rdfa>) &ndash; RDFa 1.1 parser/serializer for RDF.rb.
+      * RDF::RDFXML (<https://github.com/ruby-rdf/rdf-rdfxml>) &ndash; Authored RDF/XML parser/serializer for RDF.rb.
+      * RDF::Turtle (<https://github.com/ruby-rdf/rdf-turtle>) &ndash; Turtle parser/serializer for RDF.rb.
+      * RDF::TriG (<https://github.com/ruby-rdf/rdf-trig>) &ndash; TriG parser/serializer for RDF.rb.
+      * SPARQL (<https://github.com/ruby-rdf/sparql>) &ndash; SPARQL 1.0/1.1 parser and execution environment for RDF.rb.
+      * YAML_LD_ (<https://github.com/ruby-rdf/yaml-ld>) &ndash; YAML-LD (Linked Data) parser/serializer for RDF.rb.
+      * EBNF (<https://github.com/gkellogg/ebnf>) &ndash; W3C Extended BNF parser and LL(1() parser generator.
 
 ## Patents and publications
 
