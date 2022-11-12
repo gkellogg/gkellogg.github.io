@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link href='//fonts.googleapis.com/css?family=Montserrat:700,400' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Merriweather:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="canonical" href="https://greggkellogg.net/2012/03/the-use-of-json-ld-in-the-rdfa-test-harness/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>The Use of JSON-LD in the RDFa Test Harness | Gregg Kellogg</title>
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <!-- Additions to <head> tags go here. -->
+<script>
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    /*
+    var disqus_config = function () {
+        this.page.url = "https://greggkellogg.net";  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "greggkellogg-1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        
+        s.src = 'https://greggkellogg-1.disqus.com/embed.js';
+        
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+
+  </head>
+  <body>
+  
+    <nav class="navbar navbar-default navbar-static-top">
+  
+      <div class="container">
+        <div class="navbar-header">
+          <div class="navbar-toggle-wrapper visible-xs">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".js-navbar-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <a href="/" class="navbar-brand">Gregg Kellogg</a>
+        </div>
+        <div class="collapse navbar-collapse js-navbar-collapse">
+          <ul class="navbar-nav nav" data-purplecoat="shiori" data-purplecoat-label="nav.html">
+            <li><a href="/archive">Archive</a></li>
+<li class="dropdown">
+  <a href="/foaf" aria-haspopup="true" aria-expanded="false">About <span class="caret"></span></a>
+  <ul class="dropdown-menu">
+    <li><a href="/cv">Gregg's CV</a></li>
+    <li><a href="/contact-information">Contact Information</a></li>
+  </ul>
+ </li>
+<li><a href="/services">Services</a></li>
+<li><a href="/photography">Gregg's Photography</a></li>
+<li><a href="http://rdf.greggkellogg.net">RDF Distiller</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right" data-purplecoat="shiori" data-purplecoat-label="nav-right.html">
+            
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      <div class="row">
+        
+          <div class="col-sm-8">
+            <div class="post-header">
+  <h1 class="post-title-main">The Use of JSON-LD in the RDFa Test Harness</h1>
+  <!-- Feel free to remove this div. Uses purplecoat: http://ellekasai.github.io/purplecoat.js -->
+<div data-purplecoat="shiori" data-purplecoat-label="post-header.html">
+<p class="text-muted">20 Mar 2012</p>
+</div>
+</div>
+<div class="post-content">
+  <p>This article is the second in a three-part series on implementing the <a href="http://rdfa.info/test-suite/">RDFa Test Suite</a>. The <a href="https://greggkellogg.net/2012/03/18/a-new-rdfa-test-harness">first article</a> discussed the use of <a href="http://www.sinatrarb.com/">Sinatra</a>, <a href="http://backbonejs.org/">Backbone.js</a> and <a href="http://twitter.github.com/bootstrap/index.html">Bootstrap.js</a> in creating the test harness. In this article, we focus on <a href="http://json-ld.org/">JSON-LD</a>, a Linked Data technology that complements <a href="http://rdfa.info/">RDFa</a> is creating modern Web applications.</p>
+
+<h2 id="test-manifest">Test Manifest</h2>
+
+<p>The RDFa <a href="http://rdfa.info/test-suite/manifest.ttl">test manifest</a> is a <a href="http://www.w3.org/TR/turtle/">Turtle</a> document used to specify the tests that apply to different versions and host languages in <a href="http://rdfa.info/">RDFa</a>. <a href="http://www.w3.org/TR/turtle/">Turtle</a> is a great language for representing information in a reasonably human-understandable way. Most people authoring RDF by hand stick to Turtle, because of It’s ease of use and concise way of expressing Linked Data graphs. For example, to specify a specific test entry, we could write some Turtle as follows:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;test-cases/0001&gt; a test:TestCase;
+   dc:title "Predicate establishment with @property";
+   rdfatest:rdfaVersion "rdfa1.0", "rdfa1.1";
+   rdfatest:hostLanguage "xml", "xhtml1", "html4", "html5", "xhtml5";
+   test:classification test:required;
+   test:informationResourceInput &lt;test-cases/0001.html&gt;;
+   test:informationResourceResults &lt;test-cases/0001.sparql&gt; .
+</code></pre></div></div>
+
+<p>Basically, this defines a (relative) URL identifying the test case, gives it a title, describes the relevant RDFa versions and host languages, says It’s required, and shows the files used to provide input and to test the results. The problem is, this is not a convenient form to use programatically. Modern Web applications make use of JSON for representing data, for one reason because JSON can be represented natively in JavaScript, but also because it has a convenient representation in Ruby and other languages.</p>
+
+<p>let’s look at the equivalent test representation in <a href="http://json-ld.org/">JSON-LD</a>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@context": "http://rdfa.info/contexts/rdfa-test.jsonld",
+  "@graph": [
+    {
+      "@id": "http://rdfa.info/test-suite/test-cases/0001",
+      "@type": "test:TestCase",
+      "num": "0001",
+      "classification": "test:required",
+      "description": "Predicate establishment with @property",
+      "input": "http://rdfa.info/test-suite/test-cases/0001.html",
+      "results": "http://rdfa.info/test-suite/test-cases/0001.sparql",
+      "expectedResults": true,
+      "hostLanguages": ["html4","html5","xhtml1","xhtml5","xml"],
+      "versions": ["rdfa1.0","rdfa1.1"]
+    }
+  ]
+}
+</code></pre></div></div>
+
+<p>Other than the encapsulating elements, this looks pretty similar to the Turtle representation. There are a couple of differences though: instead of <code class="language-plaintext highlighter-rouge">dc:title</code>, we use the term <code class="language-plaintext highlighter-rouge">description</code>, instead of <code class="language-plaintext highlighter-rouge">rdfatest:hostLanguage</code>, we use <code class="language-plaintext highlighter-rouge">hostLanguages</code>. How are these related? The key is looking at the <code class="language-plaintext highlighter-rouge">@context</code> value. Looking at <a href="http://rdfa.info/contexts/rdfa-test.jsonld">http://rdfa.info/contexts/rdfa-test.jsonld</a>, we see the following:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@context": {
+    "dc":         "http://purl.org/dc/terms/",
+    "xsd":        "http://www.w3.org/2001/XMLSchema#",
+    "rdfatest":   "http://rdfa.info/vocabs/rdfa-test#",
+    "test":       "http://www.w3.org/2006/03/test-description#",
+
+    "classification": {"@id": "test:classification"},
+    "contributor":    {"@id": "dc:contributor"},
+    "description":    {"@id": "dc:title"},
+    "expectedResults":{"@id": "test:expectedResults",
+                       "@type": "xsd:boolean"},
+    "hostLanguages":  {"@id": "rdfatest:hostLanguage",
+                       "@container": "@set"},
+    "input":          {"@id": "test:informationResourceInput",
+                       "@type": "@id"},
+    "num":            {"@id": "rdfatest:num"},
+    "purpose":        {"@id": "test:purpose"},
+    "versions":       {"@id": "rdfatest:rdfaVersion",
+                       "@container": "@set"},
+    "reference":      {"@id": "test:specificationReference"},
+    "results":        {"@id": "test:informationResourceResults",
+                       "@type": "@id"}
+  }
+}
+</code></pre></div></div>
+
+<p>The context does exactly that: it provides a context for interpreting JSON data. Note the definition of <code class="language-plaintext highlighter-rouge">hostLanguages</code>: this indicates that <code class="language-plaintext highlighter-rouge">hostLanguages</code> is a <em>term</em> definition, meaning that the term is replaced with the <code class="language-plaintext highlighter-rouge">@id</code> value, in this case <code class="language-plaintext highlighter-rouge">rdfatest:hostLanguage</code>, the same as used in Turtle. Both of these expand to an equivalent IRI <a href="http://rdfa.info/vocabs/rdfa-test#hostLanguage">http://rdfa.info/vocabs/rdfa-test#hostLanguage</a>. In RDF, and in Linked Data in general, everything is described as a resource, either an IRI, a Literal or a Blank Node (basically a variable representing something we don’t know or don’t want to identify). The <code class="language-plaintext highlighter-rouge">"@container": "@set"</code> bit just says to expect that the value of <code class="language-plaintext highlighter-rouge">hostLanguages</code> will always be an array, to make processing more convenient.</p>
+
+<p>Because we use <em>terms</em> in JSON Object <em>key</em> positions, this means that access from JavaScript can be quite convenient. Taking a look at the test suite Test model description, we can download the Manifest with an Ajax request and access elements using ‘.’ notation, such as the following:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var filteredTests = _.filter(this.loadedData, function(data) {
+  return _.include(data.versions, version) &amp;&amp;
+         _.include(data.hostLanguages, hostLanguage);
+});
+</code></pre></div></div>
+
+<p>Another advantage in using JSON is that the parse time is negligible. The manifest has about 3000 triples, which can actually take a while to parse as Turtle, but opening and parsing the JSON document is substantially faster.</p>
+
+<p>As with many modern Web applications, the <a href="http://rdfa.info/test-suite/">RDFa Test Suite</a> is a single-page application that uses Ajax calls to communicate with the server. The first call is to retrieve the <a href="http://rdfa.info/test-suite/manifest.jsonld">JSON manifest</a>. Subsequent calls retrieve test results, also expressed as JSON. The manifest is used to populate a <a href="http://backbonejs.org/">Backbone.js</a> <em>Collection</em>. When a specific <em>version</em> and <em>hostLanguage</em> is selected, this collection is filtered to show only relevant tests, as is described in the previous example. The <em>Collection</em> then drives a view element, which instantiates a view for each model to be tested.</p>
+
+<h2 id="collating-test-results">Collating Test Results</h2>
+
+<p>The second area where <a href="http://json-ld.org/">JSON-LD</a> is used within the <a href="http://rdfa.info/test-suite/">RDFa Test Suite</a> is for collating test results. After running a series of tests, a test user can generate <a href="http://www.w3.org/TR/EARL10-Schema/">EARL</a> test results. Being an RDFa test suite, this report is naturally expressed in <a href="http://rdfa.info/">RDFa</a>. Here the <a href="http://backbonejs.org/">Backbone.js</a> view technology comes in to play, since it is easy to use an HTML template to generate individual results, with the RDFa markup backed into the template.</p>
+
+<p>The basic EARL template looks like the following:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;script id='earl-item-template' type='text/template'&gt;
+  &lt;h4&gt;
+    [
+     &lt;span property='rdfatest:rdfaVersion'&gt;&lt;%= version %&gt;&lt;/span&gt;
+     &lt;span property='rdfatest:hostLanguage'&gt;&lt;%= hostLanguage %&gt;&lt;/span&gt;
+    ]
+    Test &lt;%= num %&gt;:
+    &lt;span property='dc:title'&gt;&lt;%= description %&gt;&lt;/span&gt;
+    &lt;span property='earl:mode' resource='earl:automatic' /&gt;
+  &lt;/h4&gt;
+  &lt;p property='dc:description'&gt;&lt;%= purpose %&gt;&lt;/p&gt;
+  &lt;div class='property processorURL resource detailsURL'
+       typeof='earl:Assertion'&gt;
+    &lt;span property='earl:assertedBy' resource='' /&gt;
+    &lt;span class='resource processorURL' property='earl:subject' /&gt;
+    &lt;span class='resource docURL' rel='earl:test' /&gt;
+    &lt;p property='earl:result' typeof='earl:TestResult'&gt;
+      Result:
+      &lt;strong class='resource outcome'
+              property='earl:outcome'
+              resource=''&gt;&lt;%= result %&gt;&lt;/strong&gt;
+    &lt;/p&gt;
+  &lt;/div&gt;
+&lt;/script&gt;
+</code></pre></div></div>
+
+<p>The <em>Earl view</em> uses this template to generate a report for an individual test entry and fills in attribute or content values from within the view:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var EarlItemView = Backbone.View.extend({
+  template: _.template($('#earl-item-template').html()),
+
+  render: function () {
+    var JSON = this.model.toJSON();
+    JSON.processorURL = this.options.processorURL;
+
+    this.$el.html(this.template(JSON));
+    this.$el.attr("resource", this.model.docURL());
+    this.$(".property.processorURL")
+      .attr("property",JSON.processorURL);
+    this.$(".resource.processorURL")
+      .attr("resource", JSON.processorURL);
+    this.$(".resource.detailsURL")
+      .attr("resource", this.model.detailsURL());
+    this.$(".resource.docURL")
+      .attr("resource", this.model.docURL());
+    this.$(".resource.outcome")
+      .attr("resource", 'earl:' +
+                        this.model.get('result').toLowerCase());
+    return this;
+  }
+});
+</code></pre></div></div>
+
+<p>The result is a test result for a specific processor with a specific RDFa version and host-language. You can see an example report <a href="http://rdfa.info/earl-reports/rdf.rb-rdfa1.1-html5.html">here</a>.</p>
+
+<p>However, this is not the end of it; to exit the W3C Candidate Recommendation phase, It’s necessary to have at least two interoperable implementations. What is needed, then, is a collated report that combines the output from several different processors into a single report. Because each individual report is an information resource representing a specific RDF graph, we can parse all of these documents into a single graph. But, to generate an HTML result, it would be convienent to have all the data available in a format convenient to use with Ruby <a href="http://haml-lang.com/">Haml</a>.</p>
+
+<p>This is where <a href="http://json-ld.org/">JSON-LD</a> use in languages like Ruby come to play. Ruby has great libraries for working with JSON, which basically transforms the JSON to a combination of Ruby native Hash, Array, String, Number and Boolean values. A <a href="http://json-ld.org/">JSON-LD</a> representation a test assertion entry looks like the following:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@id": "http://rdfa.info/test-suite/test-details/rdfa1.1/...",
+  "@type": "earl:Assertion",
+  "assertedBy": "http://rdfa.info/test-suite/",
+  "test": "http://rdfa.info/test-suite/test-cases/rdfa1.1/html5/0001.html",
+  "subject": "http://rubygems.org/gems/rdf-rdfa",
+  "result": {
+    "@type": "earl:TestResult",
+    "outcome": "earl:pass"
+  }
+}
+</code></pre></div></div>
+
+<p>Transforming this to Ruby gives essentially the exact same representation, so we can iterate over this using Ruby <a href="http://haml-lang.com/">Haml</a>. The natural thing to do is see how we can represent EARL test results through a hierarchical test structure.</p>
+
+<p>As it happens, the EARL representation is not actually ideal. Each assertion is listed with a subject that indicates the specifics of the processor, test, version and host language. It indicates that it is asserted by the test suite, the test being run, the processor being tested, and the result of this test. However, I’d like to show the results in a tabular form, with the test suite at the top, followed by sections for each version and host language, and a table with a row for each generic test and a column for each processor. A typical result looks like the following:</p>
+
+<table class="report" style="background-color: #EEE;">
+  <tr>
+    <th>
+      Test
+    </th>
+    
+    <th>
+      <a href="https://github.com/niklasl/clj-rdfa">clj-rdfa</a>
+    </th>
+    
+    <th>
+      <a href="https://github.com/rdfa/librdfa">librdfa</a>
+    </th>
+    
+    <th>
+      <a href="http://www.w3.org/2012/pyRdfa">pyRdfa</a>
+    </th>
+    
+    <th>
+      <a href="http://rubygems.org/gems/rdf-rdfa">RDF::RDFa</a>
+    </th>
+  </tr>
+  
+  <tr resource="http://rdfa.info/test-suite/test-cases/rdfa1.1/xhtml1/0001.xhtml" typeof="earl:TestCase">
+    <td>
+      <a href="#test_0001" property="rdfatest:num">0001</a><br /> <span property="dc:title">Predicate establishment with @property</span> 
+      
+      <link href="earl:automatic" property="earl:mode" />
+    </td>
+    
+    <td class="PASS" rel="http://rdfa.info/test-suite/test-details/rdfa1.1/xhtml1/0001?rdfa-extractor=http%3A//clj-rdfa.herokuapp.com/extract.ttl%3Furl%3D" typeof="earl:Assertion">
+      <link href="http://rdfa.info/test-suite/" property="earl:assertedBy" />
+      
+      <link href="http://rdfa.info/test-suite/test-cases/rdfa1.1/xhtml1/0001.xhtml" property="earl:test" />
+      
+      <link href="https://github.com/niklasl/clj-rdfa" property="earl:subject" />
+      
+      <span property="earl:result" resource="earl:pass" typeof="earl:TestResult" style="color: green"><br /> PASS<br /> </span>
+    </td>
+    
+    <td class="PASS" rel="http://rdfa.info/test-suite/test-details/rdfa1.1/xhtml1/0001?rdfa-extractor=http%3A//rdfa.digitalbazaar.com/librdfa/rdfa2rdf.py%3Furi%3D" typeof="earl:Assertion">
+      <link href="http://rdfa.info/test-suite/" property="earl:assertedBy" />
+      
+      <link href="http://rdfa.info/test-suite/test-cases/rdfa1.1/xhtml1/0001.xhtml" property="earl:test" />
+      
+      <link href="https://github.com/rdfa/librdfa" property="earl:subject" />
+      
+      <span property="earl:result" resource="earl:pass" typeof="earl:TestResult" style="color: green"><br /> PASS<br /> </span>
+    </td>
+    
+    <td class="PASS" rel="http://rdfa.info/test-suite/test-details/rdfa1.1/xhtml1/0001?rdfa-extractor=http%3A//www.w3.org/2012/pyRdfa/extract%3Furi%3D" typeof="earl:Assertion">
+      <link href="http://rdfa.info/test-suite/" property="earl:assertedBy" />
+      
+      <link href="http://rdfa.info/test-suite/test-cases/rdfa1.1/xhtml1/0001.xhtml" property="earl:test" />
+      
+      <link href="http://www.w3.org/2012/pyRdfa" property="earl:subject" />
+      
+      <span property="earl:result" resource="earl:pass" typeof="earl:TestResult" style="color: green"><br /> PASS<br /> </span>
+    </td>
+    
+    <td class="PASS" rel="http://rdfa.info/test-suite/test-details/rdfa1.1/xhtml1/0001?rdfa-extractor=http%3A//rdf.greggkellogg.net/distiller%3Fraw%3Dtrue%26in_fmt%3Drdfa%26uri%3D" typeof="earl:Assertion">
+      <link href="http://rdfa.info/test-suite/" property="earl:assertedBy" />
+      
+      <link href="http://rdfa.info/test-suite/test-cases/rdfa1.1/xhtml1/0001.xhtml" property="earl:test" />
+      
+      <link href="http://rubygems.org/gems/rdf-rdfa" property="earl:subject" />
+      
+      <span property="earl:result" resource="earl:pass" typeof="earl:TestResult" style="color: green"><br /> PASS<br /> </span>
+    </td>
+  </tr>
+</table>
+
+<p>To take advantage of <a href="http://json-ld.org/">JSON-LD</a> chaining, we really want a data structure that we can easily iterate on. By adding some extra markup to the report, we can do this using <a href="http://json-ld.org/">JSON-LD</a> <em>Framing</em>, basically a query language for <a href="http://json-ld.org/">JSON-LD</a> that allows us to change the data into a format we want to use. The frame document allows us to specify how we’d like our output. An abbreviated example is the following:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@context": "http://rdfa.info/contexts/rdfa-earl.jsonld",
+  "@type": "earl:Software",
+  "rdfa1.1": {
+    "@type": "rdfatest:Version",
+    "html5": [{"@type": "earl:TestCase"}]
+  }
+}
+</code></pre></div></div>
+
+<p>This says show items of type <code class="language-plaintext highlighter-rouge">earl:Software</code> with a property (associated with the version), referencing an object of type <code class="language-plaintext highlighter-rouge">rdfa:Version</code>, which has a property for each host language, which references a list of <code class="language-plaintext highlighter-rouge">earl:TestCase</code> items. This gives us a <a href="http://json-ld.org/">JSON-LD</a> snippet such as the following:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "@context": "http://rdfa.info/contexts/rdfa-earl.jsonld",
+  "@id": "http://rdfa.info/test-suite/",
+  "@type": [
+    "earl:Software",
+    "doap:Project"
+  ],
+  "homepage": "http://rdfa.info/",
+  "name": "RDFa Test Suite",
+  "rdfa1.1": {
+    "@type": "rdfatest:Version",
+    "html5": [
+      {
+        "@id": "http://rdfa.info/test-suite/test-cases/rdfa1.1/html5/0001.html",
+        "@type": "earl:TestCase",
+        "num": "0001",
+        "title": "Predicate establishment with @property",
+        "description": "Tests @property ...",
+        "mode": "earl:automatic",
+        "http://rubygems.org/gems/rdf-rdfa": {
+          "@id": "http://rdfa.info/test-suite/...",
+          "@type": "earl:Assertion",
+          "assertedBy": "http://rdfa.info/test-suite/",
+          "test": "http://rdfa.info/test-suite/test-cases/rdfa1.1/html5/0001.html",
+          "subject": "http://rubygems.org/gems/rdf-rdfa",
+          "result": {
+            "@type": "earl:TestResult",
+            "outcome": "earl:pass"
+          }
+        },
+        "http://www.w3.org/2012/pyRdfa": { "@type": "earl:Software", ... },
+        "https://github.com/niklasl/clj-rdfa": { "@type": "earl:Software", ... },
+        "https://github.com/rdfa/librdfa": { "@type": "earl:Software", ... },
+        "https://github.com/rdfa/librdfa": { "@type": "earl:Software", ... },
+        "http://rubygems.org/gems/rdf-rdfa": { "@type": "earl:Software", ... }
+      }
+    ]
+  }
+}
+</code></pre></div></div>
+
+<p>We’ve basically wrapped each individual test case in a structure that inverts the information contained within the test case. Now we can use this within a <a href="http://haml-lang.com/">Haml</a> template to create the HTML we’re interested in.</p>
+
+<p>To see the complete <a href="http://www.w3.org/TR/EARL10-Schema/">EARL</a> report, look <a href="http://rdfa.info/earl-reports/">here</a>.</p>
+
+<h2 id="conclusions">Conclusions</h2>
+
+<p><a href="http://json-ld.org/">JSON-LD</a> is the right technology for dealing with RDF and Linked Data in Web applications. It has a convenient representation for working from within various programming languages, such as JavaScript and Ruby. It’s use in implementing that <a href="http://rdfa.info/test-suite/">RDFa Test Suite</a> proves It’s worth as a complementary technology for working with Linked Data on the Web along with <a href="http://rdfa.info/">RDFa</a>.</p>
+
+<p>Next up, <a href="https://greggkellogg.net/2012/03/30/browserid-vs-ddos">we talk about the Distributed Denial of Service attack against the test suite</a> and how we solved this very easily and quickly using <a href="https://browserid.org/">BrowserID</a>.</p>
+
+</div>
+<div class="post-footer">
+  <!-- Feel free to remove this div. Uses purplecoat: http://ellekasai.github.io/purplecoat.js -->
+<div data-purplecoat="shiori" data-purplecoat-label="post-footer.html">
+  <p>
+    Posted in
+    
+      <a href="/categories/javascript">JavaScript</a>
+    
+      <a href="/categories/ruby">Ruby</a>
+    
+      <a href="/categories/semantic-web">Semantic Web</a>
+    
+  </p>
+  <div id="disqus_thread"></div>
+  <script id="dsq-count-scr" src="//greggkellogg-1.disqus.com/count.js" async></script>
+  <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <span class="text-muted"> &middot; </span>
+            <a href="/archive">View Archive (67)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2012/03/a-new-rdfa-test-harness/">A new RDFa Test Harness</a></h2>
+          <p><span itemprop="name" style="display:none">A new RDFa Test Harness</span></p>
+
+<p><span itemprop="description">Implementing the RDFa Test Suite as a modern Web application using Sinatra, Backbone.js and Bootstrap.js.</span></p>
+
+        </div>
+      
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Newer
+            
+          </h3>
+          <h2 class="post-title-link"><a href="/2012/03/browserid-versus-ddos/">BrowserID versus DDOS</a></h2>
+          <p><span itemprop="name" style="display:none"><a href="https://browserid.org/">BrowserID</a> vs DDOS</span></p>
+
+<p><span itemprop="description" style="display:none">How <a href="https://browserid.org/">BrowserID</a> saved the <a href="http://rdfa.info/test-suite/">RDFa Test Suite</a> from a DDOS (Distributed Denial of Service Attack).</span></p>
+
+        </div>
+      
+    </div>
+  
+
+
+          </div>
+          <div class="col-sm-4">
+            <!-- Feel free to remove this div. Uses purplecoat: http://ellekasai.github.io/purplecoat.js -->
+<div data-purplecoat="shiori" data-purplecoat-label="sidebar.html">
+  <h3 class="section-header">
+    Recent Posts
+  </h3>
+  <ul>
+  
+    <li class="post-title-reference">
+      <a href="/2022/06/Roatan/" class="post-title-archive">Roatan June 2022</a>
+    </li>
+  
+    <li class="post-title-reference">
+      <a href="/2021/06/Roatan/" class="post-title-archive">Roatan June 2021</a>
+    </li>
+  
+    <li class="post-title-reference">
+      <a href="/2019/08/channel-islands-august-2019/" class="post-title-archive">Channel Islands August 2019</a>
+    </li>
+  
+    <li class="post-title-reference">
+      <a href="/2019/06/saint-lucia-june-2019/" class="post-title-archive">Saint Lucia June 2019</a>
+    </li>
+  
+    <li class="post-title-reference">
+      <a href="/2015/08/csv-on-the-web-presentation/" class="post-title-archive">CSV on the Web presentation</a>
+    </li>
+  
+  </ul>
+</div>
+
+<div data-purplecoat="shiori" data-purplecoat-label="sidebar.html">
+  <h3 class="section-header">
+    Categories
+  </h3>
+  <ul>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/design" class="post-title-archive">Design</a>
+    </li>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/diving" class="post-title-archive">Diving</a>
+    </li>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/photography" class="post-title-archive">Photography</a>
+    </li>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/ruby" class="post-title-archive">Ruby</a>
+    </li>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/semantic-web" class="post-title-archive">Semantic Web</a>
+    </li>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/media" class="post-title-archive">Media</a>
+    </li>
+  
+    
+    <li class="post-title-reference">
+      <a href="/categories/javascript" class="post-title-archive">JavaScript</a>
+    </li>
+  
+  </ul>
+</div>
+
+<div data-purplecoat="shiori" data-purplecoat-label="sidebar.html">
+  <h3 class="section-header">
+    Archives
+  </h3>
+  
+  <ul>
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2022/06" class="post-title-archive">June 2022</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2021/06" class="post-title-archive">June 2021</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2019/06" class="post-title-archive">June 2019</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2015/08" class="post-title-archive">August 2015</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2015/04" class="post-title-archive">April 2015</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2013/12" class="post-title-archive">December 2013</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2013/09" class="post-title-archive">September 2013</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2013/05" class="post-title-archive">May 2013</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2013/01" class="post-title-archive">January 2013</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2012/08" class="post-title-archive">August 2012</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2012/06" class="post-title-archive">June 2012</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2012/03" class="post-title-archive">March 2012</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2012/02" class="post-title-archive">February 2012</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2012/01" class="post-title-archive">January 2012</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/12" class="post-title-archive">December 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/10" class="post-title-archive">October 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/09" class="post-title-archive">September 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/08" class="post-title-archive">August 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/06" class="post-title-archive">June 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/05" class="post-title-archive">May 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2011/03" class="post-title-archive">March 2011</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/12" class="post-title-archive">December 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/09" class="post-title-archive">September 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/07" class="post-title-archive">July 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/05" class="post-title-archive">May 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/04" class="post-title-archive">April 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/02" class="post-title-archive">February 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2010/01" class="post-title-archive">January 2010</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2009/10" class="post-title-archive">October 2009</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2009/09" class="post-title-archive">September 2009</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2009/08" class="post-title-archive">August 2009</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2009/01" class="post-title-archive">January 2009</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2008/10" class="post-title-archive">October 2008</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2008/09" class="post-title-archive">September 2008</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2008/07" class="post-title-archive">July 2008</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2008/05" class="post-title-archive">May 2008</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2007/10" class="post-title-archive">October 2007</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2007/07" class="post-title-archive">July 2007</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2007/06" class="post-title-archive">June 2007</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2007/05" class="post-title-archive">May 2007</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2007/01" class="post-title-archive">January 2007</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2006/11" class="post-title-archive">November 2006</a>
+      </li>
+    
+  
+    
+      
+      <li class="post-title-reference">
+        <a href="/2006/10" class="post-title-archive">October 2006</a>
+      </li>
+    
+  
+  </ul>
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <!-- Feel free to remove this div. Uses purplecoat: http://ellekasai.github.io/purplecoat.js -->
+<footer class="site-footer" data-purplecoat="shiori" data-purplecoat-label="footer.html">
+  <div class="footer-col-wrapper">
+    <div class="footer-col footer-col-1">
+      <ul class="contact-list">
+        <li>
+          
+            Gregg Kellogg
+          
+          </li>
+          
+          <li><a href="mailto:gregg@greggkellogg.net">gregg@greggkellogg.net</a></li>
+          
+      </ul>
+    </div>
+
+    <div class="footer-col footer-col-2">
+      
+      <ul id="social-media" class="social-media-list">
+        
+        
+          
+          
+            <li><a rel="me" href="https://www.twitter.com/gkellogg" title="Twitter">
+              
+                <i class="fa fa-twitter-square"></i>
+              
+              gkellogg
+            </a></li>
+          
+        
+          
+          
+            <li><a rel="me" href="https://github.com/gkellogg" title="GitHub">
+              
+                <i class="fa fa-github-square"></i>
+              
+              gkellogg
+            </a></li>
+          
+        
+          
+          
+            <li><a rel="me" href="https://mastodon.social/@gkellogg" title="Mastodon">
+              
+              <!-- Needs newer version of fontawesome -->
+                M
+              
+              gkellogg
+            </a></li>
+          
+        
+      </ul>
+      
+    </div>
+
+    <div class="footer-col footer-col-3">
+      <ul class="contact-list">
+        <li>Gregg&#39;s Personal Blog</li>
+        <li>
+          &copy;2022.
+          Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+          <a href="https://github.com/ellekasai/shiori">Shiori Theme</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>
+      </div>
+    </div>
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="/javascripts/purplecoat-min.js"></script>
+    <!-- Place your <script> tags here. -->
+
+<!-- Example: Twitter -->
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+  </body>
+</html>
