@@ -10,7 +10,3 @@ Gregg Kellogg, Principal
 email: [gregg@greggkellogg.net](mailto: gregg@greggkellogg.net "gregg@greggkellogg.net")
   
 phone: (415) 686-8603
-
-Github Technical Information:
-* Ruby Version: {{ site.github.versions.ruby }}
-* Build Revision: {{ site.github.build_revision }}
