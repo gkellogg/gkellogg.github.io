@@ -1,17 +1,23 @@
-twitter:
-  id: 'gkellogg'
-  href: 'https://www.twitter.com/'
-  title: 'Twitter'
-  fa-icon: 'fa-twitter-square'
-
 github:
-  id: 'gkellogg'
+  id: gkellogg
   href: 'https://github.com/'
-  title: 'GitHub'
-  fa-icon: 'fa-github-square'
+  title: GitHub
+  fa-icon: fa-github-square
 
 mastodon:
-  id: 'gkellogg'
+  id: gkellogg
   href: 'https://mastodon.social/@'
-  title: 'Mastodon'
-  fa-icon: 'fa-mastodon-square'
+  title: Mastodon
+  fa-icon: fa-mastodon-square
+
+facebook:
+  id: gkellogg
+  href: https://www.facebook.com/
+  title: Facebook
+  fa-icon: fa-facebook-square
+
+instagram:
+  id: greggkellogg
+  href: https://www.instagram.com/
+  title: Instagram
+  fa-icon: fa-instagram
